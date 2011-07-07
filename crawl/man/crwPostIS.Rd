@@ -1,0 +1,86 @@
+\name{crwPostIS}
+
+\alias{crwPostIS}
+
+% -------------------------------------------------------------------------
+
+\title{
+   Simulate a value from the posterior distribution of a CTCRW model
+}
+
+
+\description{
+
+  The crwPostIS draws a set of states from the posterior distribution of a fitted
+  CTCRW model. The draw is either conditioned on the fitted parameter values or
+  "full" posterior draw with approximated parameter posterior
+
+}
+
+
+\usage{
+crwPostIS(object.sim, fullPost=TRUE, df=Inf, scale=1, thetaSamp=NULL)
+
+}
+
+
+\arguments{
+  \item{object.sim}{A crwSimulator object from \code{\link{crwSimulator}}.}
+
+  \item{fullPost}{logical. Draw parameter values as well to simulate full posterior}
+  
+  \item{df}{degrees of freedom for multivariate t distribution approximation to parameter posterior}
+  
+  \item{scale}{Extra scaling factor for t distribution approximation}
+  
+  \item{thetaSamp}{If multiple parameter samples are available in object.sim, setting 
+                   \code{thetaSamp=n} will use the nth sample. Defaults to the last.}
+
+}
+
+
+\value{
+
+  List with the following elements:
+
+  \item{alpha.sim.y}{A matrix a simulated latitude state values}
+
+  \item{alpha.sim.x}{Matrix of simulated longitude state values}
+
+  \item{locType}{Indicates prediction types with a "p" or observation times with
+                 an "o"}
+  \item{Time}{Initial state covariance for latitude}
+  
+  \item{loglik}{log likelihood of simulated parameter}
+  
+  \item{par}{Simulated parameter value}
+  
+  \item{log.isw}{non normalized log importance sampling weight}
+  
+
+}
+
+
+\details{
+
+  The crwPostIS draws a posterior sample of the track state matrices. If fullPost
+  was set to TRUE when the object.sim was build in \link{crwSimulator} then a psuedo-posterior
+  draw will be made by first sampling a parameter value from a multivariate t distribution
+  which approximates the marginal posterior distribution of the parameters. The covariance
+  matrix from the fitted model object is used to scale the MVt approximation. In addition,
+  the factor "scale" can be used to further adjust the approximation. Further, the parameter simulations
+  are centered on the fitted values. 
+
+  To correct for the MVt
+  approximation, the importance sampling weight is also supplied. When calulating
+  averages of track functions for Bayes estimates one should use the importance sampling weights
+  to calculate a weighted average (normalizing first, so the weights sum to 1).
+
+}
+
+
+\seealso{ See \code{\link{northernFurSeal}} for example. }
+
+% -------------------------------------------------------------------------
+
+\author{Devin S. Johnson}

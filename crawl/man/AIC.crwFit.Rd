@@ -1,0 +1,49 @@
+\name{AIC.crwFit}
+
+\alias{AIC.crwFit}
+
+% -------------------------------------------------------------------------
+
+\title{Calculates AIC for all objects of class crwFit listed as arguments}
+
+
+\description{
+  AIC, delta AIC, and Akaike weights for all models listed as arguments.
+}
+
+
+\usage{
+
+\method{AIC}{crwFit}(\dots)
+
+}
+
+
+\arguments{
+  \item{\dots}{a series of crwFit objects}
+}
+
+
+\value{
+  A table, sorted from lowest AIC value to highest.
+}
+
+
+\details{
+
+  The function can either be executed with a series of 'crwFit' objects
+  (see \code{\link{crwMLE}}) without the '.crwFit' suffix or the
+  function can be called without any arguments and it will search out
+  all 'crwFit' objects in the current workspace and produce the model
+  selection table for all 'crwFit' objects in the workspace. Caution
+  should be used when executing the function in this way. ALL 'crwFit'
+  objects will be included whether ot not the same locations are used!
+  For all of the models listed as arguments (or in the workspace), AIC,
+  delta AIC, and Akaike weights will be calculated.
+
+}
+
+
+% -------------------------------------------------------------------------
+
+\author{Devin S. Johnson}
