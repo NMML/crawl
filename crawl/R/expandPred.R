@@ -1,3 +1,29 @@
+#' Expand a time indexed data set with additional prediction times
+#' 
+
+#' 
+#' Expands a covariate data frame (or vector) that has a separate time index by
+#' inserting prediction times and duplicating the covariate values for all
+#' prediction time between subsequent data times.
+#' 
+#' 
+#' @param x Data to be expanded.
+#' @param Time Either a character naming the column which contains original
+#' time values, or a numeric vector of original times
+#' @param predTime prediction times to expand data
+#' @param time.col Logical value indicating whether to attach the new times to
+#' the expanded data
+#' @return data.frame expanded by \code{predTime}
+#' @author Devin S. Johnson
+#' @examples
+#' 
+#' #library(crawl)
+#' origTime <- c(1:10)
+#' x <- cbind(rnorm(10), c(21:30))
+#' predTime <- seq(1,10, by=0.25)
+#' expandPred(x, Time=origTime, predTime, time.col=TRUE)
+#' 
+#' 
 "expandPred" <- function(x, Time='Time', predTime, time.col=FALSE)
 {
    if(is.character(Time)) {

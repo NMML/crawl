@@ -1,3 +1,25 @@
+#' calculate estimate of log speed from a crwPredict object
+#' 
+
+#' 
+#' Calculates log speed estimates and standard errors based on the delta
+#' method. Typically this is used within the function \code{\link{crwPredict}}.
+#' 
+#' 
+#' @param predx matrix of longitude state estimates.
+#' @param predy matrix of latitude state estimates.
+#' @param varx an array of covariance matrices for predx.
+#' @param vary ana array of covariance matrices for predy.
+#' @param polar.coord Logical. TRUE if coordinates are polar.
+#' @return
+#' 
+#' data.frame with colums:
+#' 
+#' \item{ln.speed}{log speed estimate (in meters/time unit if
+#' \code{polar.coord=TRUE}.}
+#' 
+#' \item{var.ln.speed}{log speed estimated standard error.}
+#' @author Devin S. Johnson
 "logSpeed" <- function(predx, predy, varx, vary, polar.coord)
 {
     rd <- ncol(predx) == 3

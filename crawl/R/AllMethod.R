@@ -1,3 +1,21 @@
+#' Calculates AIC for all objects of class crwFit listed as arguments
+#' 
+#' AIC, delta AIC, and Akaike weights for all models listed as arguments.
+#' 
+
+#' 
+#' The function can either be executed with a series of 'crwFit' objects (see
+#' \code{\link{crwMLE}}) without the '.crwFit' suffix or the function can be
+#' called without any arguments and it will search out all 'crwFit' objects in
+#' the current workspace and produce the model selection table for all 'crwFit'
+#' objects in the workspace. Caution should be used when executing the function
+#' in this way. ALL 'crwFit' objects will be included whether ot not the same
+#' locations are used!  For all of the models listed as arguments (or in the
+#' workspace), AIC, delta AIC, and Akaike weights will be calculated.
+#' 
+#' @param \dots a series of crwFit objects
+#' @return A table, sorted from lowest AIC value to highest.
+#' @author Devin S. Johnson
 "AIC.crwFit" <- function(...)
 {
   lnms <- NULL
@@ -33,6 +51,19 @@
 }
 
 
+
+
+#' 'Flattening' a list-form crwPredict object into a data.frame
+#' 
+#' \dQuote{Flattens} a list form \code{\link{crwPredict}} object into a flat
+#' data.frame.
+#' 
+#' 
+#' @param predObj A crwPredict object
+#' @return a \code{\link{data.frame}} version of a crwPredict list with columns
+#' for the state standard errors
+#' @author Devin S. Johnson
+#' @seealso \code{\link{northernFurSeal}} for use example
 "as.flat" <- function(predObj)
 {
     se.y <- sqrt(t(apply(predObj$V.hat.y, 3, diag)))

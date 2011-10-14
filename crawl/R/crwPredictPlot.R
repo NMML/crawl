@@ -1,3 +1,18 @@
+#' Plot CRW predicted object
+#' 
+
+#' 
+#' Creates 2 types of plots of a crwPredict object: a plot of both coordinate
+#' axes with prediction intervals and a plot of just observed locations and
+#' predicted locations.
+#' 
+#' 
+#' @param object \code{crwPredict} object.
+#' @param plotType type of plot has to be one of the following: \dQuote{map} or
+#' \dQuote{ll} (default).
+#' @return A plot.
+#' @author Devin S. Johnson and Sebastian Luque
+#' @seealso See \code{\link{northernFurSeal}} for additional examples.
 "crwPredictPlot" <- function(object, plotType="ll")
 {
     y.c <- attr(object, "coord")['y']

@@ -1,3 +1,46 @@
+#' -2 * log-likelihood for CTCRW models
+#' 
+#' This function is designed for primary use within the \code{\link{crwMLE}}
+#' model fitting function. But, it can be accessed for advanced \code{R} and
+#' \code{crawl} users. Uses the state-space parameterization and Kalman filter
+#' method presented in Johnson et al. (2008).
+#' 
+
+#' 
+#' This function calls compiled Fortran code which can be viewed in the
+#' \code{src} directory of the crawl library.
+#' 
+#' @param theta parameter values.
+#' @param fixPar values of parameters held fixed (contains \code{NA} for
+#' \code{theta} values).
+#' @param y latitude locations.
+#' @param x longitude loations.
+#' @param loctype vector with 1 or observed location, else 0.
+#' @param delta time difference to next location.
+#' @param a1.y initial state value for latitude.
+#' @param a1.x initial state value for longitude.
+#' @param P1.x intial state covariance matrix for latitude.
+#' @param P1.y inital state covariance matrix for longitude.
+#' @param lonAdj = 1/cos(y*pi/180) as described in Johnson et al. (2008) for
+#' polar coords. = 1 for non-polar coords.
+#' @param mov.mf Movement covariate data.
+#' @param err.mfX longitude error covariate data.
+#' @param err.mfY latitude error covariate data.
+#' @param stop.mf stopping covariate.
+#' @param n.errX number or longitude error parameters.
+#' @param n.errY number of latitude error parameters.
+#' @param n.mov number or movement parameters.
+#' @param stopMod Logical. indicates wheteher a stop model is specified.
+#' @param driftMod Logical. inicates whether a drift model is specified.
+#' @param prior Function of theta that returns the log-density of the prior
+#' @param need.hess Whether or not the Hessian will need to be calculated from
+#' this call
+#' @param constr Named list giving the parameter constraints
+#' @return -2 * log-likelihood value for specified CTCRW model.
+#' @author Devin S. Johnson
+#' @seealso \code{\link{crwMLE}}
+#' @references Johnson, D., J. London, M. -A. Lea, and J. Durban. 2008.
+#' Continuous-time model for animal telemetry data. Ecology 89:1208-1215.
 "crwN2ll" <- function(theta, fixPar, y, x, loctype, delta, a1.y, a1.x,
                       P1.x, P1.y, lonAdj, mov.mf, err.mfX, err.mfY, stop.mf,
                       n.errX, n.errY, n.mov, stopMod, driftMod, prior, need.hess, constr=list(lower=-Inf, upper=Inf))

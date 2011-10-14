@@ -3,6 +3,27 @@
 # Author: johnsond@afsc.noaa.gov
 ###############################################################################
 
+
+
+#' Compute a spatial use grid from a crawl prediction
+#' 
+#' This function take a crwPredict or crwIS object and a spatial GridTopology
+#' object from the 'sp' package and outputs the number of predicted locations
+#' in each grid cell
+#' 
+#' 
+#' @param object A crwPredict object output from \code{\link{crwPredict}} or
+#' crwIS object from \code{\link{crwPostIS}}.  The object MUST have been
+#' created using a set of prediction times (i.e., is.null(predTime)=FALSE)
+#' @param grid A \code{GridTopology} object from the 'sp' package
+#' @param rm.zeros Logical. If set to true, the zeros in the use grid are set
+#' to NA for better plots. Use grids can have an overwhelming number of zeros.
+#' @param subset An indicator of which times should be used for calculation of
+#' the use grid. Can be a logical vector or a vector of integers, such as from
+#' a call to \code{which}
+#' @return A \code{SpatialGridDataFrame} with data column 'use' which gives the
+#' count of predicted (see the 'sp' package) locations within the grid cell
+#' @author Devin S. Johnson <devin.johnson@@noaa.gov>
 crwUseGrid <- function(object, grid, rm.zeros=FALSE, subset=TRUE){
 	if(!(inherits(object, "crwPredict") | inherits(object, "crwIS"))) stop("The argument 'object' must be of class crwPredict or crwIS!")
 	if(!inherits(grid,"GridTopology")) stop("Argument 'grid' must be a 'GridTopology' object!")
