@@ -24,9 +24,7 @@
 #' mat1
 #' mat2 <- fillCols(mat1)
 #' mat2
-#' 
-#' 
-#' 
+#' @export
 "fillCols" <- function(data) {
    nc <- ncol(data)
    getConst <- function(vec) {

@@ -1,10 +1,8 @@
 #' Merge a location data set with a dry time (or other stopping) covariate
 #' 
-
 #' 
 #' The function merges a location data set with a stopping variable data set.
 #' 
-
 #' 
 #' Simply merges the data frames and interpolates based on the chosen method.
 #' Both data frames have to use the same name for the time variable. Also
@@ -38,7 +36,7 @@
 #' stopData
 #' mergeTrackStop(track, stopData, Time.name="TimeVar")
 #' 
-#' 
+#' @export
 "mergeTrackStop" <- function(data, stopData, Time.name="Time",
                              interp=c('zeros','ma0'), win=2, constCol)
 {

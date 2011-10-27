@@ -1,81 +1,52 @@
 \name{mergeTrackStop}
-
 \alias{mergeTrackStop}
-
-% -------------------------------------------------------------------------
-
 \title{Merge a location data set with a dry time (or other stopping) covariate}
-
-
-\description{
-
-  The function merges a location data set with a stopping variable data
-  set.
-
-}
-
-
-\usage{
-
-mergeTrackStop(data, stopData, Time.name="Time", interp=c("zeros", "ma0"),
-               win=2, constCol)
-
-}
-
-
 \arguments{
-
   \item{data}{Location data.}
 
   \item{stopData}{stopping variable data set.}
 
-  \item{Time.name}{character naming time index variable in both data sets}
+  \item{Time.name}{character naming time index variable in
+  both data sets}
 
   \item{interp}{method of interpolation.}
 
   \item{win}{window for "ma0" interpolation method.}
 
-  \item{constCol}{columns in \code{data} for which the user would like
-    to be constant, such as id or sex.}
-
+  \item{constCol}{columns in \code{data} for which the user
+  would like to be constant, such as id or sex.}
 }
-
-
 \value{
-
-  Merged data.frame with new column from \code{stopData}. Missing values
-  in the stopping variable will be interpolated
-
+  Merged data.frame with new column from \code{stopData}.
+  Missing values in the stopping variable will be
+  interpolated
 }
-
-
+\description{
+  The function merges a location data set with a stopping
+  variable data set.
+}
 \details{
+  Simply merges the data frames and interpolates based on
+  the chosen method. Both data frames have to use the same
+  name for the time variable. Also contains \code{stopType}
+  which = "o" if observed or "p" for interpolated.
 
-  Simply merges the data frames and interpolates based on the chosen
-  method. Both data frames have to use the same name for the time
-  variable. Also contains \code{stopType} which = "o" if observed or "p"
-  for interpolated.
-
-  The merged data is truncated to the first and last time in the
-  location data set. Missing values in the stopping variable data set
-  can be interpolated by replacing them with zeros (full movement) or
-  first replacing with zeros then using a moving average to smooth the
-  data. Only the missing values are then replace with this smoothed
-  data. This allows a smooth transition to full movement.
-
+  The merged data is truncated to the first and last time
+  in the location data set. Missing values in the stopping
+  variable data set can be interpolated by replacing them
+  with zeros (full movement) or first replacing with zeros
+  then using a moving average to smooth the data. Only the
+  missing values are then replace with this smoothed data.
+  This allows a smooth transition to full movement.
 }
-
-% -------------------------------------------------------------------------
-
 \examples{
-
 track <- data.frame(TimeVar=sort(runif(20,0,20)), x=1:20, y=20:1)
 track
 stopData <- data.frame(TimeVar=0:29, stopVar=round(runif(30)))
 stopData
 mergeTrackStop(track, stopData, Time.name="TimeVar")
-
+}
+\author{
+  Devin S. Johnson
 }
 
-
-\author{Devin S. Johnson}

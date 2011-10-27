@@ -110,7 +110,7 @@
 #' 
 #' \item{se}{Standard error of MLE}
 #' 
-#' \item{ci}{95% confidance intervals for parameters}
+#' \item{ci}{95\% confidance intervals for parameters}
 #' 
 #' \item{Cmat}{Parameter covariance matrix}
 #' 
@@ -217,11 +217,7 @@
 #' 
 #' ##See simulated annealing start values
 #' fit2$init$par
-#' 
-#' 
-#' 
-#' 
-#' 
+#' @export
 "crwMLE" <- function(mov.model=~1, err.model=NULL, stop.model=NULL, drift.model=FALSE,
                      data, coord=c("x", "y"), polar.coord, Time.name,
                      initial.state, theta, fixPar, method="L-BFGS-B", control=NULL, constr=list(lower=-Inf, upper=Inf), 

@@ -1,20 +1,3 @@
-
-
-#' Internal crawl objects
-#' 
-#' Internal crawl objects and functions.
-#' 
-#' These are not to be called by the user.
-#' 
-#' @aliases print.crwFit rmvtt ps1 ps2 ps3 ps4 ps1a ps2a ps3a getQT getSD
-#' @author Devin S. Johnson
-#' @keywords internal
-NULL
-
-
-
-
-
 #' Fit Continuous-Time Correlated Random Walk models to animal movement data
 #' 
 #' The (C)orrelated (RA)ndom (W)alk (L)ibrary (I know it is not an R library,
@@ -23,10 +6,9 @@ NULL
 #' covariates. The model is fit using the Kalman-Filter on a state space
 #' version of the continuous-time staochistic movement process.
 #' 
-
 #' 
 #' \tabular{ll}{ Package: \tab crawl\cr Type: \tab Package\cr Version: \tab
-#' 1.3\cr Date: \tab 2011-05-26\cr License: \tab Unlimited \cr LazyLoad: \tab
+#' 1.3-1\cr Date: \tab 2011-11-26\cr License: \tab Unlimited \cr LazyLoad: \tab
 #' yes\cr }
 #' 
 #' @name crawl-package
@@ -40,89 +22,6 @@ NULL
 #' Ecology 89(5) 1208-1215.
 NULL
 
-
-
-
-
-#' Harbor seal telemetry data
-#' 
-
-#' 
-#' Harbor seal relocation data set used in Johnson et al. (2008)
-#' 
-#' 
-#' @name harborSeal
-#' @docType data
-#' @format
-#' 
-#' A data frame with 7059 observations on the following 5 variables.
-#' 
-#' \describe{ \item{list("Time")}{a numeric vector.}
-#' 
-#' \item{list("latitude")}{a numeric vector.}
-#' 
-#' \item{list("longitude")}{a numeric vector.}
-#' 
-#' \item{list("DryTime")}{a numeric vector.}
-#' 
-#' \item{list("Argos_loc_class")}{a factor with levels \code{0} \code{1}
-#' \code{2} \code{3} \code{A} \code{B}}.}
-#' @author Devin S. Johnson
-#' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
-#' Continuous-time random walk model for animal telemetry data. Ecology
-#' 89:1208-1215.
-#' @source Polar Ecosystems Program National Marine Mammal Laboratory Alaska
-#' Fisheries Science Center National Marine Fisheries Service, NOAA 7600 Sand
-#' Point Way, NE Seattle, WA 98115
-#' @keywords datasets
-#' @examples
-#' 
-#' 
-#' data(harborSeal)
-#' head(harborSeal)
-#' 
-#' 
-NULL
-
-
-
-
-
-#' Reverse as.numeric command that is performed on a vector of type POSIXct
-#' 
-
-#' 
-#' Takes integer value produced by \code{as.numeric(x)}, where \code{x} is a
-#' POSIXct vector and returns it to a POSIXct vector
-#' 
-#' 
-#' @aliases intToPOSIX
-#' @param timeVector A vector of integers produced by as.numeric applied to a
-#' PSIXct vector
-#' @param tz Time zone of the vector (see \code{\link{as.POSIXct}}).
-#' @return POSIXct vector
-#' @note There is no check that as.numeric applied to a POSIX vector produced
-#' \code{timeVector}.  So, caution is required in using this function. It was
-#' included simply because I have found it useful
-#' @author Devin S. Johnson
-#' @examples
-#' 
-#' #library(crawl)
-#' timeVector <- as.numeric(Sys.time())
-#' timeVector
-#' intToPOSIX(timeVector, tz="")
-#' 
-#' 
-NULL
-
-
-
-
-
-#' Northern fur seal pup telemetry data set
-#' 
-
-#' 
 #' Northern fur seal pup relocation data set used in Johnson et al. (2008)
 #' 
 #' 
@@ -130,14 +29,14 @@ NULL
 #' @docType data
 #' @format A data frame with 795 observations on the following 4 variables:
 #' 
-#' \describe{ \item{list("Time")}{a numeric vector.}
+#' \describe{ \item{Time}{a numeric vector.}
 #' 
-#' \item{list("Argos_loc_class")}{a factor with levels \code{0} \code{1}
+#' \item{Argos_loc_class}{a factor with levels \code{0} \code{1}
 #' \code{2} \code{3} \code{A}.}
 #' 
-#' \item{list("latitude")}{a numeric vector.}
+#' \item{latitude}{a numeric vector.}
 #' 
-#' \item{list("longitude")}{a numeric vector.}
+#' \item{longitude}{a numeric vector.}
 #' 
 #' }
 #' @references
@@ -210,4 +109,68 @@ NULL
 NULL
 
 
+#' Harbor seal relocation data set used in Johnson et al. (2008)
+#' 
+#' 
+#' @name harborSeal
+#' @docType data
+#' @format
+#' 
+#' A data frame with 7059 observations on the following 5 variables.
+#' 
+#' \describe{ \item{Time}{a numeric vector.}
+#' 
+#' \item{latitude}{a numeric vector.}
+#' 
+#' \item{longitude}{a numeric vector.}
+#' 
+#' \item{DryTime}{a numeric vector.}
+#' 
+#' \item{Argos_loc_class}{a factor with levels \code{0} \code{1}
+#' \code{2} \code{3} \code{A} \code{B}}.}
+#' @author Devin S. Johnson
+#' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
+#' Continuous-time random walk model for animal telemetry data. Ecology
+#' 89:1208-1215.
+#' @source Polar Ecosystems Program National Marine Mammal Laboratory Alaska
+#' Fisheries Science Center National Marine Fisheries Service, NOAA 7600 Sand
+#' Point Way, NE Seattle, WA 98115
+#' @keywords datasets
+#' @examples
+#' 
+#' 
+#' data(harborSeal)
+#' head(harborSeal)
+NULL
+
+
+
+.onLoad <- function(library, pkgname)
+{
+  ## Return a list, each element of which is a vector
+  ## the first element of the vector is the stuff before the colon in info[[1]]
+  ## the second element is the stuff after the colon (can get > 2 elements some
+  ## times but ignore)
+  info <- strsplit(library(help=pkgname, character.only=TRUE)$info[[1]], "\\:[ ]+")
+  ## Go through the list, pulling out the Package, Version and Built strings
+  l <- length(info)
+  package <- version <- built <- ""
+  for (i in 1:l) {
+    if(info[[i]][1] == "Package") package <- info[[i]][2]
+    if(info[[i]][1] == "Version") version <- info[[i]][2]
+    if(info[[i]][1] == "Built") built <- info[[i]][2]
+  }
+  ## Print these out
+  packageStartupMessage(cat(paste("This is", package, version, "\nBuilt:", built, "\n")))
+  ## uncomment for fortran/c code
+  ## library.dynam("filenameForDll", pkgname)
+  #library.dynam("crawl", pkgname)
+}
+
+.onUnload <- function(libpath)
+{
+  #library.dynam.unload("crawl", libpath)
+  cat("\nBye-Bye from crawl\n\n")
+  return(invisible())
+}
 

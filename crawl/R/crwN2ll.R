@@ -41,6 +41,8 @@
 #' @seealso \code{\link{crwMLE}}
 #' @references Johnson, D., J. London, M. -A. Lea, and J. Durban. 2008.
 #' Continuous-time model for animal telemetry data. Ecology 89:1208-1215.
+#' @export
+
 "crwN2ll" <- function(theta, fixPar, y, x, loctype, delta, a1.y, a1.x,
                       P1.x, P1.y, lonAdj, mov.mf, err.mfX, err.mfY, stop.mf,
                       n.errX, n.errY, n.mov, stopMod, driftMod, prior, need.hess, constr=list(lower=-Inf, upper=Inf))

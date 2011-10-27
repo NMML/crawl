@@ -24,7 +24,9 @@
 #' @return A \code{SpatialGridDataFrame} with data column 'use' which gives the
 #' count of predicted (see the 'sp' package) locations within the grid cell
 #' @author Devin S. Johnson <devin.johnson@@noaa.gov>
+#' @export
 crwUseGrid <- function(object, grid, rm.zeros=FALSE, subset=TRUE){
+  require(sp)
 	if(!(inherits(object, "crwPredict") | inherits(object, "crwIS"))) stop("The argument 'object' must be of class crwPredict or crwIS!")
 	if(!inherits(grid,"GridTopology")) stop("Argument 'grid' must be a 'GridTopology' object!")
 	firstCell <- as.vector(grid@cellcentre.offset)

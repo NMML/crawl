@@ -20,6 +20,7 @@
 #' 
 #' \item{var.ln.speed}{log speed estimated standard error.}
 #' @author Devin S. Johnson
+#' @export
 "logSpeed" <- function(predx, predy, varx, vary, polar.coord)
 {
     rd <- ncol(predx) == 3

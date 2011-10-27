@@ -49,6 +49,8 @@
 #' \item{log.isw}{non normalized log importance sampling weight}
 #' @author Devin S. Johnson
 #' @seealso See \code{\link{northernFurSeal}} for example.
+#' @export
+
 `crwPostIS` <-
 function(object.sim, fullPost=TRUE, df=Inf, scale=1, thetaSamp=NULL)
 ################################################################################

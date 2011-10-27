@@ -1,39 +1,18 @@
 \name{fillCols}
-
 \alias{fillCols}
-
-% -------------------------------------------------------------------------
-
 \title{Fill missing values in data set (or matrix) columns for which there is a
-       single unique value}
-
-
-\description{
-
-  Looks for columns in a data set that have a single unique non-missing value
-  and fills in all \code{NA} with that value
-
-}
-
-
-\usage{
-
-fillCols(data)
-
-}
-
-
+single unique value}
 \arguments{
-
   \item{data}{data.frame}
-
 }
-
-
-\value{ data.frame }
-
-% -------------------------------------------------------------------------
-
+\value{
+  data.frame
+}
+\description{
+  Looks for columns in a data set that have a single unique
+  non-missing value and fills in all \code{NA} with that
+  value
+}
 \examples{
 #library(crawl)
 data1 <- data.frame(constVals=rep(c(1,NA),5), vals=1:10)
@@ -47,9 +26,8 @@ mat1[5,2] <- NA
 mat1
 mat2 <- fillCols(mat1)
 mat2
-
-
+}
+\author{
+  Devin S. Johnson
 }
 
-
-\author{Devin S. Johnson}

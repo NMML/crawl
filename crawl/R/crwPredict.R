@@ -53,6 +53,8 @@
 #' @author Devin S. Johnson
 #' @references de Jong, P. and Penzer, J. (1998) Diagnosing shocks in time
 #' series. Journal of the American Statistical Association 93:796-806.
+#' @export
+
 "crwPredict" <- function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE)
 {
     ## Model definition/parameters ##

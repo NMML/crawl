@@ -23,7 +23,7 @@
 #' predTime <- seq(1,10, by=0.25)
 #' expandPred(x, Time=origTime, predTime, time.col=TRUE)
 #' 
-#' 
+#' @export
 "expandPred" <- function(x, Time='Time', predTime, time.col=FALSE)
 {
    if(is.character(Time)) {

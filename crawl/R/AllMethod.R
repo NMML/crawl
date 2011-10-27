@@ -16,6 +16,7 @@
 #' @param \dots a series of crwFit objects
 #' @return A table, sorted from lowest AIC value to highest.
 #' @author Devin S. Johnson
+#' @export
 "AIC.crwFit" <- function(...)
 {
   lnms <- NULL
@@ -64,6 +65,7 @@
 #' for the state standard errors
 #' @author Devin S. Johnson
 #' @seealso \code{\link{northernFurSeal}} for use example
+#' @export
 "as.flat" <- function(predObj)
 {
     se.y <- sqrt(t(apply(predObj$V.hat.y, 3, diag)))
@@ -83,7 +85,7 @@
     return(flat)
 }
 
-
+#' @S3method print crwFit
 "print.crwFit" <- function(x, ...)
 {
     fit <- x

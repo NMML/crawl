@@ -85,6 +85,8 @@
 #' their associated probabilities for a resample}
 #' @author Devin S. Johnson
 #' @seealso See \code{\link{northernFurSeal}} for example.
+#' @export
+#' @import mvtnorm
 crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1, crit=2.5, scale=1)
 {
    if(!inherits(object.sim, 'crwSimulator'))
