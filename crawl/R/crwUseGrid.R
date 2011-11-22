@@ -42,8 +42,8 @@ crwUseGrid <- function(object, grid, rm.zeros=FALSE, subset=TRUE){
 		y.pts <- object$mu.y[subset][object$locType[subset]=="p"]
 	}	
 	else{
-		x.pts <- object$alpha.sim.x[subset][object$predType[subset]=="p", 1]
-		y.pts <- object$alpha.sim.y[subset][object$predType[subset]=="p", 1]
+		x.pts <- object$alpha.sim.x[subset,][object$predType[subset]=="p", 1]
+		y.pts <- object$alpha.sim.y[subset,][object$predType[subset]=="p", 1]
 	}
 	eps.x <- min(diff(x))
 	eps.y <- min(diff(y))
