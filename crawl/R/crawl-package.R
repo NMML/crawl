@@ -8,7 +8,7 @@
 #' 
 #' 
 #' \tabular{ll}{ Package: \tab crawl\cr Type: \tab Package\cr Version: \tab
-#' 1.3-1\cr Date: \tab 2011-11-26\cr License: \tab Unlimited \cr LazyLoad: \tab
+#' 1.3-2\cr Date: \tab 2011-11-21\cr License: \tab Unlimited \cr LazyLoad: \tab
 #' yes\cr }
 #' 
 #' @name crawl-package
@@ -161,7 +161,7 @@ NULL
     if(info[[i]][1] == "Built") built <- info[[i]][2]
   }
   ## Print these out
-  packageStartupMessage(cat(paste("This is", package, version, "\nBuilt:", built, "\n")))
+  packageStartupMessage(paste("This is", package, version, "\nBuilt:", built, "\n"))
   ## uncomment for fortran/c code
   ## library.dynam("filenameForDll", pkgname)
   #library.dynam("crawl", pkgname)
