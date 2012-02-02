@@ -10,8 +10,6 @@ Depends:
     mvtnorm,
     sp,
     raster
-Suggests:
-    tripEstimation
 Description: The (C)orrelated (RA)ndom (W)alk (L)ibrary of
     R functions was designed for fitting continuous-time
     correlated random walk (CTCRW) models with time indexed
