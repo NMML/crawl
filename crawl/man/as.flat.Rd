@@ -1,6 +1,9 @@
 \name{as.flat}
 \alias{as.flat}
 \title{'Flattening' a list-form crwPredict object into a data.frame}
+\usage{
+  as.flat(predObj)
+}
 \arguments{
   \item{predObj}{A crwPredict object}
 }

@@ -1,6 +1,9 @@
 \name{logSpeed}
 \alias{logSpeed}
 \title{calculate estimate of log speed from a crwPredict object}
+\usage{
+  logSpeed(predx, predy, varx, vary, polar.coord)
+}
 \arguments{
   \item{predx}{matrix of longitude state estimates.}
 

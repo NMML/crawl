@@ -1,6 +1,5 @@
 \docType{package}
 \name{crawl-package}
-\alias{"crawl-package"}
 \alias{crawl}
 \alias{crawl-package}
 \title{Fit Continuous-Time Correlated Random Walk models to animal movement data}
@@ -15,9 +14,8 @@
 }
 \details{
   \tabular{ll}{ Package: \tab crawl\cr Type: \tab
-  Package\cr Version: \tab 1.3-1\cr Date: \tab
-  2011-11-26\cr License: \tab Unlimited \cr LazyLoad: \tab
-  yes\cr }
+  Package\cr Version: \tab 1.3-3\cr Date: \tab 2012-2-2\cr
+  License: \tab Unlimited \cr LazyLoad: \tab yes\cr }
 }
 \author{
   Devin S. Johnson

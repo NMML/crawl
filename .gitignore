@@ -8,3 +8,8 @@ crawl_archive
 northernFurSealExample.R
 .Rproj.user
 crawl.Rproj
+*.so
+*.o
+*.tar.gz
+*.zip
+*.tgz

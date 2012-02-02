@@ -1,6 +1,9 @@
 \name{expandPred}
 \alias{expandPred}
 \title{Expand a time indexed data set with additional prediction times}
+\usage{
+  expandPred(x, Time = "Time", predTime, time.col = FALSE)
+}
 \arguments{
   \item{x}{Data to be expanded.}
 

@@ -2,6 +2,9 @@
 \alias{fillCols}
 \title{Fill missing values in data set (or matrix) columns for which there is a
 single unique value}
+\usage{
+  fillCols(data)
+}
 \arguments{
   \item{data}{data.frame}
 }

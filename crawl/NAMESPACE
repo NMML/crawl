@@ -15,4 +15,7 @@ export(intToPOSIX)
 export(logSpeed)
 export(mergeTrackStop)
 import(mvtnorm)
+import(raster)
+import(sp)
 useDynLib(crawl)
+

@@ -204,6 +204,7 @@
 #' 
 #' ##Use simulated annealing to obtain start values and place constraints on the parameters
 #' 
+#' set.seed(123)
 #' fit2 <- crwMLE(
 #'   mov.model=~1, err.model=list(x=~errX, y=~errY), stop.model=~DryTime,
 #'   data=hsNew, coord=c("longitude","latitude"), Time.name="Time", polar.coord=TRUE,

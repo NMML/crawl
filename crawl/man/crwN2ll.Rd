@@ -1,6 +1,12 @@
 \name{crwN2ll}
 \alias{crwN2ll}
 \title{-2 * log-likelihood for CTCRW models}
+\usage{
+  crwN2ll(theta, fixPar, y, x, loctype, delta, a1.y, a1.x,
+    P1.x, P1.y, lonAdj, mov.mf, err.mfX, err.mfY, stop.mf,
+    n.errX, n.errY, n.mov, stopMod, driftMod, prior,
+    need.hess, constr = list(lower = -Inf, upper = Inf))
+}
 \arguments{
   \item{theta}{parameter values.}
 

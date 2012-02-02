@@ -1,6 +1,10 @@
 \name{mergeTrackStop}
 \alias{mergeTrackStop}
 \title{Merge a location data set with a dry time (or other stopping) covariate}
+\usage{
+  mergeTrackStop(data, stopData, Time.name = "Time",
+    interp = c("zeros", "ma0"), win = 2, constCol)
+}
 \arguments{
   \item{data}{Location data.}
 

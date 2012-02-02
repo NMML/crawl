@@ -1,6 +1,9 @@
 \name{crwPredictPlot}
 \alias{crwPredictPlot}
 \title{Plot CRW predicted object}
+\usage{
+  crwPredictPlot(object, plotType = "ll")
+}
 \arguments{
   \item{object}{\code{crwPredict} object.}
 
