@@ -1,5 +1,4 @@
-S3method(print,crwFit)
-export(AIC.crwFit)
+export(aic.crw)
 export(as.flat)
 export(crwMLE)
 export(crwN2ll)
@@ -17,5 +16,5 @@ export(mergeTrackStop)
 import(mvtnorm)
 import(raster)
 import(sp)
+S3method(print,crwFit)
 useDynLib(crawl)
-

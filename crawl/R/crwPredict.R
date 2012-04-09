@@ -20,6 +20,7 @@
 #' @param predTime vector of additional prediction times (numeric or POSIXct).
 #' @param speedEst logical. Estimate animal speed or not.
 #' @param flat logical. Should the result be returned as a flat data.frame.
+#' @param getUseAvail logical. This is a test function. Not for general use yet.
 #' @return
 #' 
 #' List with the following elements:
@@ -55,8 +56,12 @@
 #' series. Journal of the American Statistical Association 93:796-806.
 #' @export
 
-"crwPredict" <- function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE)
+"crwPredict" <- function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE, getUseAvail=FALSE)
 {
+    if(flat & getUseAvail){
+      warning("The 'flat=TRUE' argument cannot be used in conjunction with 'getUseAvail=TRUE' argument.")
+      flat <- FALSE
+    }
     ## Model definition/parameters ##
     data <- object.crwFit$data
     driftMod <- object.crwFit$random.drift
@@ -197,8 +202,21 @@
     if (speedEst) {
         log.speed <- logSpeed(predx, predy, varx, vary, object.crwFit$polar.coord)
     } else log.speed <- NULL
+    if(getUseAvail){
+      idx <- data$locType=="p"
+      Tmat <- movMats$Tmat[idx,]
+      Qmat <- movMats$Qmat[idx,]
+      avail <- t(sapply(1:(nrow(Tmat)-1), makeAvail, Tmat=Tmat, Qmat=Qmat, predx=predx[idx,], predy=predy[idx,], 
+                      vary=vary[,,idx], varx=varx[,,idx], driftMod=driftMod, lonadj=lonAdjVals[idx]))
+      avail <- cbind(data[idx,tn][-1], avail)
+      colnames(avail) <- c(tn, "meanAvail.x", "meanAvail.y", "varAvail.x", "varAvail.y")
+      use <- cbind(data[idx,tn], predx[idx,1], predy[idx,1], varx[1,1,idx], vary[1,1,idx])[-1,]
+      colnames(use) <- c(tn, "meanUse.x", "meanUse.y", "varUse.x", "varUse.y")
+      UseAvail.lst <- list(use=use, avail=avail)
+    }
+    else UseAvail.lst=NULL
     out <- list(originalData=fillCols(data), alpha.hat.y=predy, alpha.hat.x=predx,
-                V.hat.y=vary, V.hat.x=varx, speed=log.speed, loglik=out$lly + out$llx)
+                V.hat.y=vary, V.hat.x=varx, speed=log.speed, loglik=out$lly + out$llx, useAvail=UseAvail.lst)
     if (flat) {
         out <- cbind(fillCols(as.flat(out)), obsFit)
         attr(out, "flat") <- TRUE
