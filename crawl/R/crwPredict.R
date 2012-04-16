@@ -204,9 +204,10 @@
     } else log.speed <- NULL
     if(getUseAvail){
       idx <- data$locType=="p"
-      Tmat <- movMats$Tmat[idx,]
-      Qmat <- movMats$Qmat[idx,]
-      avail <- t(sapply(1:(nrow(Tmat)-1), makeAvail, Tmat=Tmat, Qmat=Qmat, predx=predx[idx,], predy=predy[idx,], 
+      movMatsPred <- getQT(sig2[idx], b[idx], sig2.drift[idx], b.drift[idx], delta=c(diff(data[idx,tn]),1), driftMod)
+      TmatP <- movMatsPred$Tmat
+      QmatP <- movMatsPred$Qmat
+      avail <- t(sapply(1:(nrow(TmatP)-1), makeAvail, Tmat=TmatP, Qmat=QmatP, predx=predx[idx,], predy=predy[idx,], 
                       vary=vary[,,idx], varx=varx[,,idx], driftMod=driftMod, lonadj=lonAdjVals[idx]))
       avail <- cbind(data[idx,tn][-1], avail)
       colnames(avail) <- c(tn, "meanAvail.x", "meanAvail.y", "varAvail.x", "varAvail.y")

@@ -8,7 +8,7 @@
 #' 
 #' 
 #' \tabular{ll}{ Package: \tab crawl\cr Type: \tab Package\cr Version: \tab
-#' 1.3-4\cr Date: \tab 2012-4-7\cr License: \tab Unlimited \cr LazyLoad: \tab
+#' 1.3-5\cr Date: \tab 2012-4-12\cr License: \tab Unlimited \cr LazyLoad: \tab
 #' yes\cr }
 #' 
 #' @name crawl-package
