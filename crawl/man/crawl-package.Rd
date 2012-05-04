@@ -14,7 +14,7 @@
 }
 \details{
   \tabular{ll}{ Package: \tab crawl\cr Type: \tab
-  Package\cr Version: \tab 1.3-4\cr Date: \tab 2012-4-7\cr
+  Package\cr Version: \tab 1.4\cr Date: \tab May 3, 2012\cr
   License: \tab Unlimited \cr LazyLoad: \tab yes\cr }
 }
 \author{

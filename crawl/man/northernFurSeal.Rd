@@ -41,6 +41,10 @@ initial.drift <- list(a1.x=c(189.686, 0, 0), a1.y=c(57.145, 0, 0),
                       P1.y=diag(c(0, 0.001, 0.001)))
 
 ##Fit random drift model
+# Check out the parameters
+displayPar(mov.model=~1, err.model=list(x=~errX, y=~errY), drift.model=TRUE,
+              data=nfsNew, fixPar=c(NA, 1, NA, 1, NA, NA, NA, NA))
+
 fit <- crwMLE(mov.model=~1, err.model=list(x=~errX, y=~errY), drift.model=TRUE,
               data=nfsNew, coord=c("longitude", "latitude"), polar.coord=TRUE,
               Time.name="Time", initial.state=initial.drift,

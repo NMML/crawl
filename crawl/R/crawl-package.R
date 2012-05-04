@@ -8,7 +8,7 @@
 #' 
 #' 
 #' \tabular{ll}{ Package: \tab crawl\cr Type: \tab Package\cr Version: \tab
-#' 1.3-5\cr Date: \tab 2012-4-12\cr License: \tab Unlimited \cr LazyLoad: \tab
+#' 1.4\cr Date: \tab May 3, 2012\cr License: \tab Unlimited \cr LazyLoad: \tab
 #' yes\cr }
 #' 
 #' @name crawl-package
@@ -66,6 +66,10 @@ NULL
 #'                       P1.y=diag(c(0, 0.001, 0.001)))
 #' 
 #' ##Fit random drift model
+#' # Check out the parameters 
+#' displayPar(mov.model=~1, err.model=list(x=~errX, y=~errY), drift.model=TRUE,
+#'               data=nfsNew, fixPar=c(NA, 1, NA, 1, NA, NA, NA, NA))
+#'               
 #' fit <- crwMLE(mov.model=~1, err.model=list(x=~errX, y=~errY), drift.model=TRUE,
 #'               data=nfsNew, coord=c("longitude", "latitude"), polar.coord=TRUE,
 #'               Time.name="Time", initial.state=initial.drift, 
