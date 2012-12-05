@@ -47,6 +47,7 @@ NULL
 #' Fisheries Science Center National Marine Fisheries Service, NOAA 7600 Sand
 #' Point Way NE Seattle, WA 98115
 #' @keywords datasets
+#' @useDynLib crawl
 #' @examples
 #' 
 #' 
