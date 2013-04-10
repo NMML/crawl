@@ -92,7 +92,7 @@
 #' \item{thetaSampList}{A list containing a data frame of parameter vectors and
 #' their associated probabilities for a resample}
 #' @author Devin S. Johnson
-#' @seealso See \code{\link{northernFurSeal}} for example.
+#' @seealso See \code{demo(northernFurSealDemo)} for example.
 #' @export
 `crwSimulator` <-
 function(object.crwFit, predTime=NULL, method="IS", parIS=1000, df=Inf, grid.eps=1, crit=2.5, scale=1)

@@ -72,6 +72,6 @@
   Devin S. Johnson
 }
 \seealso{
-  See \code{\link{northernFurSeal}} for example.
+  See \code{demo(northernFurSealDemo)} for example.
 }
 

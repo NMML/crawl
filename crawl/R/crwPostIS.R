@@ -48,7 +48,7 @@
 #' 
 #' \item{log.isw}{non normalized log importance sampling weight}
 #' @author Devin S. Johnson
-#' @seealso See \code{\link{northernFurSeal}} for example.
+#' @seealso See \code{demo(northernFurSealDemo)} for example.
 #' @export
 
 `crwPostIS` <-

@@ -14,8 +14,9 @@
 }
 \details{
   \tabular{ll}{ Package: \tab crawl\cr Type: \tab
-  Package\cr Version: \tab 1.4\cr Date: \tab May 3, 2012\cr
-  License: \tab Unlimited \cr LazyLoad: \tab yes\cr }
+  Package\cr Version: \tab 1.4\cr Date: \tab February 1,
+  2013\cr License: \tab Unlimited \cr LazyLoad: \tab yes\cr
+  }
 }
 \author{
   Devin S. Johnson

@@ -30,7 +30,7 @@
 #'correspond to the \code{thetaIdx} column.}
 #' 
 #'@author Devin S. Johnson
-#'@seealso \code{\link{northernFurSeal}} for example.
+#'@seealso \code{demo(northernFurSealDemo)} for example.
 #'  
 #'@export 
 

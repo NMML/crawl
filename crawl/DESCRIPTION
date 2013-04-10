@@ -3,7 +3,7 @@ Type: Package
 Title: Fit continuous-time correlated random walk models
     to animal movement data
 Version: 1.4
-Date: 2012-05-03
+Date: 2013-2-1
 Author: Devin S. Johnson
 Maintainer: Devin S. Johnson <devin.johnson@noaa.gov>
 Depends:

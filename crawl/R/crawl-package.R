@@ -8,7 +8,7 @@
 #' 
 #' 
 #' \tabular{ll}{ Package: \tab crawl\cr Type: \tab Package\cr Version: \tab
-#' 1.4\cr Date: \tab May 3, 2012\cr License: \tab Unlimited \cr LazyLoad: \tab
+#' 1.4\cr Date: \tab February 1, 2013\cr License: \tab Unlimited \cr LazyLoad: \tab
 #' yes\cr }
 #' 
 #' @name crawl-package
@@ -48,71 +48,6 @@ NULL
 #' Point Way NE Seattle, WA 98115
 #' @keywords datasets
 #' @useDynLib crawl
-#' @examples
-#' 
-#' 
-#' data(northernFurSeal)
-#' 
-#' argosClasses <- c("3", "2", "1", "0", "A", "B")
-#' ArgosMultFactors <- data.frame(Argos_loc_class=argosClasses,
-#'                                errX=log(c(1, 1.5, 4, 14, 5.21, 20.78)),
-#'                                errY=log(c(1, 1.5, 4, 14, 11.08, 31.03)))
-#' nfsNew <- merge(northernFurSeal, ArgosMultFactors,
-#'                 by=c("Argos_loc_class"), all.x=TRUE)
-#' nfsNew <- nfsNew[order(nfsNew$Time), ]
-#' 
-#' # State starting values
-#' initial.drift <- list(a1.x=c(189.686, 0, 0), a1.y=c(57.145, 0, 0),
-#'                       P1.x=diag(c(0, 0.001, 0.001)),
-#'                       P1.y=diag(c(0, 0.001, 0.001)))
-#' 
-#' ##Fit random drift model
-#' # Check out the parameters 
-#' displayPar(mov.model=~1, err.model=list(x=~errX, y=~errY), drift.model=TRUE,
-#'               data=nfsNew, fixPar=c(NA, 1, NA, 1, NA, NA, NA, NA))
-#'               
-#' fit <- crwMLE(mov.model=~1, err.model=list(x=~errX, y=~errY), drift.model=TRUE,
-#'               data=nfsNew, coord=c("longitude", "latitude"), polar.coord=TRUE,
-#'               Time.name="Time", initial.state=initial.drift, 
-#'               fixPar=c(NA, 1, NA, 1, NA, NA, NA, NA), 
-#'               control=list(maxit=2000,trace=1, REPORT=10),
-#'               initialSANN=list(maxit=300, trace=1, REPORT=1)
-#'               )
-#' 
-#' ##Make hourly location predictions
-#' predTime <- seq(ceiling(min(nfsNew$Time)), floor(max(nfsNew$Time)), 1)
-#' predObj <- crwPredict(object.crwFit=fit, predTime, speedEst=TRUE, flat=TRUE)
-#' head(predObj)
-#' crwPredictPlot(predObj)
-#' 
-#' ##Create simulation object with 100 parameter draws
-#' simObj <- crwSimulator(fit, predTime, parIS=100, df=20, scale=18/20)
-#' 
-#' ## Examine IS weight distribution
-#' w <- simObj$thetaSampList[[1]][,1]
-#' dev.new()
-#' hist(w*100, main='Importance Sampling Weights', sub='More weights near 1 is desirable')
-#' 
-#' ##Approximate number of independent samples
-#' round(100/(1+(sd(w)/mean(w))^2))
-#' 
-#' dev.new(bg=gray(0.75))
-#' jet.colors <-
-#'   colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan",
-#'                      "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
-#' crwPredictPlot(predObj, 'map')
-#' 
-#' ## Sample 20 tracks from posterior predictive distribution
-#' iter <- 20
-#' cols <- jet.colors(iter)
-#' for(i in 1:iter){
-#'    samp <- crwPostIS(simObj)
-#'    lines(samp$alpha.sim.x[,'mu'], samp$alpha.sim.y[,'mu'],col=cols[i])
-#' }
-#' 
-#' 
-NULL
-
 
 #' Harbor seal relocation data set used in Johnson et al. (2008)
 #' 
@@ -150,20 +85,24 @@ NULL
 
 
 
-.onLoad <- function(library, pkgname)
+.onAttach <- function(library, pkgname)
 {
   info <-utils::packageDescription(pkgname)
   package <- info$Package
   version <- info$Version
   date <- info$Date
-  packageStartupMessage(paste("\n", package, version, paste("(",date, ")", sep=""), "\n"))
+  packageStartupMessage(
+    paste(paste(package, version, paste("(",date, ")", sep=""), "\n"), 
+          "Type 'demo(package='crawl')' to see a list of demos for this package.\n",
+          "The raw code for the demos can be found by typing 'system.file('demo', package='crawl')'")
+                        )
 
 }
 
-.onUnload <- function(libpath)
-{
-  #library.dynam.unload("crawl", libpath)
-  cat("\nBye-Bye from crawl\n\n")
-  return(invisible())
-}
+# .onUnload <- function(libpath)
+# {
+#   #library.dynam.unload("crawl", libpath)
+#   cat("\nBye-Bye from crawl\n\n")
+#   return(invisible())
+# }
 

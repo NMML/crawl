@@ -1,0 +1,2 @@
+harborSeal          This demonstration illustrates the use of the 'crwMLE()' function with the included harbor seal telemetry data set. 
+northernFurSeal     Using the included nothern fur seal telemetry data set, the 'crwMLE()' function is illustrated along with simulation from the posterior distribution of the animal's track. 

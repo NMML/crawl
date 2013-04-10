@@ -15,7 +15,7 @@
 #' \code{theta} values).
 #' @param y latitude locations.
 #' @param x longitude loations.
-#' @param loctype vector with 1 or observed location, else 0.
+#' @param loctype vector with 1 for unobserved locations, and 0 for observed locations.
 #' @param delta time difference to next location.
 #' @param a1.y initial state value for latitude.
 #' @param a1.x initial state value for longitude.

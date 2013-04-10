@@ -12,7 +12,7 @@
 #' \dQuote{ll} (default).
 #' @return A plot.
 #' @author Devin S. Johnson and Sebastian Luque
-#' @seealso See \code{\link{northernFurSeal}} for additional examples.
+#' @seealso See \code{demo(northernFurSealDemo)} for additional examples.
 #' @export
 "crwPredictPlot" <- function(object, plotType="ll")
 {
