@@ -306,7 +306,7 @@
       #if(any(init$par<lower)) init$par[init$par<lower] <- lower[init$par<lower] + 0.000001
       #if(any(init$par>upper)) init$par[init$par>upper] <- upper[init$par>upper] - 0.000001
       mle <- try(optim(init$par, crwN2ll, method=method, hessian=need.hess,
-				   lower=constr$lower, upper=constr$upper, control=control,					  
+				           lower=constr$lower, upper=constr$upper, control=control,					  
                    fixPar=fixPar, y=y.lik, x=x.lik, loctype=loctype,
                    delta=c(diff(data[, Time.name]), 1), a1.y=initial.state$a1.y,
                    a1.x=initial.state$a1.x, P1.x=initial.state$P1.x,

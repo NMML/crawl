@@ -47,7 +47,7 @@
                       P1.x, P1.y, lonAdj, mov.mf, err.mfX, err.mfY, stop.mf,
                       n.errX, n.errY, n.mov, stopMod, driftMod, prior, need.hess, constr=list(lower=-Inf, upper=Inf))
 {
-	if(!need.hess & any(theta < constr$lower | theta > constr$upper)) return(-Inf)
+	if(!need.hess & any(theta < constr$lower | theta > constr$upper)) return(Inf)
     N <- length(y)
     par <- fixPar
     par[is.na(fixPar)] <- theta

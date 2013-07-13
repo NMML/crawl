@@ -17,8 +17,8 @@
 
   \item{x}{longitude loations.}
 
-  \item{loctype}{vector with 1 or observed location, else
-  0.}
+  \item{loctype}{vector with 1 for unobserved locations,
+  and 0 for observed locations.}
 
   \item{delta}{time difference to next location.}
 
