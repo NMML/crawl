@@ -165,7 +165,7 @@
 #' \item{need.hess}{Logical value}
 #' 
 #' \item{runTime}{Time used to fit model}
-#' @author Devin S. Johnson
+#' @author Devin S. Johnson, Josh M. London
 #' @seealso \code{\link{northernFurSeal}} for additional examples.
 #' @export
 
@@ -176,7 +176,6 @@
 {
     st <- Sys.time()
     if (missing(Time.name)) stop("Argument 'Time.name' missing. Please specify")
-
     
     ### Transform 'sp' package SpatialPointsDataFrame
     if(inherits(data, "trip")){
