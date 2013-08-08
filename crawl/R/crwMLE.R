@@ -177,6 +177,14 @@
     st <- Sys.time()
     if (missing(Time.name)) stop("Argument 'Time.name' missing. Please specify")
     
+    ### Transform 'spacetime' object
+    if(inherits(data,"ST")){
+        polar.coord <- "+proj=longlat" %in% strsplit(proj4string(data), " ")[[1]]
+        data <- as(data,"data.frame")
+        Time.name <- "time"
+        coord <- c("coords.x1","coords.x2")
+    }
+    
     ### Transform 'sp' package SpatialPointsDataFrame
     if(inherits(data, "trip")){
 		Time.name <- data@TOR.columns[1]
