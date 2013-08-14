@@ -175,7 +175,7 @@
 					 prior=NULL, need.hess=TRUE, initialSANN=NULL, attempts=1)
 {
     st <- Sys.time()
-    if (missing(Time.name)) stop("Argument 'Time.name' missing. Please specify")
+    if (missing(Time.name) & !inherits(data,"ST")) stop("Argument 'Time.name' missing and NOT a spacetime object. Please specify")
     
     ### Transform 'spacetime' object
     if(inherits(data,"ST")){
