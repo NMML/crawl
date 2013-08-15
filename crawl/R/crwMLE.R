@@ -175,10 +175,10 @@
 					 prior=NULL, need.hess=TRUE, initialSANN=NULL, attempts=1)
 {
     st <- Sys.time()
-    if (missing(Time.name) & !inherits(data,"ST")) stop("Argument 'Time.name' missing and NOT a spacetime object. Please specify")
+    if (missing(Time.name) & !inherits(data,"STIDF")) stop("Argument 'Time.name' missing and NOT a spacetime STIDF object. Please specify")
     
     ### Transform 'spacetime' object
-    if(inherits(data,"ST")){
+    if(inherits(data,"STIDF")){
         polar.coord <- "+proj=longlat" %in% strsplit(proj4string(data), " ")[[1]]
         data <- as(data,"data.frame")
         Time.name <- "time"
