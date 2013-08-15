@@ -46,17 +46,19 @@
 #' estimated, while \code{fixPar} contains all parameter values with \code{NA}
 #' for parameters which are to be estimated.
 #' 
-#' The data set specified by \code{data} must contain a numeric or POSIXct
-#' column which is used as the time index for analysis. The column name is
-#' specified by the \code{Time.name} argument. If a POSIXct column is used it
-#' is internally converted to a numeric vector with units of hours. If this is
-#' not appropriate for your data, it is better to convert it yourself prior to
-#' analysis with crawl. Also, for stopping models, the stopping covariate must
-#' be between 0 and 1 inclusive, with 1 representing complete stop of the
-#' animal (no true movement, however, location error can still occur) and 0
-#' represent unhindered movement. The coordinate location should have \code{NA}
-#' where no location is recorded, but there is a change in the movment
-#' covariates.
+#' The data set specified by \code{data} must contain a numeric or POSIXct column which is
+#' used as the time index for analysis. The column name is specified by the
+#' \code{Time.name} argument. If a POSIXct column is used it is internally converted to a
+#' numeric vector with units of hours. The \code{spacetime} package supports an
+#' \code{STIDF} object that contains slots for both spatial and time series data types. If
+#' \code{data} is of class \code{STIDF} then the spatial and temporal information are
+#' automatically extracted and \code{polar.coord}, \code{Time.name} and \code{coord} are
+#' not required. If your data are not compatible with these data structures, it is better
+#' to convert it yourself prior to analysis with crawl. Also, for stopping models, the
+#' stopping covariate must be between 0 and 1 inclusive, with 1 representing complete stop
+#' of the animal (no true movement, however, location error can still occur) and 0 
+#' represent unhindered movement. The coordinate location should have \code{NA} where no
+#' location is recorded, but there is a change in the movment covariates.
 #' 
 #' The CTCRW models can be difficult to provide good initial values for
 #' optimization. If \code{initialSANN} is specified then simulated annealing is
@@ -73,10 +75,11 @@
 #' portion of the model.
 #' @param drift.model logical indicating whether or not to include a random
 #' drift component.
-#' @param data data.frame object containg telemetry and covariate data. A
-#' 'SpatialPointsDataFrame' object from the package 'sp' will also be accepted.
-#' In which case the \code{polar.coord} and \code{coord} values will be taken
-#' from the spatial data set and ignored in the arguments.
+#' @param data data.frame object containg telemetry and covariate data. A 
+#'   'SpatialPointsDataFrame' object from the package 'sp' or an 'STIDF' from the package 
+#'   'spacetime' will also be accepted. In which case the \code{polar.coord} and
+#'   \code{coord} (and \code{Time.name} for 'STIDF') values will be taken from the spatial
+#'   data set and ignored in the arguments.
 #' @param coord A 2-vector of character values giving the names of the "X" and
 #' "Y" coordinates in \code{data}.
 #' @param polar.coord logical indicating location are in degrees latitude and
