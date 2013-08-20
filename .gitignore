@@ -1,5 +1,6 @@
 .DS_Store
 .project
+.Rhistory
 crawl.Rcheck
 crawl_1.3.tar.gz
 crawl_1.3.tgz
