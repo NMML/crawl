@@ -48,6 +48,7 @@ NULL
 #' Point Way NE Seattle, WA 98115
 #' @keywords datasets
 #' @useDynLib crawl
+NULL
 
 #' Harbor seal relocation data set used in Johnson et al. (2008)
 #' 

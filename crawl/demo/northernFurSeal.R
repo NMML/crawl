@@ -33,6 +33,7 @@ head(predObj)
 crwPredictPlot(predObj)
 
 ##Create simulation object with 100 parameter draws
+set.seed(123)
 simObj <- crwSimulator(fit, predTime, parIS=100, df=20, scale=18/20)
 
 ## Examine IS weight distribution

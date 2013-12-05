@@ -24,8 +24,8 @@
 #' @import sp
 #' @import raster
 crwUseGrid <- function(object, grid, subset=TRUE){
-  require(sp)
-  require(raster) 
+  #require(sp)
+  #require(raster) 
   object <- object[subset,]
   useTemplate <- SpatialGrid(grid=grid, proj4string=CRS(proj4string(object)))
   out <- as(rasterize(object, raster(useTemplate), fun=sum), "SpatialGridDataFrame")

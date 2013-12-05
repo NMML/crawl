@@ -2,13 +2,16 @@
 \alias{crwPredictPlot}
 \title{Plot CRW predicted object}
 \usage{
-  crwPredictPlot(object, plotType = "ll")
+  crwPredictPlot(object, plotType = "ll", ...)
 }
 \arguments{
   \item{object}{\code{crwPredict} object.}
 
   \item{plotType}{type of plot has to be one of the
   following: \dQuote{map} or \dQuote{ll} (default).}
+
+  \item{...}{Further arguments passed to plotting
+  commands.}
 }
 \value{
   A plot.
