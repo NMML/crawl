@@ -34,12 +34,12 @@ SUBROUTINE crwdrift_simulate( tau2y, tau2x, Qmat, Tmat, x, y, loctype, &
   IF(P1y(2,2)==0.0) THEN
    c12y = 0.0
   ELSE 
-  	c12y = P1y(1,2)/P1y(2,2)
+   c12y = P1y(1,2)/P1y(2,2)
   END IF
   IF(P1y(3,3) == 0.0) THEN
-  	c13y=0.0
+   c13y=0.0
   ELSE 
-  	c13y = P1y(1,3)/P1y(3,3)
+   c13y = P1y(1,3)/P1y(3,3)
   END IF  
   alphaY(1,1,1) = a1y(1) + c12y*(alphaY(2,1,1)-a1y(2)) &
                          + c13y*(alphaY(3,1,1)-a1y(3)) &
@@ -144,38 +144,38 @@ SUBROUTINE crwdrift_simulate( tau2y, tau2x, Qmat, Tmat, x, y, loctype, &
       lly = lly - (log(Fy(i)) + vy(i)*vy(i)/Fy(i))/2      
     END IF
     IF(loctype(i)==1 .OR. Fx(i)==0.0) THEN
-    	ax(:,:,i+1) = MATMUL(T,ax(:,:,i))
-    	axSim(:,:,i+1) = MATMUL(T, axSim(:,:,i))
-    	Px(:,:,i+1) = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(T)) + Qx
-    	Lx(:,:,i) = T
+     ax(:,:,i+1) = MATMUL(T,ax(:,:,i))
+     axSim(:,:,i+1) = MATMUL(T, axSim(:,:,i))
+     Px(:,:,i+1) = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(T)) + Qx
+     Lx(:,:,i) = T
     ELSE
-    	xsim(i) = alphaX(1,1,i) + (sqrt(tau2x(i))/lonadj(i))*xsim(i)
-    	vx(i) = x(i) - ax(1,1,i)
-    	vxSim(i) = xsim(i) - axSim(1,1,i)
-    	Kx = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(Z))/Fx(i)
-    	Lx(:,:,i) = T - MATMUL(Kx,Z)
-    	ax(:,:,i+1) = MATMUL(T,ax(:,:,i)) + Kx*vx(i)
-    	axSim(:,:,i+1) = MATMUL(T,axSim(:,:,i)) + Kx*vxSim(i)
-    	Px(:,:,i+1) = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(Lx(:,:,i))) + Qx
-    	llx = llx - (log(Fx(i)) + vx(i)*vx(i)/Fx(i))/2
+     xsim(i) = alphaX(1,1,i) + (sqrt(tau2x(i))/lonadj(i))*xsim(i)
+     vx(i) = x(i) - ax(1,1,i)
+     vxSim(i) = xsim(i) - axSim(1,1,i)
+     Kx = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(Z))/Fx(i)
+     Lx(:,:,i) = T - MATMUL(Kx,Z)
+     ax(:,:,i+1) = MATMUL(T,ax(:,:,i)) + Kx*vx(i)
+     axSim(:,:,i+1) = MATMUL(T,axSim(:,:,i)) + Kx*vxSim(i)
+     Px(:,:,i+1) = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(Lx(:,:,i))) + Qx
+     llx = llx - (log(Fx(i)) + vx(i)*vx(i)/Fx(i))/2
     END IF
   END DO
 
  !! BEGIN SMOOTHING LOOP!!  
   DO j=N,1,-1
     IF(loctype(j)==1 .OR. Fy(j)==0.0) THEN 
-      ry = MATMUL(TRANSPOSE(Ly(:,:,j)),ry)      
-      rySim = MATMUL(TRANSPOSE(Ly(:,:,j)),rySim)        
+     ry = MATMUL(TRANSPOSE(Ly(:,:,j)),ry)      
+     rySim = MATMUL(TRANSPOSE(Ly(:,:,j)),rySim)        
     ELSE
-      ry = TRANSPOSE(Z)*vy(j)/Fy(j) + MATMUL(TRANSPOSE(Ly(:,:,j)),ry)          
-      rySim = TRANSPOSE(Z)*vySim(j)/Fy(j) + MATMUL(TRANSPOSE(Ly(:,:,j)),rySim)      
+     ry = TRANSPOSE(Z)*vy(j)/Fy(j) + MATMUL(TRANSPOSE(Ly(:,:,j)),ry)          
+     rySim = TRANSPOSE(Z)*vySim(j)/Fy(j) + MATMUL(TRANSPOSE(Ly(:,:,j)),rySim)      
     END IF
     IF(loctype(j)==1 .OR. Fx(j)==0.0) THEN
-    	rx = MATMUL(TRANSPOSE(Lx(:,:,j)),rx)
-    	rxSim = MATMUL(TRANSPOSE(Lx(:,:,j)),rxSim)
+     rx = MATMUL(TRANSPOSE(Lx(:,:,j)),rx)
+     rxSim = MATMUL(TRANSPOSE(Lx(:,:,j)),rxSim)
     ELSE
-    	rx = TRANSPOSE(Z)*vx(j)/Fx(j) + MATMUL(TRANSPOSE(Lx(:,:,j)),rx)
-    	rxSim = TRANSPOSE(Z)*vxSim(j)/Fx(j) + MATMUL(TRANSPOSE(Lx(:,:,j)),rxSim)
+     rx = TRANSPOSE(Z)*vx(j)/Fx(j) + MATMUL(TRANSPOSE(Lx(:,:,j)),rx)
+     rxSim = TRANSPOSE(Z)*vxSim(j)/Fx(j) + MATMUL(TRANSPOSE(Lx(:,:,j)),rxSim)
     END IF
     
     ayHat = RESHAPE(ay(:,:,j) + MATMUL(Py(:,:,j), ry), (/3/))
