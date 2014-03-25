@@ -33,16 +33,16 @@ SUBROUTINE crw_simulate(tau2y, tau2x, Qmat, Tmat, x, y, loctype, &
   alphaY(2,1,1) = a1y(2) + sqrt(P1y(2,2))*alphaY(2,1,1)
   alphaX(2,1,1) = a1x(2) + sqrt(P1x(2,2))*alphaX(2,1,1)
   IF(P1y(2,2)==0.0) THEN
-  	alphaY(1,1,1) = a1y(1) + sqrt(P1y(1,1))*alphaY(1,1,1)
+   alphaY(1,1,1) = a1y(1) + sqrt(P1y(1,1))*alphaY(1,1,1)
   ELSE
-  	alphaY(1,1,1) = a1y(1) + (P1y(1,2)/P1y(2,2))*(alphaY(2,1,1)-a1y(2)) &
+   alphaY(1,1,1) = a1y(1) + (P1y(1,2)/P1y(2,2))*(alphaY(2,1,1)-a1y(2)) &
                            + sqrt(P1y(1,1) - ((P1y(1,2)*P1y(1,2))/P1y(2,2)))*alphaY(1,1,1)
   END IF
   IF(P1x(2,2)==0.0) THEN
-  	alphaX(1,1,1) = a1x(1) + sqrt(P1x(1,1))*alphaX(1,1,1)
+   alphaX(1,1,1) = a1x(1) + sqrt(P1x(1,1))*alphaX(1,1,1)
   
   ELSE
-  	alphaX(1,1,1) = a1x(1) + (P1x(1,2)/P1x(2,2))*(alphaX(2,1,1)-a1x(2)) &
+   alphaX(1,1,1) = a1x(1) + (P1x(1,2)/P1x(2,2))*(alphaX(2,1,1)-a1x(2)) &
                            + sqrt(P1x(1,1) - P1x(1,2)*P1x(1,2)/P1x(2,2))*alphaX(1,1,1)
   END IF
   Z            = RESHAPE((/1.0, 0.0/),(/1, 2/))
@@ -86,22 +86,22 @@ SUBROUTINE crw_simulate(tau2y, tau2x, Qmat, Tmat, x, y, loctype, &
       
      !! SIMULATE NEXT STATE VALUE !!
       alphaMeanY = MATMUL(T,alphaY(:,:,i))
-      IF (Qy(2,2) == 0) THEN	
-      	alphaY(2,1,i+1) = alphaMeanY(2,1)
-      	alphaY(1,1,i+1) = alphaMeanY(1,1) + sqrt(Qy(1,1))*alphaY(1,1,i+1)
+      IF (Qy(2,2) == 0) THEN
+       alphaY(2,1,i+1) = alphaMeanY(2,1)
+       alphaY(1,1,i+1) = alphaMeanY(1,1) + sqrt(Qy(1,1))*alphaY(1,1,i+1)
       ELSE 
-      	alphaY(2,1,i+1) = alphaMeanY(2,1) + sqrt(Qy(2,2))*alphaY(2,1,i+1)
-      	alphaY(1,1,i+1) = alphaMeanY(1,1) + (Qy(1,2)/Qy(2,2))*(alphaY(2,1,i+1)-alphaMeanY(2,1)) &
-                        	+ sqrt(Qy(1,1)-((Qy(1,2)*Qy(1,2))/Qy(2,2)))*alphaY(1,1,i+1)
+       alphaY(2,1,i+1) = alphaMeanY(2,1) + sqrt(Qy(2,2))*alphaY(2,1,i+1)
+       alphaY(1,1,i+1) = alphaMeanY(1,1) + (Qy(1,2)/Qy(2,2))*(alphaY(2,1,i+1)-alphaMeanY(2,1)) &
+                         + sqrt(Qy(1,1)-((Qy(1,2)*Qy(1,2))/Qy(2,2)))*alphaY(1,1,i+1)
       END IF
       alphaMeanX = MATMUL(T,alphaX(:,:,i))
-      IF (Qx(2,2) == 0) THEN	
-      	alphaX(2,1,i+1) = alphaMeanX(2,1)
-      	alphaX(1,1,i+1) = alphaMeanX(1,1) + sqrt(Qx(1,1))*alphaX(1,1,i+1)
+      IF (Qx(2,2) == 0) THEN
+       alphaX(2,1,i+1) = alphaMeanX(2,1)
+       alphaX(1,1,i+1) = alphaMeanX(1,1) + sqrt(Qx(1,1))*alphaX(1,1,i+1)
       ELSE 
-      	alphaX(2,1,i+1) = alphaMeanX(2,1) + sqrt(Qx(2,2))*alphaX(2,1,i+1)
-      	alphaX(1,1,i+1) = alphaMeanX(1,1) + (Qx(1,2)/Qx(2,2))*(alphaX(2,1,i+1)-alphaMeanX(2,1)) &
-                        	+ sqrt(Qx(1,1)-((Qx(1,2)*Qx(1,2))/Qx(2,2)))*alphaX(1,1,i+1)
+       alphaX(2,1,i+1) = alphaMeanX(2,1) + sqrt(Qx(2,2))*alphaX(2,1,i+1)
+       alphaX(1,1,i+1) = alphaMeanX(1,1) + (Qx(1,2)/Qx(2,2))*(alphaX(2,1,i+1)-alphaMeanX(2,1)) &
+                         + sqrt(Qx(1,1)-((Qx(1,2)*Qx(1,2))/Qx(2,2)))*alphaX(1,1,i+1)
       END IF
     END IF
  
@@ -125,20 +125,20 @@ SUBROUTINE crw_simulate(tau2y, tau2x, Qmat, Tmat, x, y, loctype, &
       lly = lly - (log(Fy(i)) + vy(i)*vy(i)/Fy(i))/2      
     END IF
     IF(loctype(i)==1 .OR. Fx(i)==0.0) THEN
-    	ax(:,:,i+1) = MATMUL(T,ax(:,:,i))
-    	axSim(:,:,i+1) = MATMUL(T, axSim(:,:,i))
-    	Px(:,:,i+1) = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(T)) + Qx
-    	Lx(:,:,i) = T
+     ax(:,:,i+1) = MATMUL(T,ax(:,:,i))
+     axSim(:,:,i+1) = MATMUL(T, axSim(:,:,i))
+     Px(:,:,i+1) = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(T)) + Qx
+     Lx(:,:,i) = T
     ELSE
-    	xsim(i) = alphaX(1,1,i) + (sqrt(tau2x(i))/lonadj(i))*xsim(i)
-    	vx(i) = x(i) - ax(1,1,i)
-    	vxSim(i) = xsim(i) - axSim(1,1,i)
-    	Kx = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(Z))/Fx(i)
-    	Lx(:,:,i) = T - MATMUL(Kx,Z)
-    	ax(:,:,i+1) = MATMUL(T,ax(:,:,i)) + Kx*vx(i)
-    	axSim(:,:,i+1) = MATMUL(T,axSim(:,:,i)) + Kx*vxSim(i)
-    	Px(:,:,i+1) = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(Lx(:,:,i))) + Qx
-    	llx = llx - (log(Fx(i)) + vx(i)*vx(i)/Fx(i))/2
+     xsim(i) = alphaX(1,1,i) + (sqrt(tau2x(i))/lonadj(i))*xsim(i)
+     vx(i) = x(i) - ax(1,1,i)
+     vxSim(i) = xsim(i) - axSim(1,1,i)
+     Kx = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(Z))/Fx(i)
+     Lx(:,:,i) = T - MATMUL(Kx,Z)
+     ax(:,:,i+1) = MATMUL(T,ax(:,:,i)) + Kx*vx(i)
+     axSim(:,:,i+1) = MATMUL(T,axSim(:,:,i)) + Kx*vxSim(i)
+     Px(:,:,i+1) = MATMUL(MATMUL(T,Px(:,:,i)),TRANSPOSE(Lx(:,:,i))) + Qx
+     llx = llx - (log(Fx(i)) + vx(i)*vx(i)/Fx(i))/2
     END IF
   END DO
 
@@ -152,11 +152,11 @@ SUBROUTINE crw_simulate(tau2y, tau2x, Qmat, Tmat, x, y, loctype, &
       rySim = TRANSPOSE(Z)*vySim(j)/Fy(j) + MATMUL(TRANSPOSE(Ly(:,:,j)),rySim)      
     END IF
     IF(loctype(j)==1 .OR. Fx(j)==0.0) THEN
-    	rx = MATMUL(TRANSPOSE(Lx(:,:,j)),rx)
-    	rxSim = MATMUL(TRANSPOSE(Lx(:,:,j)),rxSim)
+     rx = MATMUL(TRANSPOSE(Lx(:,:,j)),rx)
+     rxSim = MATMUL(TRANSPOSE(Lx(:,:,j)),rxSim)
     ELSE
-    	rx = TRANSPOSE(Z)*vx(j)/Fx(j) + MATMUL(TRANSPOSE(Lx(:,:,j)),rx)
-    	rxSim = TRANSPOSE(Z)*vxSim(j)/Fx(j) + MATMUL(TRANSPOSE(Lx(:,:,j)),rxSim)
+     rx = TRANSPOSE(Z)*vx(j)/Fx(j) + MATMUL(TRANSPOSE(Lx(:,:,j)),rx)
+     rxSim = TRANSPOSE(Z)*vxSim(j)/Fx(j) + MATMUL(TRANSPOSE(Lx(:,:,j)),rxSim)
     END IF
     
    !! STORE VALUES !!

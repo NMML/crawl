@@ -50,12 +50,12 @@ SUBROUTINE crwdrift_simulate( tau2y, tau2x, Qmat, Tmat, x, y, loctype, &
   IF(P1x(2,2)==0.0) THEN
    c12x = 0.0
   ELSE 
-  	c12x = P1x(1,2)/P1x(2,2)
+   c12x = P1x(1,2)/P1x(2,2)
   END IF
   IF(P1x(3,3) == 0.0) THEN
-  	c13x=0.0
+   c13x=0.0
   ELSE 
-  	c13x = P1x(1,3)/P1x(3,3)
+   c13x = P1x(1,3)/P1x(3,3)
   END IF 
   alphaX(1,1,1) = a1x(1) + (P1x(1,2)/P1x(2,2))*(alphaX(2,1,1)-a1x(2)) &
                          + (P1x(1,3)/P1x(3,3))*(alphaX(3,1,1)-a1x(3)) &

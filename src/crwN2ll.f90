@@ -42,7 +42,7 @@ SUBROUTINE crwn2ll(tau2y, tau2x, Qmat, Tmat, x, y, loctype, stay, &
       ay = MATMUL(T,ay)
       Py = MATMUL(MATMUL(T,Py),TRANSPOSE(T)) + Qy
     ELSE
-      vy = y(i)-ay(1,1)   	
+      vy = y(i)-ay(1,1)
       lly = lly - (log(Fy) + vy*vy/Fy)/2    
       Ky = MATMUL(MATMUL(T,Py),TRANSPOSE(Z))/Fy
       Ly = T - MATMUL(Ky,Z)
