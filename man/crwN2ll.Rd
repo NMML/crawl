@@ -2,10 +2,9 @@
 \alias{crwN2ll}
 \title{-2 * log-likelihood for CTCRW models}
 \usage{
-  crwN2ll(theta, fixPar, y, x, loctype, delta, a1.y, a1.x,
-    P1.x, P1.y, lonAdj, mov.mf, err.mfX, err.mfY, stop.mf,
-    n.errX, n.errY, n.mov, stopMod, driftMod, prior,
-    need.hess, constr = list(lower = -Inf, upper = Inf))
+crwN2ll(theta, fixPar, y, x, loctype, delta, a1.y, a1.x, P1.x, P1.y, lonAdj,
+  mov.mf, err.mfX, err.mfY, stop.mf, n.errX, n.errY, n.mov, stopMod, driftMod,
+  prior, need.hess, constr = list(lower = -Inf, upper = Inf))
 }
 \arguments{
   \item{theta}{parameter values.}
@@ -65,28 +64,28 @@
   constraints}
 }
 \value{
-  -2 * log-likelihood value for specified CTCRW model.
+-2 * log-likelihood value for specified CTCRW model.
 }
 \description{
-  This function is designed for primary use within the
-  \code{\link{crwMLE}} model fitting function. But, it can
-  be accessed for advanced \code{R} and \code{crawl} users.
-  Uses the state-space parameterization and Kalman filter
-  method presented in Johnson et al. (2008).
+This function is designed for primary use within the
+\code{\link{crwMLE}} model fitting function. But, it can be
+accessed for advanced \code{R} and \code{crawl} users. Uses
+the state-space parameterization and Kalman filter method
+presented in Johnson et al. (2008).
 }
 \details{
-  This function calls compiled Fortran code which can be
-  viewed in the \code{src} directory of the crawl library.
+This function calls compiled Fortran code which can be
+viewed in the \code{src} directory of the crawl library.
 }
 \author{
-  Devin S. Johnson
+Devin S. Johnson
 }
 \references{
-  Johnson, D., J. London, M. -A. Lea, and J. Durban. 2008.
-  Continuous-time model for animal telemetry data. Ecology
-  89:1208-1215.
+Johnson, D., J. London, M. -A. Lea, and J. Durban. 2008.
+Continuous-time model for animal telemetry data. Ecology
+89:1208-1215.
 }
 \seealso{
-  \code{\link{crwMLE}}
+\code{\link{crwMLE}}
 }
 

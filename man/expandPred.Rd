@@ -2,7 +2,7 @@
 \alias{expandPred}
 \title{Expand a time indexed data set with additional prediction times}
 \usage{
-  expandPred(x, Time = "Time", predTime, time.col = FALSE)
+expandPred(x, Time = "Time", predTime, time.col = FALSE)
 }
 \arguments{
   \item{x}{Data to be expanded.}
@@ -17,13 +17,13 @@
   attach the new times to the expanded data}
 }
 \value{
-  data.frame expanded by \code{predTime}
+data.frame expanded by \code{predTime}
 }
 \description{
-  Expands a covariate data frame (or vector) that has a
-  separate time index by inserting prediction times and
-  duplicating the covariate values for all prediction time
-  between subsequent data times.
+Expands a covariate data frame (or vector) that has a
+separate time index by inserting prediction times and
+duplicating the covariate values for all prediction time
+between subsequent data times.
 }
 \examples{
 #library(crawl)
@@ -33,6 +33,6 @@ predTime <- seq(1,10, by=0.25)
 expandPred(x, Time=origTime, predTime, time.col=TRUE)
 }
 \author{
-  Devin S. Johnson
+Devin S. Johnson
 }
 

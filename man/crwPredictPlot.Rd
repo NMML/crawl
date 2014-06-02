@@ -2,7 +2,7 @@
 \alias{crwPredictPlot}
 \title{Plot CRW predicted object}
 \usage{
-  crwPredictPlot(object, plotType = "ll", ...)
+crwPredictPlot(object, plotType = "ll", ...)
 }
 \arguments{
   \item{object}{\code{crwPredict} object.}
@@ -14,18 +14,18 @@
   commands.}
 }
 \value{
-  A plot.
+A plot.
 }
 \description{
-  Creates 2 types of plots of a crwPredict object: a plot
-  of both coordinate axes with prediction intervals and a
-  plot of just observed locations and predicted locations.
+Creates 2 types of plots of a crwPredict object: a plot of
+both coordinate axes with prediction intervals and a plot
+of just observed locations and predicted locations.
 }
 \author{
-  Devin S. Johnson and Sebastian Luque
+Devin S. Johnson and Sebastian Luque
 }
 \seealso{
-  See \code{demo(northernFurSealDemo)} for additional
-  examples.
+See \code{demo(northernFurSealDemo)} for additional
+examples.
 }
 

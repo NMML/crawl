@@ -3,8 +3,8 @@
 \title{Create a weighted importance sample for posterior predictive track
 simulation.}
 \usage{
-  crwSamplePar(object.sim, method = "IS", size = 1000,
-    df = Inf, grid.eps = 1, crit = 2.5, scale = 1)
+crwSamplePar(object.sim, method = "IS", size = 1000, df = Inf,
+  grid.eps = 1, crit = 2.5, scale = 1)
 }
 \arguments{
   \item{object.sim}{A simulation object from
@@ -27,89 +27,85 @@ simulation.}
   of the t approximation}
 }
 \value{
-  List with the following elements:
+List with the following elements:
 
-  \item{x}{Longitude coordinate with NA at prediction
-  times}
+\item{x}{Longitude coordinate with NA at prediction times}
 
-  \item{y}{Similar to above for latitude}
+\item{y}{Similar to above for latitude}
 
-  \item{locType}{Indicates prediction types with a "p" or
-  observation times with an "o"} \item{P1.y}{Initial state
-  covariance for latitude}
+\item{locType}{Indicates prediction types with a "p" or
+observation times with an "o"} \item{P1.y}{Initial state
+covariance for latitude}
 
-  \item{P1.x}{Initial state covariance for longitude}
+\item{P1.x}{Initial state covariance for longitude}
 
-  \item{a1.y}{Initial latitude state}
+\item{a1.y}{Initial latitude state}
 
-  \item{a1.x}{Initial longitude state}
+\item{a1.x}{Initial longitude state}
 
-  \item{n.errX}{number of longitude error model parameters}
+\item{n.errX}{number of longitude error model parameters}
 
-  \item{n.errY}{number of latitude error model parameters}
+\item{n.errY}{number of latitude error model parameters}
 
-  \item{delta}{vector of time differences}
+\item{delta}{vector of time differences}
 
-  \item{driftMod}{Logical. indicates random drift model}
+\item{driftMod}{Logical. indicates random drift model}
 
-  \item{stopMod}{Logical. Indicated stop model fitted}
+\item{stopMod}{Logical. Indicated stop model fitted}
 
-  \item{stop.mf}{stop model design matrix}
+\item{stop.mf}{stop model design matrix}
 
-  \item{err.mfX}{Longitude error model design matrix}
+\item{err.mfX}{Longitude error model design matrix}
 
-  \item{err.mfY}{Latitude error model design matrix}
+\item{err.mfY}{Latitude error model design matrix}
 
-  \item{mov.mf}{Movement model design matrix}
+\item{mov.mf}{Movement model design matrix}
 
-  \item{fixPar}{Fixed values for parameters in model
-  fitting}
+\item{fixPar}{Fixed values for parameters in model fitting}
 
-  \item{Cmat}{Covaraince matrix for parameter sampling
-  distribution}
+\item{Cmat}{Covaraince matrix for parameter sampling
+distribution}
 
-  \item{Lmat}{Cholesky decomposition of Cmat}
+\item{Lmat}{Cholesky decomposition of Cmat}
 
-  \item{par}{fitted parameter values}
+\item{par}{fitted parameter values}
 
-  \item{N}{Total number of locations}
+\item{N}{Total number of locations}
 
-  \item{loglik}{log likelihood of the fitted model}
+\item{loglik}{log likelihood of the fitted model}
 
-  \item{Time}{vector of observation times}
+\item{Time}{vector of observation times}
 
-  \item{coord}{names of coordinate vectors in original
-  data}
+\item{coord}{names of coordinate vectors in original data}
 
-  \item{Time.name}{Name of the observation times vector in
-  the original data}
+\item{Time.name}{Name of the observation times vector in
+the original data}
 
-  \item{thetaSampList}{A list containing a data frame of
-  parameter vectors and their associated probabilities for
-  a resample}
+\item{thetaSampList}{A list containing a data frame of
+parameter vectors and their associated probabilities for a
+resample}
 }
 \description{
-  The \code{crwSamplePar} function uses a fitted model
-  object from \code{crwMLE} and a set of prediction times
-  to construct a list from which \code{\link{crwPostIS}}
-  will draw a sample from either the posterior distribution
-  of the state vectors conditional on fitted parameters or
-  a full posterior draw from an importance sample of the
-  parameters.
+The \code{crwSamplePar} function uses a fitted model object
+from \code{crwMLE} and a set of prediction times to
+construct a list from which \code{\link{crwPostIS}} will
+draw a sample from either the posterior distribution of the
+state vectors conditional on fitted parameters or a full
+posterior draw from an importance sample of the parameters.
 }
 \details{
-  The crwSamplePar function uses the information in a
-  \code{\link{crwSimulator}} object to create a set of
-  weights for importance sample-resampling of parameters in
-  a full posterior sample of parameters and locations using
-  \code{\link{crwPostIS}}. This function is usually called
-  from \code{\link{crwPostIS}}. The average user should
-  have no need to call this function directly.
+The crwSamplePar function uses the information in a
+\code{\link{crwSimulator}} object to create a set of
+weights for importance sample-resampling of parameters in a
+full posterior sample of parameters and locations using
+\code{\link{crwPostIS}}. This function is usually called
+from \code{\link{crwPostIS}}. The average user should have
+no need to call this function directly.
 }
 \author{
-  Devin S. Johnson
+Devin S. Johnson
 }
 \seealso{
-  See \code{demo(northernFurSealDemo)} for example.
+See \code{demo(northernFurSealDemo)} for example.
 }
 

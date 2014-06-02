@@ -20,23 +20,3 @@ Description: The (C)orrelated (RA)ndom (W)alk (L)ibrary of
     movement process.
 License: Unlimited
 LazyLoad: yes
-Collate:
-    'AllMethod.R'
-    'crawl-internal.R'
-    'crawl-package.R'
-    'crwMLE.R'
-    'crwN2ll.R'
-    'crwPostIS.R'
-    'crwPredict.R'
-    'crwPredictPlot.R'
-    'crwSamplePar.R'
-    'crwSimulator.R'
-    'crwUseGrid.R'
-    'expandPred.R'
-    'fillCols.R'
-    'getQ.R'
-    'intToPOSIX.R'
-    'logSpeed.R'
-    'mergeTrackStop.R'
-    'aic.crw.R'
-    'displayPar.R'

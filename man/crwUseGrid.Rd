@@ -2,7 +2,7 @@
 \alias{crwUseGrid}
 \title{Compute a spatial use grid from a crawl prediction}
 \usage{
-  crwUseGrid(object, grid, subset = TRUE)
+crwUseGrid(object, grid, subset = TRUE)
 }
 \arguments{
   \item{object}{A 'SpatialPoints' object created with the
@@ -17,15 +17,15 @@
   \code{which}}
 }
 \value{
-  A \code{SpatialGridDataFrame} with data column 'use'
-  which gives the count of locations within the grid cell
+A \code{SpatialGridDataFrame} with data column 'use' which
+gives the count of locations within the grid cell
 }
 \description{
-  This function take a SpatialPoints object and a spatial
-  GridTopology object from the 'sp' package and outputs the
-  number of point locations in each grid cell
+This function take a SpatialPoints object and a spatial
+GridTopology object from the 'sp' package and outputs the
+number of point locations in each grid cell
 }
 \author{
-  Devin S. Johnson <devin.johnson@noaa.gov>
+Devin S. Johnson <devin.johnson@noaa.gov>
 }
 

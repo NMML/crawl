@@ -3,18 +3,18 @@
 \title{Fill missing values in data set (or matrix) columns for which there is a
 single unique value}
 \usage{
-  fillCols(data)
+fillCols(data)
 }
 \arguments{
   \item{data}{data.frame}
 }
 \value{
-  data.frame
+data.frame
 }
 \description{
-  Looks for columns in a data set that have a single unique
-  non-missing value and fills in all \code{NA} with that
-  value
+Looks for columns in a data set that have a single unique
+non-missing value and fills in all \code{NA} with that
+value
 }
 \examples{
 #library(crawl)
@@ -31,6 +31,6 @@ mat2 <- fillCols(mat1)
 mat2
 }
 \author{
-  Devin S. Johnson
+Devin S. Johnson
 }
 

@@ -2,8 +2,8 @@
 \alias{crwPostIS}
 \title{Simulate a value from the posterior distribution of a CTCRW model}
 \usage{
-  crwPostIS(object.sim, fullPost = TRUE, df = Inf,
-    scale = 1, thetaSamp = NULL)
+crwPostIS(object.sim, fullPost = TRUE, df = Inf, scale = 1,
+  thetaSamp = NULL)
 }
 \arguments{
   \item{object.sim}{A crwSimulator object from
@@ -23,55 +23,54 @@
   use the nth sample. Defaults to the last.}
 }
 \value{
-  List with the following elements:
+List with the following elements:
 
-  \item{alpha.sim.y}{A matrix a simulated latitude state
-  values}
+\item{alpha.sim.y}{A matrix a simulated latitude state
+values}
 
-  \item{alpha.sim.x}{Matrix of simulated longitude state
-  values}
+\item{alpha.sim.x}{Matrix of simulated longitude state
+values}
 
-  \item{locType}{Indicates prediction types with a "p" or
-  observation times with an "o"} \item{Time}{Initial state
-  covariance for latitude}
+\item{locType}{Indicates prediction types with a "p" or
+observation times with an "o"} \item{Time}{Initial state
+covariance for latitude}
 
-  \item{loglik}{log likelihood of simulated parameter}
+\item{loglik}{log likelihood of simulated parameter}
 
-  \item{par}{Simulated parameter value}
+\item{par}{Simulated parameter value}
 
-  \item{log.isw}{non normalized log importance sampling
-  weight}
+\item{log.isw}{non normalized log importance sampling
+weight}
 }
 \description{
-  The crwPostIS draws a set of states from the posterior
-  distribution of a fitted CTCRW model. The draw is either
-  conditioned on the fitted parameter values or "full"
-  posterior draw with approximated parameter posterior
+The crwPostIS draws a set of states from the posterior
+distribution of a fitted CTCRW model. The draw is either
+conditioned on the fitted parameter values or "full"
+posterior draw with approximated parameter posterior
 }
 \details{
-  The crwPostIS draws a posterior sample of the track state
-  matrices. If fullPost was set to TRUE when the object.sim
-  was build in \link{crwSimulator} then a psuedo-posterior
-  draw will be made by first sampling a parameter value
-  from a multivariate t distribution which approximates the
-  marginal posterior distribution of the parameters. The
-  covariance matrix from the fitted model object is used to
-  scale the MVt approximation. In addition, the factor
-  "scale" can be used to further adjust the approximation.
-  Further, the parameter simulations are centered on the
-  fitted values.
+The crwPostIS draws a posterior sample of the track state
+matrices. If fullPost was set to TRUE when the object.sim
+was build in \link{crwSimulator} then a psuedo-posterior
+draw will be made by first sampling a parameter value from
+a multivariate t distribution which approximates the
+marginal posterior distribution of the parameters. The
+covariance matrix from the fitted model object is used to
+scale the MVt approximation. In addition, the factor
+"scale" can be used to further adjust the approximation.
+Further, the parameter simulations are centered on the
+fitted values.
 
-  To correct for the MVt approximation, the importance
-  sampling weight is also supplied. When calulating
-  averages of track functions for Bayes estimates one
-  should use the importance sampling weights to calculate a
-  weighted average (normalizing first, so the weights sum
-  to 1).
+To correct for the MVt approximation, the importance
+sampling weight is also supplied. When calulating averages
+of track functions for Bayes estimates one should use the
+importance sampling weights to calculate a weighted average
+(normalizing first, so the weights sum to 1).
 }
 \author{
-  Devin S. Johnson
+Devin S. Johnson
 }
 \seealso{
-  See \code{demo(northernFurSealDemo)} for example.
+See \code{demo(northernFurSealDemo)} for example.
 }
 
