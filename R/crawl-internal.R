@@ -154,6 +154,14 @@
                   -698969170L, -1437928171L, -1156402799L, 1122493543L,
                   -607411559L, 55417736L, 1993198746L, 929142911L,
                   70336915L, -991939639L, -1545046851L, 304940986L)
+
+erf = function(x){
+  return(2*pnorm(x*sqrt(2))-1)
+}
+erfinv = function(z){
+  if(-1>=z | z>=1) stop("Correlation outside of (-1,1)\n")
+  qnorm((z+1)/2)/sqrt(2)
+}
                   
 makeAvail <- function(i, Tmat, Qmat, predx, predy, vary, varx, driftMod, lonadj){
   .T <- matrix(0, 2+driftMod,2+driftMod)

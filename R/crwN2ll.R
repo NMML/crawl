@@ -84,6 +84,7 @@
       call.lik <- "crwn2ll"
    }
    movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod)
+  #browser()
     out <- .Fortran(call.lik,
                     tau2y=as.double(tau2y),
                     tau2x=as.double(tau2x),

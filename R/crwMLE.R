@@ -302,6 +302,7 @@
     thetaAttempt <- theta
     while(attempts > 0 & checkFit == 1) {
       if (!is.null(initialSANN) & method!='SANN') {
+        #browser()
          init <- optim(thetaAttempt, crwN2ll, method='SANN', control=initialSANN,
                        fixPar=fixPar, y=y.lik, x=x.lik, loctype=loctype,
                        delta=c(diff(data[, Time.name]), 1), a1.y=initial.state$a1.y,
