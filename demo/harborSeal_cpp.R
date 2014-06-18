@@ -23,7 +23,6 @@ coordinates(toProj) = ~longitude+latitude
 proj4string(toProj) <- CRS("+proj=longlat")
 toProj <- spTransform(toProj, CRS("+init=epsg:3338"))
 toProj = as.data.frame(toProj)
-#names(toProj)[6:7] = c("x","y")
 hsNew = merge(toProj, hsNew, all=TRUE)
 hsNew = hsNew[order(hsNew$Time),]
 
@@ -40,7 +39,6 @@ fit1 <- crwMLE_cpp(
   mov.model=~1, err.model=list(x=~errX, y=~errY), activity=~I(1-DryTime),
   data=hsNew, coord=c("x","y"), Time.name="Time", 
   initial.state=initial.cpp, fixPar=c(NA, 1, NA, 1, NA, NA, NA), 
-  #theta=c(5.1,5.1,5,3,0),
   control=list(maxit=2000, trace=1, REPORT=1),
   initialSANN=list(maxit=200, trace=1, REPORT=1)
 )
