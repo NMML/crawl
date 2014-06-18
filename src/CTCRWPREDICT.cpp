@@ -8,7 +8,7 @@ using namespace arma;
 // [[Rcpp::export]]
 Rcpp::List CTCRWPREDICT(const arma::mat& y, const  arma::mat& Hmat, 
 const arma::mat& Qmat, const arma::mat& Tmat, 
-const arma::vec& noObs,const arma::vec& activity, const arma::colvec& a,
+const arma::vec& noObs,const arma::vec& active, const arma::colvec& a,
 const arma::mat& P)
 {
   int I = y.n_rows;
@@ -36,7 +36,7 @@ const arma::mat& P)
   double ll=0;
   //Forward filter
   for(int i=0; i<I; i++){
-    if(activity(i)==0){
+    if(active(i)==0){
       T(0,1) = 0; T(1,1)=0; T(2,3)=0; T(3,3)=0;
       Q = 0.0*Q;
     } else{

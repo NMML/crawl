@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // CTCRWNLL
-Rcpp::List CTCRWNLL(const arma::mat& y, const arma::mat& Hmat, const arma::mat& Qmat, const arma::mat& Tmat, const arma::vec& noObs, const arma::vec& activity, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP crawl_CTCRWNLL(SEXP ySEXP, SEXP HmatSEXP, SEXP QmatSEXP, SEXP TmatSEXP, SEXP noObsSEXP, SEXP activitySEXP, SEXP aSEXP, SEXP PSEXP) {
+Rcpp::List CTCRWNLL(const arma::mat& y, const arma::mat& Hmat, const arma::mat& Qmat, const arma::mat& Tmat, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
+RcppExport SEXP crawl_CTCRWNLL(SEXP ySEXP, SEXP HmatSEXP, SEXP QmatSEXP, SEXP TmatSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -18,10 +18,10 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< const arma::mat& >::type Qmat(QmatSEXP );
         Rcpp::traits::input_parameter< const arma::mat& >::type Tmat(TmatSEXP );
         Rcpp::traits::input_parameter< const arma::vec& >::type noObs(noObsSEXP );
-        Rcpp::traits::input_parameter< const arma::vec& >::type activity(activitySEXP );
+        Rcpp::traits::input_parameter< const arma::vec& >::type active(activeSEXP );
         Rcpp::traits::input_parameter< const arma::colvec& >::type a(aSEXP );
         Rcpp::traits::input_parameter< const arma::mat& >::type P(PSEXP );
-        Rcpp::List __result = CTCRWNLL(y, Hmat, Qmat, Tmat, noObs, activity, a, P);
+        Rcpp::List __result = CTCRWNLL(y, Hmat, Qmat, Tmat, noObs, active, a, P);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
@@ -29,8 +29,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // CTCRWPREDICT
-Rcpp::List CTCRWPREDICT(const arma::mat& y, const arma::mat& Hmat, const arma::mat& Qmat, const arma::mat& Tmat, const arma::vec& noObs, const arma::vec& activity, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP crawl_CTCRWPREDICT(SEXP ySEXP, SEXP HmatSEXP, SEXP QmatSEXP, SEXP TmatSEXP, SEXP noObsSEXP, SEXP activitySEXP, SEXP aSEXP, SEXP PSEXP) {
+Rcpp::List CTCRWPREDICT(const arma::mat& y, const arma::mat& Hmat, const arma::mat& Qmat, const arma::mat& Tmat, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
+RcppExport SEXP crawl_CTCRWPREDICT(SEXP ySEXP, SEXP HmatSEXP, SEXP QmatSEXP, SEXP TmatSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -40,10 +40,10 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< const arma::mat& >::type Qmat(QmatSEXP );
         Rcpp::traits::input_parameter< const arma::mat& >::type Tmat(TmatSEXP );
         Rcpp::traits::input_parameter< const arma::vec& >::type noObs(noObsSEXP );
-        Rcpp::traits::input_parameter< const arma::vec& >::type activity(activitySEXP );
+        Rcpp::traits::input_parameter< const arma::vec& >::type active(activeSEXP );
         Rcpp::traits::input_parameter< const arma::colvec& >::type a(aSEXP );
         Rcpp::traits::input_parameter< const arma::mat& >::type P(PSEXP );
-        Rcpp::List __result = CTCRWPREDICT(y, Hmat, Qmat, Tmat, noObs, activity, a, P);
+        Rcpp::List __result = CTCRWPREDICT(y, Hmat, Qmat, Tmat, noObs, active, a, P);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

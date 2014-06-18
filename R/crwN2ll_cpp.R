@@ -74,7 +74,7 @@ crwN2ll_cpp = function(theta, fixPar, y, noObs, delta, a,
     b <- b / ((activity) ^ exp(theta.stop))
     active <- ifelse(b==Inf, 0, 1)
     b <- ifelse(b==Inf, 0, b) 
-  }
+  } else {active=rep(1,N)}
   #if (driftMod) {
   ### Change back for drift model
   if(as.logical(FALSE)){
@@ -88,8 +88,8 @@ crwN2ll_cpp = function(theta, fixPar, y, noObs, delta, a,
     call.lik <- CTCRWNLL
   }
   movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod=FALSE)
-  #browser()
-  ll <- CTCRWNLL( y=as.matrix(y), Hmat, movMats[["Qmat"]], movMats[["Tmat"]], noObs, activity, a,  P)$ll
+  browser()
+  ll <- CTCRWNLL( y=as.matrix(y), Hmat, movMats[["Qmat"]], movMats[["Tmat"]], noObs, active, a,  P)$ll
   if(is.null(prior)) return(-2 * ll)
   else return(-2 * (ll + prior(theta)))
 }
