@@ -1,15 +1,7 @@
 require(crawl)
 data(harborSeal)
 head(harborSeal)
-## Calculate Log multipliers for Argos error
-argosClasses <- c("3", "2", "1", "0", "A", "B")
-ArgosMultFactors <- data.frame(Argos_loc_class=argosClasses, 
-                               errX=log(c(1, 1.5, 4, 14, 5.21, 20.78)), 
-                               errY=log(c(1, 1.5, 4, 14, 11.08, 31.03)))
-hsNew <- merge(harborSeal, ArgosMultFactors, by=c("Argos_loc_class"), all=TRUE)
-hsNew <- hsNew[order(hsNew$Time), ]
-head(hsNew)
-
+harborSeal$Argos_loc_class = factor(harborSeal$Argos_loc_class, levels=c("3","2","1","0","A","B"))
 
 ## Project data ##
 library(sp)
@@ -18,13 +10,13 @@ library(rgdal)
 epsg = make_EPSG()
 epsg[grep("Alaska", epsg$note),1:2]
 
-toProj = hsNew[!is.na(hsNew$latitude),]
+toProj = harborSeal[!is.na(harborSeal$latitude),]
 coordinates(toProj) = ~longitude+latitude
 proj4string(toProj) <- CRS("+proj=longlat")
 toProj <- spTransform(toProj, CRS("+init=epsg:3338"))
 toProj = as.data.frame(toProj)
-hsNew = merge(toProj, hsNew, all=TRUE)
-hsNew = hsNew[order(hsNew$Time),]
+harborSeal = merge(toProj, harborSeal, all=TRUE)
+harborSeal = hsNew[order(harborSeal$Time),]
 
 initial.cpp = list(
   a=c(hsNew$x[1],0,hsNew$y[1],0),
@@ -36,9 +28,10 @@ initial.cpp = list(
 
 set.seed(123)
 fit1 <- crwMLE_cpp(
-  mov.model=~1, err.model=list(x=~errX, y=~errY), activity=~I(1-DryTime),
+  mov.model=~1, err.model=list(x=~Argos_loc_class-1), activity=~I(1-DryTime),
   data=hsNew, coord=c("x","y"), Time.name="Time", 
-  initial.state=initial.cpp, fixPar=c(NA, 1, NA, 1, NA, NA, NA), 
+  initial.state=initial.cpp, fixPar=c(log(250), log(500), log(1500), NA, NA, NA, NA, NA, NA), 
+  constr=list(lower=c(rep(log(1500),3),rep(-Inf,3)), upper=Inf),
   control=list(maxit=2000, trace=1, REPORT=1),
   initialSANN=list(maxit=200, trace=1, REPORT=1)
 )
