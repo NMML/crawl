@@ -59,7 +59,6 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
   ## Model definition/parameters ##
   data <- object.crwFit$data
   driftMod <- object.crwFit$random.drift
-  stopMod <- !is.null(object.crwFit$stop.model)
   mov.mf <- object.crwFit$mov.mf
   activity <- object.crwFit$activity
   err.mfX <- object.crwFit$err.mfX
@@ -122,7 +121,7 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
     b <- b / ((activity) ^ exp(theta.stop))
     active <- ifelse(b==Inf, 0, 1)
     b <- ifelse(b==Inf, 0, b) 
-  }
+  } else active = rep(1,N)
   #if (driftMod) {
   ### Change back for drift model
   if(as.logical(FALSE)){
@@ -137,7 +136,7 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
   }
   movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod)
   #browser()
-  out=CTCRWPREDICT(y, Hmat, movMats$Qmat, movMats$Tmat, noObs, activity, a, P) 
+  out=CTCRWPREDICT(y, Hmat, movMats$Qmat, movMats$Tmat, noObs, active, a, P) 
   
   
   pred <- data.frame(t(out$pred))

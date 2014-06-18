@@ -293,7 +293,7 @@ crwMLE_cpp = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   
   checkFit <- 1
   thetaAttempt <- theta
-  while(attempts > 0 & checkFit == 1) {
+  while(attempts > 0 & checkFit) {
     if (!is.null(initialSANN) & method!='SANN') {
       #browser()
       init <- optim(thetaAttempt, crwN2ll_cpp, method='SANN', control=initialSANN,
@@ -312,9 +312,9 @@ crwMLE_cpp = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                      delta=c(diff(data[, Time.name]), 1), a=initial.state$a, P=initial.state$P,
                      mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, activity=activity,
                      n.mov=n.mov, n.errX=n.errX, n.errY=n.errY, rho=rho,
-                     driftMod=driftMod, prior=prior, need.hess=FALSE, constr=constr), silent=TRUE)
+                     driftMod=driftMod, prior=prior, need.hess=need.hess, constr=constr), silent=TRUE)
     attempts <- attempts - 1
-    checkFit <- 1.0*(inherits(mle, 'try-error'))
+    checkFit = inherits(mle, 'try-error')
   }
   if(inherits(mle, 'try-error')) return(mle)
   else {
