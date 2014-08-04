@@ -1,4 +1,5 @@
 require(crawl)
+require(splines)
 data(harborSeal)
 head(harborSeal)
 harborSeal$Argos_loc_class = factor(harborSeal$Argos_loc_class, levels=c("3","2","1","0","A","B"))
