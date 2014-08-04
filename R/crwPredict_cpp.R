@@ -69,7 +69,7 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
   n.errY <- object.crwFit$n.errY
   n.mov <- object.crwFit$n.mov
   tn <- object.crwFit$Time.name
-  if(inherits(predTime, "POSIXct")) predTime <- as.numeric(predTime)/3600
+  if(inherits(predTime, "POSIXct")) predTime <- as.numeric(predTime)#/3600
   
   ## Data setup ##
   if (!is.null(predTime)) {
@@ -86,18 +86,22 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
     dups <- duplicated(data[, tn]) #& data[,"locType"]==1
     data <- data[!dups, ]
     mov.mf <- as.matrix(expandPred(x=mov.mf, Time=origTime, predTime=predTime))
-    if (stopMod) stop.mf <- as.matrix(expandPred(x=stop.mf, Time=origTime, predTime=predTime))
+    if (!is.null(activity)) activity <- as.matrix(expandPred(x=activity, Time=origTime, predTime=predTime))
     if (!is.null(err.mfX)) err.mfX <- as.matrix(expandPred(x=err.mfX, Time=origTime, predTime=predTime))
     if (!is.null(err.mfY)) err.mfY <- as.matrix(expandPred(x=err.mfY, Time=origTime, predTime=predTime))
+    if (!is.null(rho)) rho <- as.matrix(expandPred(x=rho, Time=origTime, predTime=predTime))
   }
   data$locType[data[,tn]%in%predTime] <- 'p'
   delta <- c(diff(data[, tn]), 1)
   a = object.crwFit$initial.state$a
   P = object.crwFit$initial.state$P
-  y = as.matrix(object.crwFit$data[,object.crwFit$coord])
+  y = as.matrix(data[,object.crwFit$coord])
   noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))
   y[noObs==1,] = 0
   N = nrow(y)
+
+  
+  
   ###
   ### Process parameters for Fortran
   ###
@@ -112,6 +116,7 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
   if(!is.null(rho)){
     Hmat = cbind(Hmat, sqrt(Hmat[,1])*sqrt(Hmat[,2])*rho)
   } else {Hmat = cbind(Hmat, rep(0,N))}
+  Hmat[noObs==1,] = 0
   theta.mov <- par[(n.errX + n.errY + 1):(n.errX + n.errY + 2 * n.mov)]
   sig2 <- exp(2 * (mov.mf %*% theta.mov[1:n.mov]))
   b <- exp(mov.mf %*% theta.mov[(n.mov + 1):(2 * n.mov)])
@@ -135,7 +140,7 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
     #call.lik <- CTCRWNLL
   }
   movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod)
-  #browser()
+
   out=CTCRWPREDICT(y, Hmat, movMats$Qmat, movMats$Tmat, noObs, active, a, P) 
   
   
@@ -172,7 +177,7 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
     attr(out, "flat") <- TRUE
     attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
     attr(out, "random.drift") <- driftMod
-    attr(out, "stop.model") <- object.crwFit$stopMod
+    attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "polar.coord") <- object.crwFit$polar.coord
     attr(out, "Time.name") <- tn
   } else {
@@ -180,7 +185,7 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
     attr(out, "flat") <- FALSE
     attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
     attr(out, "random.drift") <- driftMod
-    attr(out, "stop.model") <- object.crwFit$stopMod
+    attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "polar.coord") <- object.crwFit$polar.coord
     attr(out, "Time.name") <- tn
   }

@@ -6,8 +6,8 @@
 crwMLE_cpp(mov.model = ~1, err.model = NULL, activity = NULL,
   drift = FALSE, data, coord = c("x", "y"), Time.name, initial.state, theta,
   fixPar, method = "L-BFGS-B", control = NULL, constr = list(lower = -Inf,
-  upper = Inf), prior = NULL, need.hess = TRUE, initialSANN = NULL,
-  attempts = 1)
+  upper = Inf), prior = NULL, need.hess = TRUE, initialSANN = list(maxit =
+  200), attempts = 1)
 }
 \arguments{
 \item{mov.model}{formula object specifying the time indexed covariates for

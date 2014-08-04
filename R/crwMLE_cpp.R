@@ -174,7 +174,7 @@
 crwMLE_cpp = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                      data, coord=c("x", "y"), Time.name,
                      initial.state, theta, fixPar, method="L-BFGS-B", control=NULL, constr=list(lower=-Inf, upper=Inf), 
-                     prior=NULL, need.hess=TRUE, initialSANN=NULL, attempts=1)
+                     prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1)
 {
   if(drift) stop("At this time drift models are not supported with this function. Use 'crwMLE' for now.\n")
   st <- Sys.time()
@@ -199,13 +199,13 @@ crwMLE_cpp = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     data <- cbind(slot(data,"data"), coordVals)    
   }
   if(inherits(data[,Time.name],"POSIXct")){
-    data$TimeNum <- as.numeric(data[,Time.name])/3600
+    data$TimeNum <- as.numeric(data[,Time.name])#/3600
     Time.name <- "TimeNum"
   }
   
   
   ### Check for duplicate time records ###
-  if(any(diff(data[,Time.name])==0)) stop("There are duplicate time records for some data entries! Please remove before proceeding.")
+  #if(any(diff(data[,Time.name])==0)) stop("There are duplicate time records for some data entries! Please remove before proceeding.")
   
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
@@ -231,8 +231,8 @@ crwMLE_cpp = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
       n.errY <- 0
     }
     if(!is.null(err.model$rho)){
-      rho = model.matrix(err.model$rho,model.frame(err.model$rho, data, na.action=na.pass))
-      if(rho > 1 | rho < -1) stop("Error model correlation outside of the range (-1, 1).")
+      rho = model.matrix(err.model$rho,model.frame(err.model$rho, data, na.action=na.pass))[,-1]
+      if(any(rho > 1 | rho < -1)) stop("Error model correlation outside of the range (-1, 1).")
     } else rho = NULL
   } else {
     n.errY <- n.errX <- 0
@@ -281,31 +281,23 @@ crwMLE_cpp = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))
   y[noObs==1,] = 0
   
-  ## DEFINING OPTIMIZATION PROCEDURE ##
-  #     if(missing(lower)) {
-  #     	if (method=='SANN' | !driftMod) lower <- -Inf
-  #     	else {
-  #       		if (is.na(fixPar[n.par])) {
-  #           		lower <- c(rep(-Inf, length(theta)-1), 0)
-  #       		} else lower <- -Inf 
-  #     	}
-  #     }
-  
   checkFit <- 1
   thetaAttempt <- theta
   while(attempts > 0 & checkFit) {
     if (!is.null(initialSANN) & method!='SANN') {
       #browser()
+      message("Beginning SANN initialization ...")
       init <- optim(thetaAttempt, crwN2ll_cpp, method='SANN', control=initialSANN,
                     fixPar=fixPar, y=y, noObs=noObs,
                     delta=c(diff(data[, Time.name]), 1), a=initial.state$a, P=initial.state$P,
-                    mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, activity=activity,
+                    mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, rho=rho, activity=activity,
                     n.mov=n.mov, n.errX=n.errX, n.errY=n.errY,
                     driftMod=driftMod, prior=prior, need.hess=FALSE, constr=constr)
       #thetaAttempt <- init$par
     } else init <- list(par=thetaAttempt)
     #if(any(init$par<lower)) init$par[init$par<lower] <- lower[init$par<lower] + 0.000001
     #if(any(init$par>upper)) init$par[init$par>upper] <- upper[init$par>upper] - 0.000001
+    message("Beginning likelihood optimization ...")
     mle <- try(optim(init$par, crwN2ll_cpp, method=method, hessian=need.hess,
                      lower=constr$lower, upper=constr$upper, control=control,					  
                      fixPar=fixPar, y=y, noObs=noObs,
@@ -335,7 +327,7 @@ crwMLE_cpp = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                 activity=activity, random.drift=drift,
                 mov.model=mov.model, err.model=err.model, n.par=n.par, nms=nms,
                 n.mov=n.mov, n.errX=n.errX, n.errY=n.errY,
-                mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY,
+                mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, rho=rho,
                 Time.name=Time.name, init=init, data=data,
                 lower=constr$lower, upper=constr$upper, prior=prior, need.hess=need.hess,
                 runTime=difftime(Sys.time(), st))

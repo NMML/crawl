@@ -65,6 +65,7 @@ crwN2ll_cpp = function(theta, fixPar, y, noObs, delta, a,
   if(!is.null(rho)){
     Hmat = cbind(Hmat, sqrt(Hmat[,1])*sqrt(Hmat[,2])*rho)
   } else {Hmat = cbind(Hmat, rep(0,N))}
+  Hmat[noObs==1,] = 0
   theta.mov <- par[(n.errX + n.errY + 1):(n.errX + n.errY + 2 * n.mov)]
   sig2 <- exp(2 * (mov.mf %*% theta.mov[1:n.mov]))
   b <- exp(mov.mf %*% theta.mov[(n.mov + 1):(2 * n.mov)])
@@ -88,7 +89,7 @@ crwN2ll_cpp = function(theta, fixPar, y, noObs, delta, a,
     call.lik <- CTCRWNLL
   }
   movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod=FALSE)
-  #browser()
+
   ll <- CTCRWNLL( y=as.matrix(y), Hmat, movMats[["Qmat"]], movMats[["Tmat"]], noObs, active, a,  P)$ll
   if(is.null(prior)) return(-2 * ll)
   else return(-2 * (ll + prior(theta)))
