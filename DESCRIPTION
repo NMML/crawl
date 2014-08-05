@@ -9,7 +9,8 @@ Maintainer: Devin S. Johnson <devin.johnson@noaa.gov>
 Depends:
     mvtnorm,
     sp,
-    raster,
+    raster
+Imports:
     Rcpp (>= 0.11.1),
     RcppArmadillo (>= 0.4.200.0)
 LinkingTo: Rcpp, RcppArmadillo
@@ -21,3 +22,6 @@ Description: The (C)orrelated (RA)ndom (W)alk (L)ibrary of
     movement process.
 License: Unlimited
 LazyLoad: yes
+ByteCompile: TRUE
+NeedsCompilation: yes
+

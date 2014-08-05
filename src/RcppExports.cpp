@@ -7,14 +7,14 @@
 using namespace Rcpp;
 
 // makeT
-arma::mat makeT(const double& b, const double delta);
+arma::mat makeT(const double& b, const double& delta);
 RcppExport SEXP crawl_makeT(SEXP bSEXP, SEXP deltaSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< const double& >::type b(bSEXP );
-        Rcpp::traits::input_parameter< const double >::type delta(deltaSEXP );
+        Rcpp::traits::input_parameter< const double& >::type delta(deltaSEXP );
         arma::mat __result = makeT(b, delta);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
@@ -23,7 +23,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // makeQ
-arma::mat makeQ(const double& b, const double& sig2, const double delta);
+arma::mat makeQ(const double& b, const double& sig2, const double& delta);
 RcppExport SEXP crawl_makeQ(SEXP bSEXP, SEXP sig2SEXP, SEXP deltaSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
@@ -31,7 +31,7 @@ BEGIN_RCPP
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< const double& >::type b(bSEXP );
         Rcpp::traits::input_parameter< const double& >::type sig2(sig2SEXP );
-        Rcpp::traits::input_parameter< const double >::type delta(deltaSEXP );
+        Rcpp::traits::input_parameter< const double& >::type delta(deltaSEXP );
         arma::mat __result = makeQ(b, sig2, delta);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }

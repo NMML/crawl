@@ -23,7 +23,7 @@ using namespace arma;
 //} 
 
 // [[Rcpp::export]]
-arma::mat makeT(const double& b, const double delta){
+arma::mat makeT(const double& b, const double& delta){
   arma::mat T(4,4, fill::zeros);
   T(0,0) = 1; T(2,2) = 1;
   T(0,1) = exp(R::pexp(delta,1/b,1,1) - log(b));
@@ -34,7 +34,7 @@ arma::mat makeT(const double& b, const double delta){
 }
 
 // [[Rcpp::export]]
-arma::mat makeQ(const double& b, const double& sig2, const double delta){
+arma::mat makeQ(const double& b, const double& sig2, const double& delta){
   arma::mat Q(4,4, fill::zeros);
   Q(0,0) =  sig2*(delta - 2*exp(R::pexp(delta,1/b,1,1)-log(b))  + exp(R::pexp(delta,1/(2*b),1,1)-log(2*b)));
   Q(1,1) = sig2*exp(log(b) + R::pexp(delta,1/(2*b),1,1))/2;
