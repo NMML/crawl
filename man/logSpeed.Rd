@@ -3,25 +3,17 @@
 \alias{logSpeed}
 \title{calculate estimate of log speed from a crwPredict object}
 \usage{
-logSpeed(predx, predy, varx, vary, polar.coord)
+logSpeed(alpha.hat, V.hat)
 }
 \arguments{
-\item{predx}{matrix of longitude state estimates.}
+\item{alpha.hat}{State estimates from \code{\link{crwPredict}}}
 
-\item{predy}{matrix of latitude state estimates.}
-
-\item{varx}{an array of covariance matrices for predx.}
-
-\item{vary}{ana array of covariance matrices for predy.}
-
-\item{polar.coord}{Logical. TRUE if coordinates are polar.}
+\item{V.hat}{An array of covariance matrices for alpha.hat.}
 }
 \value{
 data.frame with colums:
 
-\item{ln.speed}{log speed estimate (in meters/time unit if
-\code{polar.coord=TRUE}.}
-
+\item{ln.speed}{log speed estimate (in meters/time unit)}
 \item{var.ln.speed}{log speed estimated standard error.}
 }
 \description{

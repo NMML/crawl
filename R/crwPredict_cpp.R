@@ -55,7 +55,7 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
     warning("The 'flat=TRUE' argument cannot be used in conjunction with 'getUseAvail=TRUE' argument.")
     flat <- FALSE
   }
-
+  
   ## Model definition/parameters ##
   data <- object.crwFit$data
   driftMod <- object.crwFit$random.drift
@@ -99,7 +99,7 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
   noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))
   y[noObs==1,] = 0
   N = nrow(y)
-
+  
   
   
   ###
@@ -140,7 +140,7 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
     #call.lik <- CTCRWNLL
   }
   movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod)
-
+  
   out=CTCRWPREDICT(y, Hmat, movMats$Qmat, movMats$Tmat, noObs, active, a, P) 
   
   
@@ -153,8 +153,9 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
                        predObs.y=out$predObs[2,])
   obsFit$outlier.chisq <- out$chisq
   obsFit$naive.p.val <- 1 - pchisq(obsFit$outlier.chisq, 2)
-  if (speedEst) {
-    log.speed <- logSpeed(predx, predy, varx, vary, object.crwFit$polar.coord)
+  #   if (speedEst) {
+  if(FALSE){
+    log.speed <- logSpeed(...)
   } else log.speed <- NULL
   if(getUseAvail){
     idx <- data$locType=="p"

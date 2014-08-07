@@ -1,10 +1,11 @@
-# library(crawl)
-library(ggplot2)
+require(crawl)
+require(splines)
 data(harborSeal)
 head(harborSeal)
 harborSeal$Argos_loc_class = factor(harborSeal$Argos_loc_class, levels=c("3","2","1","0","A","B"))
 
 ## Project data ##
+library(sp)
 library(rgdal)
 
 toProj = harborSeal[!is.na(harborSeal$latitude),]
@@ -14,6 +15,7 @@ toProj <- spTransform(toProj, CRS("+init=epsg:3338"))
 toProj = as.data.frame(toProj)
 harborSeal = merge(toProj, harborSeal, all=TRUE)
 harborSeal = harborSeal[order(harborSeal$Time),]
+#harborSeal$Time = harborSeal$Time*3600
 
 initial.cpp = list(
   a=c(harborSeal$x[1],0,harborSeal$y[1],0),
@@ -22,26 +24,34 @@ initial.cpp = list(
 
 ##Fit model as given in Johnson et al. (2008) Ecology 89:1208-1215
 ## Start values for theta come from the estimates in Johnson et al. (2008)
-fixPar = c(log(250), log(500), log(1500), rep(NA,5), 0)
-displayPar_cpp( mov.model=~1, err.model=list(x=~Argos_loc_class-1),data=harborSeal, 
-                activity=~I(1-DryTime),fixPar=fixPar)
-constr=list(
-  lower=c(rep(log(1500),3), rep(-Inf,2)),
-  upper=rep(Inf,5)
-)
 
-set.seed(123)
+### Show all the parameters to provide start values and define a prior...
+df=50
+theta.start = c(rep(log(2000),3),log(5400),rep(0,df),rep(0,df+1))
+fixPar = c(log(250), log(500), log(1500), rep(NA,2*df+8-3), 0)
+displayPar_cpp( mov.model=~bs(harborSeal$Time, df=df), err.model=list(x=~Argos_loc_class-1),data=harborSeal, 
+                activity=~I(1-DryTime),fixPar=fixPar, theta=theta.start
+                )
+constr=list(lower=c(rep(log(1500),3),rep(-Inf,2*df+5-3)), upper=rep(Inf,2*df+5))
+tune=1
+prior = function(par){(sum(-abs(par[5:(df+4)])) + sum(-abs(par[(df+6):(2*df+5)])))/tune}
+set.seed(321)
 fit1 <- crwMLE_cpp(
-  mov.model=~1, err.model=list(x=~Argos_loc_class-1), activity=~I(1-DryTime),
+  mov.model=~bs(harborSeal$Time, df=df), err.model=list(x=~Argos_loc_class-1), activity=~I(1-DryTime),
   data=harborSeal, coord=c("x","y"), Time.name="Time", 
-  initial.state=initial.cpp, fixPar=fixPar, theta=c(rep(log(5000),3),log(3*3600), 3),
+  initial.state=initial.cpp, fixPar=fixPar, 
   constr=constr,
+  theta = theta.start,
+  prior=prior,
   control=list(maxit=2000, trace=1, REPORT=1),
-  initialSANN=list(maxit=200, trace=1, temp=20, tmax=20, REPORT=1)
+  initialSANN=list(maxit=10000, temp=100, tmax=100, trace=1, REPORT=1)
 )
 
 print(fit1)
-pred1 = crwPredict_cpp(fit1, predTime=NULL, flat=TRUE)
+
+pred1 = crwPredict_cpp(fit1, predTime=NULL, speedEst=FALSE, flat=TRUE, getUseAvail=FALSE)
+
+require(ggplot2)
 p1=ggplot(aes(x=mu.x, y=mu.y), data=pred1) + geom_path(col="red", asp=TRUE) + geom_point(aes(x=x, y=y), col="blue") + coord_fixed()
 p2=ggplot(aes(x=Time, y=mu.x), data=pred1) + geom_ribbon(aes(ymin=mu.x-2*se.mu.x, ymax=mu.x+2*se.mu.x), fill="green", alpha=0.5)  + 
   geom_path(, col="red") + geom_point(aes(x=Time, y=x), col="blue", size=1)
@@ -54,6 +64,13 @@ print(p3)
 # ggsave("xaxis.pdf", p2, width=10, height=2)
 # ggsave("yaxis.pdf", p3, width=10, height=2)
 
+displayPar_cpp( mov.model=~bs(harborSeal$Time, df=df), err.model=list(x=~Argos_loc_class-1),data=harborSeal, 
+                activity=~I(1-DryTime),fixPar=fit1$par)
+
+vel.cor = exp(-exp(fit1$mov.mf%*%fit1$par[(df+8):(2*df+8)]))
+vel.sd = exp(fit1$mov.mf%*%fit1$par[7:(df+7)])
+plot(fit1$data$Time, vel.cor, type='l')
+plot(vel.cor, vel.sd)
 
 # 
 # ##See simulated annealing start values
