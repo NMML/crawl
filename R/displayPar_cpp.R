@@ -75,7 +75,7 @@ displayPar_cpp <- function(mov.model=~1, err.model=NULL, stop.model=NULL, activi
     }
     if(!is.null(err.model$rho)){
       rho = model.matrix(err.model$rho,model.frame(err.model$rho, data, na.action=na.pass))[,-1]
-      if(any(rho > 1 | rho < -1)) stop("Error model correlation outside of the range (-1, 1).")
+      if(any(rho > 1 | rho < -1, na.rm=TRUE)) stop("Error model correlation outside of the range (-1, 1).")
     } else rho = NULL
   } else {
     n.errY <- n.errX <- 0
