@@ -1,6 +1,6 @@
 Package: crawl
 Type: Package
-Title: Fit continuous-time correlated random walk models
+Title: Fit Continuous-time Correlated Random Walk Models
     to animal movement data
 Version: 1.901
 Date: 10-23-2014
