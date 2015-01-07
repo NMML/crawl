@@ -13,7 +13,7 @@ a \code{\link{data.frame}} version of a crwPredict list with columns
 for the state standard errors
 }
 \description{
-\dQuote{Flattens} a list form \code{\link{crwPredict_cpp}} object into a flat
+\dQuote{Flattens} a list form \code{\link{crwPredict}} object into a flat
 data.frame.
 }
 \author{

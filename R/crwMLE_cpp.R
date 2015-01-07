@@ -71,19 +71,18 @@
 #' movement parameters.
 #' @param err.model A 2-element list of formula objects specifying the time
 #' indexed covariates for location error parameters.
-#' @param stop.model formula object giving the covariate for the stopping
+#' @param activity formula object giving the covariate for the activity (i.e., stopped or fully moving)
 #' portion of the model.
-#' @param drift.model logical indicating whether or not to include a random
-#' drift component.
+#' @param drift logical indicating whether or not to include a random
+#' drift component. For most data this is usually not necessary. See \code{\link{northernFurSeal}} for an example
+#' using a drift model.
 #' @param data data.frame object containg telemetry and covariate data. A 
 #'   'SpatialPointsDataFrame' object from the package 'sp' or an 'STIDF' from the package 
-#'   'spacetime' will also be accepted. In which case the \code{polar.coord} and
+#'   'spacetime' will also be accepted. In which case the
 #'   \code{coord} (and \code{Time.name} for 'STIDF') values will be taken from the spatial
 #'   data set and ignored in the arguments.
 #' @param coord A 2-vector of character values giving the names of the "X" and
 #' "Y" coordinates in \code{data}.
-#' @param polar.coord logical indicating location are in degrees latitude and
-#' longitude.
 #' @param Time.name character indicating name of the location time column
 #' @param initial.state list object containg the inital state of the Kalman
 #' filter.
@@ -132,9 +131,9 @@
 #' 
 #' \item{message}{Meesages given by \code{optim} during parameter optimization}
 #' 
-#' \item{stop.model}{Model provided for stopping variable}
+#' \item{activity}{Model provided for stopping variable}
 #' 
-#' \item{random.drift}{Logical value indicating random drift model}
+#' \item{drift}{Logical value indicating random drift model}
 #' 
 #' \item{mov.model}{Model description for movement component}
 #' 
@@ -171,7 +170,7 @@
 #' @author Devin S. Johnson, Josh M. London
 #' @export
 
-crwMLE_cpp = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
+crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                      data, coord=c("x", "y"), Time.name,
                      initial.state, theta, fixPar, method="L-BFGS-B", control=NULL, constr=list(lower=-Inf, upper=Inf), 
                      prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1)
@@ -287,7 +286,7 @@ crwMLE_cpp = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     if (!is.null(initialSANN) & method!='SANN') {
       #browser()
       message("Beginning SANN initialization ...")
-      init <- optim(thetaAttempt, crwN2ll_cpp, method='SANN', control=initialSANN,
+      init <- optim(thetaAttempt, crwN2ll, method='SANN', control=initialSANN,
                     fixPar=fixPar, y=y, noObs=noObs,
                     delta=c(diff(data[, Time.name]), 1), a=initial.state$a, P=initial.state$P,
                     mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, rho=rho, activity=activity,
@@ -298,7 +297,7 @@ crwMLE_cpp = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     #if(any(init$par<lower)) init$par[init$par<lower] <- lower[init$par<lower] + 0.000001
     #if(any(init$par>upper)) init$par[init$par>upper] <- upper[init$par>upper] - 0.000001
     message("Beginning likelihood optimization ...")
-    mle <- try(optim(init$par, crwN2ll_cpp, method=method, hessian=need.hess,
+    mle <- try(optim(init$par, crwN2ll, method=method, hessian=need.hess,
                      lower=constr$lower, upper=constr$upper, control=control,					  
                      fixPar=fixPar, y=y, noObs=noObs,
                      delta=c(diff(data[, Time.name]), 1), a=initial.state$a, P=initial.state$P,

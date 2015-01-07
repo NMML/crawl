@@ -29,14 +29,14 @@ initial.cpp = list(
 df=50
 theta.start = c(rep(log(2000),3),log(5400),rep(0,df),rep(0,df+1))
 fixPar = c(log(250), log(500), log(1500), rep(NA,2*df+8-3), 0)
-displayPar_cpp( mov.model=~bs(harborSeal$Time, df=df), err.model=list(x=~Argos_loc_class-1),data=harborSeal, 
+displayPar( mov.model=~bs(harborSeal$Time, df=df), err.model=list(x=~Argos_loc_class-1),data=harborSeal, 
                 activity=~I(1-DryTime),fixPar=fixPar, theta=theta.start
                 )
 constr=list(lower=c(rep(log(1500),3),rep(-Inf,2*df+5-3)), upper=rep(Inf,2*df+5))
 tune=1
 prior = function(par){(sum(-abs(par[5:(df+4)])) + sum(-abs(par[(df+6):(2*df+5)])))/tune}
 set.seed(321)
-fit1 <- crwMLE_cpp(
+fit1 <- crwMLE(
   mov.model=~bs(harborSeal$Time, df=df), err.model=list(x=~Argos_loc_class-1), activity=~I(1-DryTime),
   data=harborSeal, coord=c("x","y"), Time.name="Time", 
   initial.state=initial.cpp, fixPar=fixPar, 
@@ -49,7 +49,7 @@ fit1 <- crwMLE_cpp(
 
 print(fit1)
 
-pred1 = crwPredict_cpp(fit1, predTime=NULL, speedEst=FALSE, flat=TRUE, getUseAvail=FALSE)
+pred1 = crwPredict(fit1, predTime=NULL, speedEst=FALSE, flat=TRUE, getUseAvail=FALSE)
 
 require(ggplot2)
 p1=ggplot(aes(x=mu.x, y=mu.y), data=pred1) + geom_path(col="red", asp=TRUE) + geom_point(aes(x=x, y=y), col="blue") + coord_fixed()
@@ -64,7 +64,7 @@ print(p3)
 # ggsave("xaxis.pdf", p2, width=10, height=2)
 # ggsave("yaxis.pdf", p3, width=10, height=2)
 
-displayPar_cpp( mov.model=~bs(harborSeal$Time, df=df), err.model=list(x=~Argos_loc_class-1),data=harborSeal, 
+displayPar( mov.model=~bs(harborSeal$Time, df=df), err.model=list(x=~Argos_loc_class-1),data=harborSeal, 
                 activity=~I(1-DryTime),fixPar=fit1$par)
 
 vel.cor = exp(-exp(fit1$mov.mf%*%fit1$par[(df+8):(2*df+8)]))

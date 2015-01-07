@@ -10,12 +10,13 @@
 #'indexed covariates for location error parameters.
 #'@param activity formula object giving the covariate for the stopping
 #'portion of the model.
-#'@param drift.model logical indicating whether or not to include a random
+#'@param drift logical indicating whether or not to include a random
 #'drift component.
 #'@param data data.frame object containg telemetry and covariate data. A
 #'\code{\link{SpatialPointsDataFrame}} object from the package 'sp' will also be accepted.
 #'@param theta starting values for parameter optimization.
 #'@param fixPar Values of parameters which are held fixed to the given value.
+#'@param ... Additional arguments (probably for testing new features.)
 #' 
 #'@return A data frame with the following columns
 #' 
@@ -34,7 +35,7 @@
 #'  
 #'@export 
 
-displayPar_cpp <- function(mov.model=~1, err.model=NULL, stop.model=NULL, activity=NULL, drift=FALSE, data, theta, fixPar,...){
+displayPar <- function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE, data, theta, fixPar, ...){
   if(inherits(data, "trip")){
     Time.name <- data@TOR.columns[1]
   }

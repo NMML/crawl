@@ -23,7 +23,7 @@ initial.cpp = list(
 ##Fit model as given in Johnson et al. (2008) Ecology 89:1208-1215
 ## Start values for theta come from the estimates in Johnson et al. (2008)
 fixPar = c(log(250), log(500), log(1500), rep(NA,5), 0)
-displayPar_cpp( mov.model=~1, err.model=list(x=~Argos_loc_class-1),data=harborSeal, 
+displayPar( mov.model=~1, err.model=list(x=~Argos_loc_class-1),data=harborSeal, 
                 activity=~I(1-DryTime),fixPar=fixPar)
 constr=list(
   lower=c(rep(log(1500),3), rep(-Inf,2)),
@@ -31,7 +31,7 @@ constr=list(
 )
 
 set.seed(123)
-fit1 <- crwMLE_cpp(
+fit1 <- crwMLE(
   mov.model=~1, err.model=list(x=~Argos_loc_class-1), activity=~I(1-DryTime),
   data=harborSeal, coord=c("x","y"), Time.name="Time", 
   initial.state=initial.cpp, fixPar=fixPar, theta=c(rep(log(5000),3),log(3*3600), 3),
@@ -41,7 +41,7 @@ fit1 <- crwMLE_cpp(
 )
 
 print(fit1)
-pred1 = crwPredict_cpp(fit1, predTime=NULL, flat=TRUE)
+pred1 = crwPredict(fit1, predTime=NULL, flat=TRUE)
 p1=ggplot(aes(x=mu.x, y=mu.y), data=pred1) + geom_path(col="red", asp=TRUE) + geom_point(aes(x=x, y=y), col="blue") + coord_fixed()
 p2=ggplot(aes(x=Time, y=mu.x), data=pred1) + geom_ribbon(aes(ymin=mu.x-2*se.mu.x, ymax=mu.x+2*se.mu.x), fill="green", alpha=0.5)  + 
   geom_path(, col="red") + geom_point(aes(x=Time, y=x), col="blue", size=1)

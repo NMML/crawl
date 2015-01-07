@@ -26,7 +26,7 @@ crwMLE.argos = function(mov.model=~1, quality=NULL, diagnostic=NULL, activity=NU
   } else{
     qual = model.frame(quality, data, na.action=na.pass)
   }
-  out=crwMLE_cpp(
+  out=crwMLE(
     mov.model=mov.model, err.model=list(x=x.err, y=y.err, rho=rho), drift=drift, activity=activity, data=data, 
     coord=coord, Time.name=Time.name, fixPar=fixPar,...)
   return(out)

@@ -7,9 +7,14 @@
 #' version of the continuous-time staochistic movement process.
 #' 
 #' 
-#' \tabular{ll}{ Package: \tab crawl\cr Type: \tab Package\cr Version: \tab
-#' 1.901\cr Date: \tab October 23, 2014\cr License: \tab Unlimited \cr LazyLoad: \tab
-#' yes\cr }
+#' \tabular{ll}{ 
+#' Package: \tab crawl\cr 
+#' Type: \tab Package\cr 
+#' Version: \tab 1.902\cr 
+#' Date: \tab January 6, 2015\cr 
+#' License: \tab Unlimited \cr 
+#' LazyLoad: \tab yes\cr 
+#' }
 #' 
 #' @name crawl-package
 #' @aliases crawl-package crawl
@@ -20,6 +25,9 @@
 #' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
 #' Continuous-time correlated random walk model for animal telemetry data.
 #' Ecology 89(5) 1208-1215.
+#' @import Rcpp RcppArmadillo
+#' @useDynLib crawl
+
 NULL
 
 #' Northern fur seal pup relocation data set used in Johnson et al. (2008)

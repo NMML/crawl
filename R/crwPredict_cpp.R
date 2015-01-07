@@ -18,9 +18,8 @@
 #' 
 #' @param object.crwFit A model object from \code{\link{crwMLE}}.
 #' @param predTime vector of additional prediction times (numeric or POSIXct).
-#' @param speedEst logical. Estimate animal speed or not.
 #' @param flat logical. Should the result be returned as a flat data.frame.
-#' @param getUseAvail logical. This is a test function. Not for general use yet.
+#' @param ... Additional arguments for testing new features
 #' @return
 #' 
 #' List with the following elements:
@@ -33,11 +32,6 @@
 #' \item{Var.hat}{array where \code{Var.hat[,,i]} is the prediction
 #' covariance matrix for \code{alpha.hat[,i]}.}
 #' 
-#' \item{speed}{(If \code{speedEst=TRUE}) Gives log speed estimates for each
-#' time and standard errors based on delta method. If coordinates are polar,
-#' units are meters/unit \code{Time}, else, units are those specified by the
-#' coordinates.}
-#' 
 #' \item{fit.test}{A data.frame of chi-square fit (df=2) statistics and naive
 #' (pointwise) p-values.}
 #' 
@@ -49,8 +43,9 @@
 #' series. Journal of the American Statistical Association 93:796-806.
 #' @export
 
-crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE, getUseAvail=FALSE)
+crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
 {
+  if(!exists("getUseAvail")) getUseAvail=FALSE
   if(flat & getUseAvail){
     warning("The 'flat=TRUE' argument cannot be used in conjunction with 'getUseAvail=TRUE' argument.")
     flat <- FALSE
@@ -153,33 +148,30 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
                        predObs.y=out$predObs[2,])
   obsFit$outlier.chisq <- out$chisq
   obsFit$naive.p.val <- 1 - pchisq(obsFit$outlier.chisq, 2)
-  #   if (speedEst) {
-  if(FALSE){
-    log.speed <- logSpeed(...)
-  } else log.speed <- NULL
   if(getUseAvail){
-    idx <- data$locType=="p"
-    movMatsPred <- getQT(sig2[idx], b[idx], sig2.drift[idx], b.drift[idx], delta=c(diff(data[idx,tn]),1), driftMod)
-    TmatP <- movMatsPred$Tmat
-    QmatP <- movMatsPred$Qmat
-    avail <- t(sapply(1:(nrow(TmatP)-1), makeAvail, Tmat=TmatP, Qmat=QmatP, predx=predx[idx,], predy=predy[idx,], 
-                      vary=vary[,,idx], varx=varx[,,idx], driftMod=driftMod, lonadj=lonAdjVals[idx]))
-    avail <- cbind(data[idx,tn][-1], avail)
-    colnames(avail) <- c(tn, "meanAvail.x", "meanAvail.y", "varAvail.x", "varAvail.y")
-    use <- cbind(data[idx,tn], predx[idx,1], predy[idx,1], varx[1,1,idx], vary[1,1,idx])[-1,]
-    colnames(use) <- c(tn, "meanUse.x", "meanUse.y", "varUse.x", "varUse.y")
-    UseAvail.lst <- list(use=use, avail=avail)
+#     idx <- data$locType=="p"
+#     movMatsPred <- getQT(sig2[idx], b[idx], sig2.drift[idx], b.drift[idx], delta=c(diff(data[idx,tn]),1), driftMod)
+#     TmatP <- movMatsPred$Tmat
+#     QmatP <- movMatsPred$Qmat
+#     avail <- t(sapply(1:(nrow(TmatP)-1), makeAvail, Tmat=TmatP, Qmat=QmatP, predx=predx[idx,], predy=predy[idx,], 
+#                       vary=vary[,,idx], varx=varx[,,idx], driftMod=driftMod, lonadj=lonAdjVals[idx]))
+#     avail <- cbind(data[idx,tn][-1], avail)
+#     colnames(avail) <- c(tn, "meanAvail.x", "meanAvail.y", "varAvail.x", "varAvail.y")
+#     use <- cbind(data[idx,tn], predx[idx,1], predy[idx,1], varx[1,1,idx], vary[1,1,idx])[-1,]
+#     colnames(use) <- c(tn, "meanUse.x", "meanUse.y", "varUse.x", "varUse.y")
+#     UseAvail.lst <- list(use=use, avail=avail)
+    UseAvail.lst=NULL
   }
   else UseAvail.lst=NULL
+  speed = sqrt(apply(matrix(pred[,2:(2+driftMod)]), 1, sum)^2 + apply(matrix(pred[,(4+driftMod):(4+2*driftMod)]), 1, sum)^2)
   out <- list(originalData=fillCols(data), alpha.hat=pred, 
-              V.hat=var, speed=log.speed, loglik=out$ll, useAvail=UseAvail.lst)
+              V.hat=var, speed=speed, loglik=out$ll, useAvail=UseAvail.lst)
   if (flat) {
     out <- cbind(fillCols(flatten(out)), obsFit)
     attr(out, "flat") <- TRUE
     attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
-    attr(out, "polar.coord") <- object.crwFit$polar.coord
     attr(out, "Time.name") <- tn
   } else {
     out <- append(out, list(fit.test=obsFit))
@@ -187,7 +179,6 @@ crwPredict_cpp=function(object.crwFit, predTime=NULL, speedEst=FALSE, flat=TRUE,
     attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
-    attr(out, "polar.coord") <- object.crwFit$polar.coord
     attr(out, "Time.name") <- tn
   }
   class(out) <- c(class(out),"crwPredict")

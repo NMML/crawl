@@ -12,9 +12,14 @@ covariates. The model is fit using the Kalman-Filter on a state space
 version of the continuous-time staochistic movement process.
 }
 \details{
-\tabular{ll}{ Package: \tab crawl\cr Type: \tab Package\cr Version: \tab
-1.901\cr Date: \tab October 23, 2014\cr License: \tab Unlimited \cr LazyLoad: \tab
-yes\cr }
+\tabular{ll}{
+Package: \tab crawl\cr
+Type: \tab Package\cr
+Version: \tab 1.902\cr
+Date: \tab January 6, 2015\cr
+License: \tab Unlimited \cr
+LazyLoad: \tab yes\cr
+}
 }
 \author{
 Devin S. Johnson
