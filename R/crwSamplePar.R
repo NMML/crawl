@@ -124,10 +124,11 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
       par[eInd] <- parMLE[eInd] + eps
       if(df==Inf) dens <- dmvnorm(eps, sigma=scale*Cmat, log=TRUE) - dmvnorm(0.0*eps, sigma=scale*Cmat, log=TRUE)
       else dens <- dmvt(eps, sigma=scale*Cmat, df=df, log=TRUE) - dmvt(0.0*eps, sigma=scale*Cmat, df=df, log=TRUE)
+      ln.prior = ifelse(!is.null(prior), prior(par[eInd]), 0)
       n2ll.val <- crwN2ll(par[eInd], fixPar, y, noObs, delta, a,
                           P, mov.mf, err.mfX, err.mfY, rho=rho, activity=activity,
                           n.errX, n.errY, n.mov, driftMod, prior, need.hess=FALSE, 
-                          constr=list(lower=lower, upper=upper)) + prior(par[is.na(fixPar)])
+                          constr=list(lower=lower, upper=upper)) + ln.prior
       thetaMat[i,] <- c(-n2ll.val/2 - dens, -n2ll.val/2, dens, par)
     }
     thetaMat[size,] <- c(object.sim$loglik, object.sim$loglik, 0, object.sim$par)
