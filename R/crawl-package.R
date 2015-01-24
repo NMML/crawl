@@ -10,8 +10,8 @@
 #' \tabular{ll}{ 
 #' Package: \tab crawl\cr 
 #' Type: \tab Package\cr 
-#' Version: \tab 1.902\cr 
-#' Date: \tab January 6, 2015\cr 
+#' Version: \tab 1.910\cr 
+#' Date: \tab January 23, 2015\cr 
 #' License: \tab Unlimited \cr 
 #' LazyLoad: \tab yes\cr 
 #' }

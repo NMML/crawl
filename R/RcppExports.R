@@ -17,3 +17,7 @@ CTCRWPREDICT <- function(y, Hmat, Qmat, Tmat, noObs, active, a, P) {
     .Call('crawl_CTCRWPREDICT', PACKAGE = 'crawl', y, Hmat, Qmat, Tmat, noObs, active, a, P)
 }
 
+CTCRWSAMPLE <- function(y, Hmat, Qmat, Tmat, noObs, active, a, P) {
+    .Call('crawl_CTCRWSAMPLE', PACKAGE = 'crawl', y, Hmat, Qmat, Tmat, noObs, active, a, P)
+}
+

@@ -98,7 +98,7 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   
   
   ###
-  ### Process parameters for Fortran
+  ### Process parameters for C++
   ###
   if (!is.null(err.mfX)) {
     theta.errX <- par[1:n.errX]
@@ -117,8 +117,8 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   b <- exp(mov.mf %*% theta.mov[(n.mov + 1):(2 * n.mov)])
   #activity <- rep(1, N)
   if (!is.null(activity)) {
-    theta.stop <- par[(n.errX + n.errY + 2 * n.mov + 1)]
-    b <- b / ((activity) ^ exp(theta.stop))
+    theta.activ <- par[(n.errX + n.errY + 2 * n.mov + 1)]
+    b <- b / ((activity) ^ exp(theta.activ))
     active <- ifelse(b==Inf, 0, 1)
     b <- ifelse(b==Inf, 0, b) 
   } else active = rep(1,N)
@@ -149,6 +149,7 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   obsFit$outlier.chisq <- out$chisq
   obsFit$naive.p.val <- 1 - pchisq(obsFit$outlier.chisq, 2)
   if(getUseAvail){
+    warning("'getUseAvail' not implemented yet in this version of 'crawl' contact Devin to fix this! ")
 #     idx <- data$locType=="p"
 #     movMatsPred <- getQT(sig2[idx], b[idx], sig2.drift[idx], b.drift[idx], delta=c(diff(data[idx,tn]),1), driftMod)
 #     TmatP <- movMatsPred$Tmat

@@ -1,3 +1,17 @@
+#' @title Tranform Argos diagnostic data to covariance matrix form
+#' 
+#' @description Using this function the user can transform the Argos diagnostic data for location
+#' error into a form usable as a covariance matrix to approximate the location error with a
+#' bivariate Gaussian distribution. The resulting data.frame should be attached back to the data
+#' with \code{cbind} to use with the \code{crwMLE} function.
+#' @param Major A vector containing the major axis information for each observation
+#' @param Minor  A vector containing the minor axis information for each observation
+#' @param Orientation A vector containing the angle orientation of the Major axis from North
+#' @return A \code{data.frame} with the following columns
+#' \item{ln.sd.x}{The log standard deviation of the location error in the x coordinate}
+#' \item{ln.sd.y}{The log standard deviation of the location error in the x coordinate}
+#' \item{rho}{The correlation of the bivariate location error ellipse}
+#' @author Devin S. Johnson
 #' @export 
 
 argosDiag2Cov = function(Major, Minor, Orientation){

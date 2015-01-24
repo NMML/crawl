@@ -27,7 +27,7 @@ const arma::mat& P)
   int I = y.n_rows;
   // SIMULATION RELATED MATRICES
   arma::mat y_plus(I, 2);
-  arma::mat alpha_plus(4,I, fill::zeros);
+  arma::mat alpha_plus(4,I+1, fill::zeros);
   alpha_plus.col(0) = mvn(a,P);
   arma::mat alpha_plus_hat(4,I+1, fill::zeros);
   alpha_plus_hat.col(0) = a;
@@ -55,6 +55,7 @@ const arma::mat& P)
     if(active(i)==0){
       T(0,1) = 0; T(1,1)=0; T(2,3)=0; T(3,3)=0;
       Q = 0.0*Q;
+      alpha_plus.col(i+1) = alpha_plus.col(i);
     } else{
       Q(0,0) = Qmat(i,0);
       Q(1,0) = Qmat(i,1);
@@ -68,8 +69,8 @@ const arma::mat& P)
       T(1,1) = Tmat(i,1);
       T(2,3) = Tmat(i,0);
       T(3,3) = Tmat(i,1);
+      alpha_plus.col(i+1) = mvn(T*alpha_plus.col(i), Q);
     }
-    alpha_plus.col(i+1) = mvn(T*alpha_plus.col(i), Q);
     if(noObs(i)==1){
       alpha_hat.col(i+1) = T*alpha_hat.col(i);
       P_hat.slice(i+1) = T*P_hat.slice(i)*T.t() + Q;
@@ -108,7 +109,7 @@ const arma::mat& P)
     alpha_hat.col(j-1) += P_hat.slice(j-1)*r;
     alpha_plus_hat.col(j-1) += P_hat.slice(j-1)*r_plus;
   }
-   sim = (alpha_hat.cols(0,I-1) - (alpha_plus-alpha_plus_hat.cols(0,I-1))).t();
+  sim = (alpha_hat.cols(0,I-1) - (alpha_plus.cols(0,I-1)-alpha_plus_hat.cols(0,I-1))).t();
   return Rcpp::List::create(
     Rcpp::Named("ll") = ll, 
     Rcpp::Named("sim") = sim

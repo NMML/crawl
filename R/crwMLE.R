@@ -29,17 +29,10 @@
 #' The \code{inital.state} is a list with the following elemets (with the exact
 #' names):
 #' 
-#' \code{a1.y} A vector with initial state values for the \dQuote{latitude}
-#' coordinate. It have 2 elemets (location at time 1, velocity at time 1) for
-#' non-drift models and 3 elemets for drift models (location at time 1,
-#' velocity at time 1, drift velocity at time 1) for driftmodels,
-#' 
-#' \code{P1.y} Covarince matrix for the state at time 1 (measure of uncertainty
-#' for your inital state) \code{a1.y},
-#' 
-#' \code{a1.x} Same as \code{a1.y}, but in the \dQuote{longitude} coordinate,
-#' 
-#' \code{P1.x} Same as \code{P1.y}, but in the \dQuote{longitude} coordinate.
+#' \code{a} A vector with initial state values. It has 4 elemets (x location at time 1, x velocity at time 1, y location at time 1, 
+#' y velocity at time 1) for
+#' non-drift models and 6 elemets for drift models (x location at time 1,
+#' x velocity at time 1, x drift velocity at time 1, etc...).
 #' 
 #' \code{theta} and \code{fixPar} are vectors with the appropriate number or
 #' parameters. \code{theta} contains only those paraemters which are to be
@@ -94,7 +87,8 @@
 #' are vectors the same length as theta giving the box constraints for the
 #' parameters
 #' @param prior A function returning the log-density function of the parameter
-#' prior specification
+#' prior distribution. THIS MUST BE A FUNCTION OF ONLY THE FREE PARAMETERS. Any 
+#' fixed parameters should not be included.
 #' @param need.hess A logical value which decides whether or not to evaluate
 #' the Hessian for parameter standard errors
 #' @param initialSANN Control list for \code{\link{optim}} when simulated
