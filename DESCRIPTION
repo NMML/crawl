@@ -20,7 +20,7 @@ Description: The (C)orrelated (RA)ndom (W)alk (L)ibrary of
     covariates. The model is fit using the Kalman-Filter on
     a state space version of the continuous-time stochastic
     movement process.
-License: Unlimited
+License: file LICENSE
 LazyLoad: yes
 ByteCompile: TRUE
 NeedsCompilation: yes
