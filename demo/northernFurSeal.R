@@ -1,3 +1,4 @@
+library(crawl)
 data(northernFurSeal)
 
 northernFurSeal$Argos_loc_class <- factor(northernFurSeal$Argos_loc_class, 
@@ -13,8 +14,6 @@ initial = list(
   P=diag(c(10000^2,54000^2,10000^2,5400^2))
 )
 
-##Fit model as given in Johnson et al. (2008) Ecology 89:1208-1215
-## Start values for theta come from the estimates in Johnson et al. (2008)
 fixPar = c(log(250), log(500), log(1500), rep(NA,3), NA)
 displayPar( mov.model=~1, err.model=list(x=~Argos_loc_class-1),
             data=northernFurSeal,fixPar=fixPar)
@@ -23,7 +22,7 @@ constr=list(
   upper=rep(Inf,4)
 )
 
-ln.prior = function(theta){-abs(theta[4])/0.5}
+ln.prior = function(theta){-abs(theta[4]-3)/0.5}
 
 #set.seed(123)
 fit1 <- crwMLE(
@@ -42,7 +41,7 @@ crwPredictPlot(predObj, "map")
 
 ##Create simulation object with 100 parameter draws
 set.seed(123)
-simObj <- crwSimulator(fit1, predTime, parIS=100, df=Inf, scale=18/20)
+simObj <- crwSimulator(fit1, predTime, method="IS", parIS=100, df=5, scale=18/20)
 
 ## Examine IS weight distribution
 w <- simObj$thetaSampList[[1]][,1]
@@ -51,7 +50,7 @@ hist(w*100, main='Importance Sampling Weights', sub='More weights near 1 is desi
 ##Approximate number of independent samples
 round(100/(1+(sd(w)/mean(w))^2))
 
-dev.new(bg=gray(0.75))
+#dev.new(bg=gray(0.75))
 jet.colors <-
   colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan",
                      "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
