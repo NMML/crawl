@@ -92,7 +92,7 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
   if(!inherits(object.sim, 'crwSimulator'))
     stop("Argument needs to be of class 'crwSimulator'\nUse 'crwSimulator( )' to create")
   fixPar <- object.sim$fixPar
-  Cmat <- object.sim$Cmat[is.na(fixPar),is.na(fixPar)]
+  Cmat <- as.matrix(object.sim$Cmat[is.na(fixPar),is.na(fixPar)])
   se <- sqrt(diag(Cmat))
   err.mfX <- object.sim$err.mfX
   err.mfY <- object.sim$err.mfY
