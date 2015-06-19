@@ -145,7 +145,7 @@
   ln.prior = ifelse(!is.null(object.sim$prior), object.sim$prior(par[eInd]), 0)
   isw <- ifelse(is.null(object.sim$thetaSampList) & fullPost==TRUE, out$ll - object.sim$loglik - dens, 0) + ln.prior
   samp <- list(alpha.sim=out$sim,
-               predType=object.sim$predType, Time=object.sim$Time,
+               locType=object.sim$locType, Time=object.sim$Time,
                loglik=out$lly+out$llx, par=par, log.isw = isw)
   class(samp) <- c("crwIS","list")
   attr(samp,"coord") <- object.sim$coord

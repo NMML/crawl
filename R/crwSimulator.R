@@ -148,12 +148,11 @@ crwSimulator = function(
   out <- list(y=y, noObs=noObs, P=P, a=a, n.errX=n.errX, n.errY=n.errY, n.mov=n.mov,
               delta=delta, driftMod=driftMod, activity=activity, err.mfX=err.mfX,
               err.mfY=err.mfY, mov.mf=mov.mf, rho=rho, fixPar=object.crwFit$fixPar,
-              Cmat=object.crwFit$Cmat, predType=data$predType,
+              Cmat=object.crwFit$Cmat, locType=data$locType,
               par=object.crwFit$par, nms=object.crwFit$nms, N=nrow(data), lower=object.crwFit$lower, 
               upper=object.crwFit$upper,
-              loglik=object.crwFit$loglik, data[,tn], 
-              coord=object.crwFit$coord, Time.name=object.crwFit$Time.name, prior=object.crwFit$prior)
-  names(out)[24] <- object.crwFit$Time.name
+              loglik=object.crwFit$loglik, Time=data[,tn], Time.name=tn, 
+              coord=object.crwFit$coord, prior=object.crwFit$prior)
   class(out) <- 'crwSimulator'
   if(parIS>1 & object.crwFit$need.hess==TRUE) out <- crwSamplePar(out, method=method, size=parIS, df=df, grid.eps=grid.eps, crit=crit, scale=scale)
   return(out)
