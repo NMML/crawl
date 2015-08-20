@@ -1,9 +1,8 @@
 Package: crawl
 Type: Package
-Title: Fit Continuous-time Correlated Random Walk Models
-    to animal movement data
-Version: 1.912
-Date: 06-18-2015
+Title: Fit Continuous-Time Correlated Random Walk Models To Animal Movement Data
+Version: 1.913
+Date: 08-20-2015
 Author: Devin S. Johnson
 Maintainer: Devin S. Johnson <devin.johnson@noaa.gov>
 Depends:
