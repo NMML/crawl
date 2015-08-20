@@ -1,6 +1,6 @@
-#' Fit Continuous-Time Correlated Random Walk models to animal movement data
+#' Fit Continuous-Time Correlated Random Walk Models to Animal Movement Data
 #' 
-#' The (C)orrelated (RA)ndom (W)alk (L)ibrary (I know it is not an R library,
+#' The Correlated RAndom Walk Library (I know it is not an R library,
 #' but, "crawp" did not sound as good) of R functions was designed for fitting
 #' continuous-time correlated random walk (CTCRW) models with time indexed
 #' covariates. The model is fit using the Kalman-Filter on a state space
@@ -12,7 +12,7 @@
 #' Type: \tab Package\cr 
 #' Version: \tab 1.913\cr 
 #' Date: \tab August 20, 2015\cr 
-#' License: \tab file: LICENSE \cr 
+#' License: \tab file LICENSE \cr 
 #' LazyLoad: \tab yes\cr 
 #' }
 #' 
@@ -26,6 +26,11 @@
 #' Continuous-time correlated random walk model for animal telemetry data.
 #' Ecology 89(5) 1208-1215.
 #' @import Rcpp RcppArmadillo
+#' @importFrom graphics layout
+#' @importFrom methods as slot 
+#' @importFrom stats approx filter model.frame model.matrix 
+#'             na.pass optim pchisq pexp pnorm qnorm 
+#'             rchisq runif sd
 #' @useDynLib crawl
 
 NULL
