@@ -29,7 +29,8 @@
     return(flat)
 }
 
-#' @S3method print crwFit
+#' @method print crwFit
+#' @export
 "print.crwFit" <- function(x, ...)
 {
     fit <- x
