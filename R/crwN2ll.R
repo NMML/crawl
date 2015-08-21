@@ -71,21 +71,17 @@ crwN2ll = function(theta, fixPar, y, noObs, delta, a,
     active <- ifelse(b==Inf, 0, 1)
     b <- ifelse(b==Inf, 0, b) 
   } else {active=rep(1,N)}
-  #if (driftMod) {
-  ### Change back for drift model
-  if(as.logical(FALSE)){
+  if (driftMod) {
     theta.drift <- par[(n.errX + n.errY + 2 * n.mov + 1):
                          (n.errX + n.errY + 2 * n.mov + 2)]
     b.drift <- exp(log(b) - log(1+exp(theta.drift[2])))
-    sig2.drift <- exp(log(sig2) + 2 * theta.drift[1]) #rep(exp(2*theta.drift[1]), length(sig2)) #
-    call.lik <- "crwdriftn2ll"
+    sig2.drift <- exp(log(sig2) + 2 * theta.drift[1]) 
+    ll <- CTCRWNLL_DRIFT( y=as.matrix(y), Hmat, b, b.drift, sig2, sig2.drift, delta, noObs, active, a,  P)$ll
   } else {
-    b.drift <- sig2.drift <- 0.0
-    call.lik <- CTCRWNLL
+    ll <- CTCRWNLL( y=as.matrix(y), Hmat, b, sig2, delta, noObs, active, a,  P)$ll
   }
-  movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod=FALSE)
-  
-  ll <- CTCRWNLL( y=as.matrix(y), Hmat, movMats[["Qmat"]], movMats[["Tmat"]], noObs, active, a,  P)$ll
+  #movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod=FALSE)
+
   if(is.null(prior)) return(-2 * ll)
   else return(-2 * (ll + prior(theta)))
 }

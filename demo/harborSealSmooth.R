@@ -1,23 +1,23 @@
-require(crawl)
-require(splines)
+# library(crawl)
+library(ggplot2)
+library(splines)
+library(rgdal)
 data(harborSeal)
 head(harborSeal)
 harborSeal$Argos_loc_class = factor(harborSeal$Argos_loc_class, levels=c("3","2","1","0","A","B"))
 
 ## Project data ##
-library(sp)
-library(rgdal)
 
-toProj = harborSeal[!is.na(harborSeal$latitude),]
+toProj = harborSeal[!is.na(harborSeal$latitude),c("Time","latitude","longitude")]
 coordinates(toProj) = ~longitude+latitude
 proj4string(toProj) <- CRS("+proj=longlat")
 toProj <- spTransform(toProj, CRS("+init=epsg:3338"))
 toProj = as.data.frame(toProj)
-harborSeal = merge(toProj, harborSeal, all=TRUE)
+colnames(toProj)[2:3] = c("x","y")
+harborSeal = merge(toProj, harborSeal, by="Time", all=TRUE)
 harborSeal = harborSeal[order(harborSeal$Time),]
-#harborSeal$Time = harborSeal$Time*3600
 
-initial.cpp = list(
+initial = list(
   a=c(harborSeal$x[1],0,harborSeal$y[1],0),
   P=diag(c(10000^2,54000^2,10000^2,5400^2))
 )
@@ -43,8 +43,8 @@ fit1 <- crwMLE(
   constr=constr,
   theta = theta.start,
   prior=prior,
-  control=list(maxit=2000, trace=1, REPORT=1),
-  initialSANN=list(maxit=10000, temp=100, tmax=100, trace=1, REPORT=1)
+  control=list(maxit=2000, trace=1, REPORT=1)#,
+  #initialSANN=list(maxit=10000, temp=100, tmax=100, trace=1, REPORT=1)
 )
 
 print(fit1)

@@ -10,8 +10,8 @@
 #' \tabular{ll}{ 
 #' Package: \tab crawl\cr 
 #' Type: \tab Package\cr 
-#' Version: \tab 1.913\cr 
-#' Date: \tab August 20, 2015\cr 
+#' Version: \tab 1.920\cr 
+#' Date: \tab August 21, 2015\cr 
 #' License: \tab file LICENSE \cr 
 #' LazyLoad: \tab yes\cr 
 #' }
@@ -25,7 +25,7 @@
 #' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
 #' Continuous-time correlated random walk model for animal telemetry data.
 #' Ecology 89(5) 1208-1215.
-#' @import Rcpp RcppArmadillo
+#' @import Rcpp
 #' @importFrom graphics layout
 #' @importFrom methods as slot 
 #' @importFrom stats approx filter model.frame model.matrix 

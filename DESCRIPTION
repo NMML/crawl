@@ -1,8 +1,8 @@
 Package: crawl
 Type: Package
 Title: Fit Continuous-Time Correlated Random Walk Models to Animal Movement Data
-Version: 1.913
-Date: 2015-08-20
+Version: 1.920
+Date: 2015-08-21
 Author: Devin S. Johnson
 Maintainer: Devin S. Johnson <devin.johnson@noaa.gov>
 Imports:
@@ -10,9 +10,9 @@ Imports:
     sp,
     raster,
     Rcpp (>= 0.11.1),
-    RcppArmadillo (>= 0.4.200.0),
     methods
 LinkingTo: Rcpp, RcppArmadillo
+Suggests: ggplot2
 Description: The Correlated RAndom Walk Library of
     R functions was designed for fitting continuous-time
     correlated random walk (CTCRW) models with time indexed

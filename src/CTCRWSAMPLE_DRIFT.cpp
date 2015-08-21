@@ -5,48 +5,49 @@ using namespace Rcpp;
 using namespace arma;
 
 // Function prototypes
-arma::mat makeQ(const double& beta, const double& sig2, const double& delta, const double& active);
-arma::mat makeT(const double& beta, const double& delta, const double& active);
+arma::mat makeT_drift(const double& b, const double& b_drift, const double& delta, const double& active);
+arma::mat makeQ_drift(const double& b, const double& b_drift, const double& sig2, const double& sig2_drift, 
+                      const double& delta, const double& active);
 arma::vec mvn(const arma::vec& mu, const arma::mat& V);
 
 
-
 // [[Rcpp::export]]
-Rcpp::List CTCRWSAMPLE(const arma::mat& y, const  arma::mat& Hmat, 
-const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, 
-const arma::vec& noObs,const arma::vec& active, const arma::colvec& a,
-const arma::mat& P)
+Rcpp::List CTCRWSAMPLE_DRIFT(const arma::mat& y, const  arma::mat& Hmat, 
+                             const arma::vec& beta, const arma::vec& beta_drift, const arma::vec& sig2, 
+                             const arma::vec& sig2_drift, const arma::vec& delta,
+                             const arma::vec& noObs,const arma::vec& active, const arma::colvec& a,
+                             const arma::mat& P)
 {
   int I = y.n_rows;
   // SIMULATION RELATED MATRICES
   arma::mat y_plus(I, 2);
-  arma::mat alpha_plus(4,I+1, fill::zeros);
+  arma::mat alpha_plus(6,I+1, fill::zeros);
   alpha_plus.col(0) = mvn(a,P);
-  arma::mat alpha_plus_hat(4,I+1, fill::zeros);
+  arma::mat alpha_plus_hat(6,I+1, fill::zeros);
   alpha_plus_hat.col(0) = a;
   arma::mat v_plus(2,I, fill::zeros);
-  arma::colvec r_plus(4, fill::zeros);
-  arma::mat sim(I,4);
+  arma::colvec r_plus(6, fill::zeros);
+  arma::mat sim(I,6);
   // KFS MATRICES FOR DATA INFORMED PART
-  arma::mat Z(2,4, fill::zeros); Z(0,0) = 1; Z(1,2) = 1;
-  arma::mat T(4,4, fill::zeros); T(0,0) = 1; T(2,2) = 1;
-  arma::mat Q(4,4, fill::zeros);
+  arma::mat Z(2,6, fill::zeros); Z(0,0) = 1; Z(1,3) = 1;
+  arma::mat T(6,6, fill::zeros);
+  arma::mat Q(6,6, fill::zeros);
   arma::cube F(2,2,I, fill::zeros);
   arma::mat H(2,2, fill::zeros);
-  arma::cube K(4,2,I, fill::zeros);
-  arma::cube L(4,4,I, fill::zeros);
+  arma::cube K(6,2,I, fill::zeros);
+  arma::cube L(6,6,I, fill::zeros);
   arma::mat v(2,I, fill::zeros);
-  arma::mat alpha_hat(4,I+1, fill::zeros);
+  arma::mat alpha_hat(6,I+1, fill::zeros);
   alpha_hat.col(0) = a;
-  arma::cube P_hat(4,4,I+1, fill::zeros);
+  arma::cube P_hat(6,6,I+1, fill::zeros);
   P_hat.slice(0)=P;
-  arma::colvec r(4, fill::zeros);
+  arma::colvec r(6, fill::zeros);
   
   double ll=0;
   //Forward filter and simulation
   for(int i=0; i<I; i++){
-    Q = makeQ(beta(i), sig2(i), delta(i), active(i));
-    T = makeT(beta(i), delta(i), active(i));
+    Q = makeQ_drift(beta(i), beta_drift(i), sig2(i), sig2_drift(i), delta(i), active(i));
+    T = makeT_drift(beta(i), beta_drift(i), delta(i), active(i));
     if(active(i)==0){
       alpha_plus.col(i+1) = alpha_plus.col(i);
     } else{

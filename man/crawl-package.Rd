@@ -16,8 +16,8 @@ version of the continuous-time staochistic movement process.
 \tabular{ll}{
 Package: \tab crawl\cr
 Type: \tab Package\cr
-Version: \tab 1.913\cr
-Date: \tab August 20, 2015\cr
+Version: \tab 1.920\cr
+Date: \tab August 21, 2015\cr
 License: \tab file LICENSE \cr
 LazyLoad: \tab yes\cr
 }

@@ -115,29 +115,21 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   theta.mov <- par[(n.errX + n.errY + 1):(n.errX + n.errY + 2 * n.mov)]
   sig2 <- exp(2 * (mov.mf %*% theta.mov[1:n.mov]))
   b <- exp(mov.mf %*% theta.mov[(n.mov + 1):(2 * n.mov)])
-  #activity <- rep(1, N)
   if (!is.null(activity)) {
     theta.activ <- par[(n.errX + n.errY + 2 * n.mov + 1)]
     b <- b / ((activity) ^ exp(theta.activ))
     active <- ifelse(b==Inf, 0, 1)
     b <- ifelse(b==Inf, 0, b) 
   } else active = rep(1,N)
-  #if (driftMod) {
-  ### Change back for drift model
-  if(as.logical(FALSE)){
+  if (driftMod) {
     theta.drift <- par[(n.errX + n.errY + 2 * n.mov + 1):
                          (n.errX + n.errY + 2 * n.mov + 2)]
     b.drift <- exp(log(b) - log(1+exp(theta.drift[2])))
-    sig2.drift <- exp(log(sig2) + 2 * theta.drift[1]) #rep(exp(2*theta.drift[1]), length(sig2)) #
-    call.lik <- "crwdriftn2ll"
+    sig2.drift <- exp(log(sig2) + 2 * theta.drift[1])
+    out = CTCRWPREDICT_DRIFT(y, Hmat, b, b.drift, sig2, sig2.drift, delta, noObs, active, a, P)
   } else {
-    b.drift <- sig2.drift <- 0.0
-    #call.lik <- CTCRWNLL
+    out=CTCRWPREDICT(y, Hmat, b, sig2, delta, noObs, active, a, P)
   }
-  movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod)
-  
-  out=CTCRWPREDICT(y, Hmat, movMats$Qmat, movMats$Tmat, noObs, active, a, P) 
-  
   
   pred <- data.frame(t(out$pred))
   if (driftMod) {
@@ -149,22 +141,23 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   obsFit$outlier.chisq <- out$chisq
   obsFit$naive.p.val <- 1 - pchisq(obsFit$outlier.chisq, 2)
   if(getUseAvail){
-    warning("'getUseAvail' not implemented yet in this version of 'crawl' contact Devin to fix this! ")
-#     idx <- data$locType=="p"
-#     movMatsPred <- getQT(sig2[idx], b[idx], sig2.drift[idx], b.drift[idx], delta=c(diff(data[idx,tn]),1), driftMod)
-#     TmatP <- movMatsPred$Tmat
-#     QmatP <- movMatsPred$Qmat
-#     avail <- t(sapply(1:(nrow(TmatP)-1), makeAvail, Tmat=TmatP, Qmat=QmatP, predx=predx[idx,], predy=predy[idx,], 
-#                       vary=vary[,,idx], varx=varx[,,idx], driftMod=driftMod, lonadj=lonAdjVals[idx]))
-#     avail <- cbind(data[idx,tn][-1], avail)
-#     colnames(avail) <- c(tn, "meanAvail.x", "meanAvail.y", "varAvail.x", "varAvail.y")
-#     use <- cbind(data[idx,tn], predx[idx,1], predy[idx,1], varx[1,1,idx], vary[1,1,idx])[-1,]
-#     colnames(use) <- c(tn, "meanUse.x", "meanUse.y", "varUse.x", "varUse.y")
-#     UseAvail.lst <- list(use=use, avail=avail)
+    warning("'getUseAvail' not implemented yet in this version of 'crawl' contact maintainer to fix this! ")
+    #     idx <- data$locType=="p"
+    #     movMatsPred <- getQT(sig2[idx], b[idx], sig2.drift[idx], b.drift[idx], delta=c(diff(data[idx,tn]),1), driftMod)
+    #     TmatP <- movMatsPred$Tmat
+    #     QmatP <- movMatsPred$Qmat
+    #     avail <- t(sapply(1:(nrow(TmatP)-1), makeAvail, Tmat=TmatP, Qmat=QmatP, predx=predx[idx,], predy=predy[idx,], 
+    #                       vary=vary[,,idx], varx=varx[,,idx], driftMod=driftMod, lonadj=lonAdjVals[idx]))
+    #     avail <- cbind(data[idx,tn][-1], avail)
+    #     colnames(avail) <- c(tn, "meanAvail.x", "meanAvail.y", "varAvail.x", "varAvail.y")
+    #     use <- cbind(data[idx,tn], predx[idx,1], predy[idx,1], varx[1,1,idx], vary[1,1,idx])[-1,]
+    #     colnames(use) <- c(tn, "meanUse.x", "meanUse.y", "varUse.x", "varUse.y")
+    #     UseAvail.lst <- list(use=use, avail=avail)
     UseAvail.lst=NULL
   }
   else UseAvail.lst=NULL
-  speed = sqrt(apply(matrix(pred[,2:(2+driftMod)]), 1, sum)^2 + apply(matrix(pred[,(4+driftMod):(4+2*driftMod)]), 1, sum)^2)
+  speed = sqrt(apply(as.matrix(pred[,2:(2+driftMod)]), 1, sum)^2 + 
+                 apply(as.matrix(pred[,(4+driftMod):(4+2*driftMod)]), 1, sum)^2)
   out <- list(originalData=fillCols(data), alpha.hat=pred, 
               V.hat=var, speed=speed, loglik=out$ll, useAvail=UseAvail.lst)
   if (flat) {

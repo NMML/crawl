@@ -5,42 +5,44 @@ using namespace Rcpp;
 using namespace arma;
 
 // Function prototypes
-arma::mat makeQ(const double& beta, const double& sig2, const double& delta, const double& active);
-arma::mat makeT(const double& beta, const double& delta, const double& active);
+arma::mat makeT_drift(const double& b, const double& b_drift, const double& delta, const double& active);
+arma::mat makeQ_drift(const double& b, const double& b_drift, const double& sig2, const double& sig2_drift, 
+                      const double& delta, const double& active);
 
 // [[Rcpp::export]]
-Rcpp::List CTCRWPREDICT(const arma::mat& y, const  arma::mat& Hmat, 
-const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta,
-const arma::vec& noObs,const arma::vec& active, const arma::colvec& a,
-const arma::mat& P)
+Rcpp::List CTCRWPREDICT_DRIFT(const arma::mat& y, const  arma::mat& Hmat, 
+                              const arma::vec& beta, const arma::vec& beta_drift, const arma::vec& sig2, 
+                              const arma::vec& sig2_drift, const arma::vec& delta,
+                              const arma::vec& noObs,const arma::vec& active, const arma::colvec& a,
+                              const arma::mat& P)
 {
   int I = y.n_rows;
   arma::mat u(2,I, fill::zeros);
   arma::mat jk(2,I, fill::zeros);
   arma::cube M(2,2,I, fill::zeros);
-  arma::mat pred(4,I, fill::zeros);
-  arma::cube predVar(4,4,I, fill::zeros);
-  arma::mat Z(2,4, fill::zeros); Z(0,0) = 1; Z(1,2) = 1;
-  arma::mat T(4,4, fill::zeros); T(0,0) = 1; T(2,2) = 1;
-  arma::mat Q(4,4, fill::zeros);
+  arma::mat pred(6,I, fill::zeros);
+  arma::cube predVar(6,6,I, fill::zeros);
+  arma::mat Z(2,6, fill::zeros); Z(0,0) = 1; Z(1,3) = 1;
+  arma::mat T(6,6, fill::zeros);
+  arma::mat Q(6,6, fill::zeros);
   arma::cube F(2,2,I, fill::zeros);
   arma::mat H(2,2, fill::zeros);
-  arma::cube K(4,2,I, fill::zeros);
-  arma::cube L(4,4,I, fill::zeros);
+  arma::cube K(6,2,I, fill::zeros);
+  arma::cube L(6,6,I, fill::zeros);
   arma::mat v(2,I, fill::zeros);
-  arma::mat aest(4,I+1, fill::zeros);
+  arma::mat aest(6,I+1, fill::zeros);
   aest.col(0)=a;
-  arma::cube Pest(4,4,I+1, fill::zeros);
+  arma::cube Pest(6,6,I+1, fill::zeros);
   Pest.slice(0)=P;
-  arma::colvec r(4, fill::zeros);
-  arma::mat N(4,4, fill::zeros);
+  arma::colvec r(6, fill::zeros);
+  arma::mat N(6,6, fill::zeros);
   arma::vec chisq(I, fill::zeros);
   
   double ll=0;
   //Forward filter
   for(int i=0; i<I; i++){
-    Q = makeQ(beta(i), sig2(i), delta(i), active(i));
-    T = makeT(beta(i), delta(i), active(i));
+    Q = makeQ_drift(beta(i), beta_drift(i), sig2(i), sig2_drift(i), delta(i), active(i));
+    T = makeT_drift(beta(i), beta_drift(i), delta(i), active(i));
     if(noObs(i)==1){
       aest.col(i+1) = T*aest.col(i);
       Pest.slice(i+1) = T*Pest.slice(i)*T.t() + Q;
