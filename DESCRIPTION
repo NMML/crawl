@@ -19,7 +19,7 @@ Description: The Correlated RAndom Walk Library of
     covariates. The model is fit using the Kalman-Filter on
     a state space version of the continuous-time stochastic
     movement process.
-License: file LICENSE
+License: CC0
 LazyLoad: yes
 ByteCompile: TRUE
 NeedsCompilation: yes
