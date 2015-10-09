@@ -29,8 +29,7 @@ fit1 <- crwMLE(
   mov.model=~1, err.model=list(x=~Argos_loc_class-1), drift=TRUE,
   data=northernFurSeal, Time.name="Time", 
   initial.state=initial, fixPar=fixPar, constr=constr,# prior=ln.prior,
-  control=list(maxit=300, trace=1, REPORT=1),
-  initialSANN=list(maxit=200, temp=100, tmax=20, trace=1, REPORT=1)
+  control=list(trace=1, REPORT=1)
 )
 fit1
 ##Make hourly location predictions

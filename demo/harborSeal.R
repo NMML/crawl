@@ -37,8 +37,8 @@ fit1 <- crwMLE(
   data=harborSeal, coord=c("x","y"), Time.name="Time", 
   initial.state=initial, fixPar=fixPar, theta=c(rep(log(5000),3),log(3*3600), 0),
   constr=constr,
-  control=list(maxit=2000, trace=1, REPORT=1),
-  initialSANN=list(maxit=200, trace=1, REPORT=1)
+  control=list(maxit=2000, trace=1, REPORT=1)#,
+  #initialSANN=list(maxit=200, trace=1, REPORT=1)
 )
 
 print(fit1)
