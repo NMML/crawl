@@ -107,8 +107,10 @@ NULL
   date <- info$Date
   packageStartupMessage(
     paste(paste(package, version, paste("(",date, ")", sep=""), "\n"), 
-          "Type 'demo(package='crawl')' to see a list of demos for this package.\n",
-          "The raw code for the demos can be found by typing 'system.file('demo', package='crawl')'\n",
+          "Type 'vignette('crawl_intro')' to see examples of package use, and\n",
+          "'demo(package='crawl')' will provide a list of demos.\n",
+          "The raw code for the demos can be found by typing:\n",
+          "'system.file('demo', package='crawl')'\n",
           "*** WARNING ***\n",
           "    This version of crawl is under heavy development!")
                         )
