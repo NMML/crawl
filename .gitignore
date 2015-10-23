@@ -14,4 +14,3 @@ crawl.Rproj
 *.tar.gz
 *.zip
 *.tgz
-inst/doc
