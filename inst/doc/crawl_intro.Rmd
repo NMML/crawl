@@ -1,5 +1,5 @@
 ---
-title: "Analysis of Telemetry Data Using the `crawl package`"
+title: "Analysis of Telemetry Data Using the `crawl` package"
 author: "Kenady Wilson and Devin Johnson"
 date: "`r Sys.Date()`"
 output: html_document
