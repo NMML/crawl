@@ -5,14 +5,19 @@ Version: 1.920
 Date: 2015-08-21
 Author: Devin S. Johnson
 Maintainer: Devin S. Johnson <devin.johnson@noaa.gov>
-Imports:
+Imports: 
     mvtnorm,
     sp,
     raster,
     Rcpp (>= 0.11.1),
     methods
-LinkingTo: Rcpp, RcppArmadillo
-Suggests: ggplot2
+LinkingTo: 
+    Rcpp, 
+    RcppArmadillo
+Suggests: 
+    ggplot2,
+    knitr,
+    rmarkdown
 Description: The Correlated RAndom Walk Library of
     R functions was designed for fitting continuous-time
     correlated random walk (CTCRW) models with time indexed
@@ -23,3 +28,4 @@ License: CC0
 LazyLoad: yes
 ByteCompile: TRUE
 NeedsCompilation: yes
+VignetteBuilder: knitr
