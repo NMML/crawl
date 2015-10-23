@@ -6,9 +6,11 @@ data("northernFurSeal")
 head(northernFurSeal)
 
 ## ------------------------------------------------------------------------
-northernFurSeal$Argos_loc_class <- factor(northernFurSeal$Argos_loc_class,levels=c("3", "2", "1","0","A"))
+northernFurSeal$Argos_loc_class <- factor(northernFurSeal$Argos_loc_class,
+                                          levels=c("3", "2", "1","0","A"))
 
 ## ---- message=FALSE------------------------------------------------------
+library(sp)
 library(rgdal)
 coordinates(northernFurSeal) = ~longitude+latitude
 
@@ -16,19 +18,30 @@ coordinates(northernFurSeal) = ~longitude+latitude
 proj4string(northernFurSeal) <- CRS("+proj=longlat")
 
 ## ----message=FALSE-------------------------------------------------------
-northernFurSeal <- spTransform(northernFurSeal, CRS("+proj=aea +lat_1=30 +lat_2=70 +lat_0=52 +lon_0=-170 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"))
+northernFurSeal <- spTransform(northernFurSeal, 
+                               CRS(paste("+proj=aea +lat_1=30 +lat_2=70",
+                                         "+lat_0=52 +lon_0=-170 +x_0=0 +y_0=0",
+                                         "+ellps=GRS80 +datum=NAD83",
+                                         "+units=m +no_defs"))
+)
 
 ## ----message=FALSE-------------------------------------------------------
-initial = list(a=c(coordinates(northernFurSeal)[1,1],0,coordinates(northernFurSeal)[1,2],0),P=diag(c(10000^2,54000^2,10000^2,5400^2)))
+initial = list(a=c(coordinates(northernFurSeal)[1,1],0,
+                   coordinates(northernFurSeal)[1,2],0),
+               P=diag(c(10000^2,54000^2,10000^2,5400^2)))
 
 ## ----message=FALSE-------------------------------------------------------
 fixPar = c(log(250), log(500), log(1500), rep(NA,3), NA)
 
 ## ----message=FALSE-------------------------------------------------------
-displayPar(mov.model=~1,err.model=list(x=~Argos_loc_class-1),data=northernFurSeal,fixPar=fixPar)
+displayPar(mov.model=~1,
+           err.model=list(x=~Argos_loc_class-1),
+           data=northernFurSeal,
+           fixPar=fixPar)
 
 ## ---- message=FALSE------------------------------------------------------
-constr=list(lower=c(rep(log(1500),2), rep(-Inf,2)),upper=rep(Inf,4))
+constr=list(lower=c(rep(log(1500),2), rep(-Inf,2)),
+            upper=rep(Inf,4))
 
 ## ---- message=FALSE------------------------------------------------------
 ln.prior = function(theta){-abs(theta[4]-3)/0.5}
@@ -39,7 +52,10 @@ fit1 <- crwMLE(mov.model=~1,
                err.model=list(x=~Argos_loc_class-1),
                data=northernFurSeal, 
                Time.name="Time",
-               initial.state=initial,fixPar=fixPar, constr=constr, prior=ln.prior,
+               initial.state=initial,
+               fixPar=fixPar, 
+               constr=constr, 
+               prior=ln.prior,
                control=list(maxit=30, trace=0,REPORT=1),
                initialSANN=list(maxit=200, trace=0, REPORT=1))
 
@@ -47,17 +63,26 @@ fit1 <- crwMLE(mov.model=~1,
 fit1
 
 ## ----message=FALSE-------------------------------------------------------
-predTime <- seq(ceiling(min(northernFurSeal$Time)), floor(max(northernFurSeal$Time)), 1)
+predTime <- seq(ceiling(min(northernFurSeal$Time)), 
+                floor(max(northernFurSeal$Time)), 1)
 
 ## ----message=FALSE-------------------------------------------------------
-predObj <- crwPredict(object.crwFit=fit1, predTime, speedEst=TRUE, flat=TRUE)
+predObj <- crwPredict(object.crwFit=fit1, 
+                      predTime, 
+                      speedEst=TRUE, 
+                      flat=TRUE)
 
 ## ----message=FALSE-------------------------------------------------------
 crwPredictPlot(predObj, "map")
 
 ## ----message=FALSE-------------------------------------------------------
 set.seed(123)
-simObj <- crwSimulator(fit1, predTime, method="IS", parIS=100, df=5, scale=18/20)
+simObj <- crwSimulator(fit1, 
+                       predTime, 
+                       method="IS", 
+                       parIS=100, 
+                       df=5, 
+                       scale=18/20)
 
 ## ----message=FALSE-------------------------------------------------------
 w <- simObj$thetaSampList[[1]][,1]
@@ -67,11 +92,11 @@ hist(w*100, main='Importance Sampling Weights', sub='More weights near 1 is desi
 round(100/(1+(sd(w)/mean(w))^2))
 
 ## ------------------------------------------------------------------------
-jet.colors <-colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan","#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
+my.colors <-colorRampPalette(c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a'))
 
 ## ------------------------------------------------------------------------
 iter <- 20
-cols <- jet.colors(iter)
+cols <- my.colors(iter)
 
 ## ----message=FALSE-------------------------------------------------------
 crwPredictPlot(predObj, 'map')

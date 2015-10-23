@@ -1,6 +1,6 @@
 ---
 title: "Analysis of Telemetry Data Using the `crawl` package"
-author: "Kenady Wilson and Devin Johnson"
+author: "Kenady Wilson, Josh London, and Devin Johnson"
 date: "`r Sys.Date()`"
 output: html_document
 vignette: >
@@ -23,36 +23,44 @@ library(crawl)
 ```
 
 ### Data Preparation
-Telemetry data are often downloaded in the proprietory format of the tag manufacturer. Consequently, to run `crawl`, the data might need to be adjusted. Dataframes must be in a specific format in order for the functions to read the data properly.Run the following checks on your data prior to building a `crawl` model:
+Telemetry data are often downloaded in the proprietory format of the tag manufacturer. Consequently, to run `crawl`, the data might need to be adjusted. Dataframes must be in a specific format in order for the functions to read the data properly. 
 
-#### Time
-The date/time stamp must not contain any missing values, it should be ordered, and the class should be either numeric or POSIXct. To convert a timestamp of the form ("2011-03-27 01:30:00") to POSIX the following code may be helpful: `as.POSIXct(strptime("2011-03-27", "%Y-%m-%d %H:%M:%S"))`
+Run the following checks on your data prior to building a `crawl` model:
 
-#### Latitude and Longitude (X and Y values)
-The lat/long coordinates of your locaiton estimates should be numeric or defined as a spatial points data frame. If they are already spatial points, then check the projection to verify it's accuracy. If they are numeric, then `crawl` will ASSUME the data are projected. 
+* **Time**
 
-#### Covariates
-If you are using covariates in your model, check to see that there are no missing values. You CAN have missing locations, but not missing covariates. Covariates that will be included in the model itself must be time-indexed.
+    The date/time stamp must not contain any missing values, it should be ordered, and the class should be either numeric or POSIXct. To convert a timestamp of the form ("2011-03-27 01:30:00") to POSIX the following code may be helpful: `as.POSIXct(strptime("2011-03-27", "%Y-%m-%d %H:%M:%S"))`. Users may also find the functions within the [lubridate](https://cran.r-project.org/web/packages/lubridate/index.html) package also useful. Additionally, the date-time values should all be unique for a given animal. Duplicate date-time values are a known aspect of Argos data and duplicates should either be filtered from the data set or adjusted. Users can consult the `make.time.unique()` function within the [xts](https://cran.r-project.org/web/packages/xts/index.html) package or the `adjust.duplicateTimes()` function wtihin the [trip](https://cran.r-project.org/web/packages/xts/index.html) package in order to adjust any duplicate date-time values by 1 second.
 
-You can also use the following Shiny App to check on your data. The app will run basic checks on your Time and lat/long columns to make sure they comply with `crawl` specifications.
+* **Latitude and Longitude (X and Y values)**
 
+    The lat/long coordinates of your locaiton estimates should be numeric or defined as a spatial points data frame. If they are already spatial points, then check the projection to verify it's accuracy. If they are numeric, then `crawl` will **assume** the data are projected. 
 
-###Northern Fur Seal Demo
+* **Covariates**
+
+    If you are using covariates in your model, check to see that there are no missing values. You **can** have missing locations, but not missing covariates. Covariates that will be included in the model itself must be time-indexed.
+
+You can also use the included Shiny App to check your data for any issues. The app will run basic checks on your Time and lat/long columns to make sure they comply with `crawl` specifications.
+
+------------------------------------------------
+
+## Northern Fur Seal Demo
 This is an example using crawl to model the movements of one animal using Argos location classes for location error estimates, and incorporating drift into the movement process. These data represent Northern fur seal pup relocation data that were used in Johnson et al. (2008). The data are for one seal, including 795 observations with 4 variables. Northern fur seal pups travel long distances and may exhibit both directed travel and movement within large-scale ocean currents. Therefore, a varying drift model is included in this example for the mean velocity. 
 
-####1) Load and clean the data
+### 1. Load and clean the data
 ```{r}
 data("northernFurSeal")
 head(northernFurSeal)
 ```
 Define the location classes as factors
 ```{r}
-northernFurSeal$Argos_loc_class <- factor(northernFurSeal$Argos_loc_class,levels=c("3", "2", "1","0","A"))
+northernFurSeal$Argos_loc_class <- factor(northernFurSeal$Argos_loc_class,
+                                          levels=c("3", "2", "1","0","A"))
 ```
 
-####2) Make sure your data is projected
+### 2. Make sure your data is projected
 First, tell R which columns represent the coordinates for the data
 ```{r, message=FALSE}
+library(sp)
 library(rgdal)
 coordinates(northernFurSeal) = ~longitude+latitude
 ```
@@ -62,46 +70,69 @@ proj4string(northernFurSeal) <- CRS("+proj=longlat")
 ```
 Run a spatial transform for map projection. In this example we define a custom projection for the data based on the location of the animals.
 ```{r,message=FALSE}
-northernFurSeal <- spTransform(northernFurSeal, CRS("+proj=aea +lat_1=30 +lat_2=70 +lat_0=52 +lon_0=-170 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"))
+northernFurSeal <- spTransform(northernFurSeal, 
+                               CRS(paste("+proj=aea +lat_1=30 +lat_2=70",
+                                         "+lat_0=52 +lon_0=-170 +x_0=0 +y_0=0",
+                                         "+ellps=GRS80 +datum=NAD83",
+                                         "+units=m +no_defs"))
+)
 ```
 
-####3) Set initial parameters and priors for the model
+### 3. Set initial parameters and priors for the model
 
-`initial` is a list of starting values for the mean and variance-covariance for the initial state of the model. When choosing the initial parameters, it is typical to have the mean centered on the first observation, with zero velocity. `a` is the starting location for the model, the first known coordinate; and `P` is the initial velocity (a 4x4 var-cov matrix). For these data, `a` should correspond to the location where the fur seal was instrumented.
+`initial` is a list of starting values for the mean and variance-covariance for the initial state of the model. When choosing the initial parameters, it is typical to have the mean centered on the first observation with zero velocity. `a` is the starting location for the model -- the first known coordinate; and `P` is the initial velocity -- a 4x4 var-cov matrix. For these data, `a` should correspond to the location where the fur seal was instrumented.
 
 ```{r,message=FALSE}
-initial = list(a=c(coordinates(northernFurSeal)[1,1],0,coordinates(northernFurSeal)[1,2],0),P=diag(c(10000^2,54000^2,10000^2,5400^2)))
+initial = list(a=c(coordinates(northernFurSeal)[1,1],0,
+                   coordinates(northernFurSeal)[1,2],0),
+               P=diag(c(10000^2,54000^2,10000^2,5400^2)))
 ```
 
 `fixPar` is used if you want to fix values in the model (usually to 0 or 1). Here are some examples of why you may want to fix parameters:
 
-i. You have Argos data with errors 1, 2, 3, A, B. You want to fix the errors for location classes 1, 2, and 3 to what Argos suggests, but want to estimate the error associated with location classes A and B. In this example, we are fixing the known Argos errors. 
+1. **You have Argos data with errors 1, 2, 3, A, B.** 
 
-ii. You have an animal that does not move a lot, which makes it difficult to estimate the autocorrelation parameter for the model. In this case, you can fix the autocorrelation parameter to improve optimization. 
+    You want to fix the errors for location classes 1, 2, and 3 to what Argos 
+    suggests, but want to estimate the error associated with location classes 
+    A and B. In this example, we are fixing the known Argos errors. 
 
-iii. If your animal hauls out on land. The haul-out model has a curve fit to binomial (0,1) data that estimates not only the 0's and 1's, but all the values inbetween. You can fix the haul-out parameter to just about anything. 
+2. **You have an animal that exhibits limited movement.**
+
+    This scenario makes it difficult to estimate the autocorrelation parameter 
+    for the model. In this case, you can fix the autocorrelation parameter to 
+    improve optimization. 
+
+3. **Your animal hauls out on land.** 
+
+    The haul-out model has a curve fit to binomial (0,1) data that estimates not 
+    only the 0's and 1's, but all the values inbetween. You can fix the haul-out 
+    parameter to just about anything. 
 
 ```{r,message=FALSE}
 fixPar = c(log(250), log(500), log(1500), rep(NA,3), NA)
 ```
 To make sure everything looks as it should, view the parameters that will be used in the crawl model
 ```{r,message=FALSE}
-displayPar(mov.model=~1,err.model=list(x=~Argos_loc_class-1),data=northernFurSeal,fixPar=fixPar)
+displayPar(mov.model=~1,
+           err.model=list(x=~Argos_loc_class-1),
+           data=northernFurSeal,
+           fixPar=fixPar)
 ```
 
 The constraint parameter is a list of parameters with vectors for the upper and lower limits. This parameter can be used to estimate Argos error. You don't want to generate estimates lower than the values for error classes 3, 2, or 1 so you can set a lower bound. You can also constrain the autocorrelation paramater to between -4 and 4. (It is highly unlikely that this value will be outside this range.)
 
 ```{r, message=FALSE}
-constr=list(lower=c(rep(log(1500),2), rep(-Inf,2)),upper=rep(Inf,4))
+constr=list(lower=c(rep(log(1500),2), rep(-Inf,2)),
+            upper=rep(Inf,4))
 ```
 
-Set a prior. The prior used in this example is a Laplace prior (double exponential). To set your own Laplace prior or to get more information on the distribution itself, look into the `ddoublex()` fucntion in the R package `smoothmest`. This funtion has the foloowing density: exp(-abs(x-mu)/lambda)/(2*lambda). The prior below is on the log scale. If you need to adjust the prior, we recommend first adjusting the lambda value (0.5).  For more information on using a Laplace prior in general see: [Hooten and Hobbs (2015) Ecological Monographs 85:3-28] (http://www.esajournals.org/doi/full/10.1890/14-0661.1).
+Set a prior. The prior used in this example is a Laplace prior (double exponential). To set your own Laplace prior or to get more information on the distribution itself, look into the `ddoublex()` fucntion in the R package [smoothmest](https://cran.r-project.org/web/packages/smoothmest/index.html). This funtion has the foloowing density: exp(-abs(x-mu)/lambda)/(2*lambda). The prior below is on the log scale. If you need to adjust the prior, we recommend first adjusting the lambda value (0.5).  For more information on using a Laplace prior in general see: [Hooten and Hobbs (2015) Ecological Monographs 85:3-28] (http://www.esajournals.org/doi/full/10.1890/14-0661.1).
 
 ```{r, message=FALSE}
 ln.prior = function(theta){-abs(theta[4]-3)/0.5}
 ```
 
-####4) Fit the model
+### 4. Fit the model
 
 In this example we used an intercept model. You can add more covariates to the model if you have them, but they must be time-indexed. (ie. the number of dives per hour or whether it was day or night)
 ```{r,message=FALSE}
@@ -110,7 +141,10 @@ fit1 <- crwMLE(mov.model=~1,
                err.model=list(x=~Argos_loc_class-1),
                data=northernFurSeal, 
                Time.name="Time",
-               initial.state=initial,fixPar=fixPar, constr=constr, prior=ln.prior,
+               initial.state=initial,
+               fixPar=fixPar, 
+               constr=constr, 
+               prior=ln.prior,
                control=list(maxit=30, trace=0,REPORT=1),
                initialSANN=list(maxit=200, trace=0, REPORT=1))
 ```
@@ -120,7 +154,7 @@ View the model output:
 fit1
 ```
 
-####5) Predict regularly-spaced locations.
+### 5. Predict regularly-spaced locations.
 
 In order to standardize the data and make hourly locaiton predictions, use the `crwPredict` function. This function predicts the regular-timed locations along the movement path using the posterior mean and variance of the track.  
 
@@ -128,25 +162,36 @@ The speed estimates from this function are measures of instantaneous speed. The 
 
 First, define the min and max (floor and cieling) times in your data
 ```{r,message=FALSE}
-predTime <- seq(ceiling(min(northernFurSeal$Time)), floor(max(northernFurSeal$Time)), 1)
+predTime <- seq(ceiling(min(northernFurSeal$Time)), 
+                floor(max(northernFurSeal$Time)), 1)
 ```
 Next, using the MLE model you fit above, predict locations using the time range specified by predTime
 ```{r,message=FALSE}
-predObj <- crwPredict(object.crwFit=fit1, predTime, speedEst=TRUE, flat=TRUE)
+predObj <- crwPredict(object.crwFit=fit1, 
+                      predTime, 
+                      speedEst=TRUE, 
+                      flat=TRUE)
 ```
 Now, view the predicted movement path
 ```{r,message=FALSE}
 crwPredictPlot(predObj, "map")
 ```
 
-####6) Simulation 
+### 6. Simulation 
+
 Create a simulation object with 100 parameter draws. The simulator function is different from `crwPredict` in that you get a distribution of distances traveled. 
 ```{r,message=FALSE}
 set.seed(123)
-simObj <- crwSimulator(fit1, predTime, method="IS", parIS=100, df=5, scale=18/20)
+simObj <- crwSimulator(fit1, 
+                       predTime, 
+                       method="IS", 
+                       parIS=100, 
+                       df=5, 
+                       scale=18/20)
 ```
 
-##### Examine the simulation: 
+### 7. Examine the simulation
+
 First, look at the importance sampling weight distribution. You want to have more weights near 1. If weights are not near one, you may want to adjust your prior.
 ```{r,message=FALSE}
 w <- simObj$thetaSampList[[1]][,1]
@@ -158,18 +203,19 @@ Next, look at the approximate number of independent samples
 round(100/(1+(sd(w)/mean(w))^2))
 ```
 
-####7) Sample tracks and make maps
+### 8. Sample tracks and make maps
+
 If the simulation looks good, sample 20 tracks from the posterior predictive distribution.
 
 First, define your color ramp:
 ```{r}
-jet.colors <-colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan","#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
+my.colors <-colorRampPalette(c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00','#cab2d6','#6a3d9a'))
 ```
   
 Set the number of tracks you want to sample and define your colors:
 ```{r}
 iter <- 20
-cols <- jet.colors(iter)
+cols <- my.colors(iter)
 ```
 
 Next, sample from the posterior using the simulation object you created above.
@@ -180,16 +226,18 @@ for(i in 1:iter){
   lines(samp$alpha.sim[,'mu.x'], samp$alpha.sim[,'mu.y'],col=cols[i]) 
   }
 ```
-Compare the sampled data to the predicted movement path from step 5
-__________________________________________________________________________________
 
-###Bearded Seal Example
+Compare the sampled data to the predicted movement path from step 5
+
+--------------------------------------------------
+
+## Bearded Seal Example
 
 This example builds off of the details listed in the Northern fur seal example and condenses the code to model the movement for multiple animals within a loop. It is different from the Northern fur seal example in that it includes multiple animals, Argos location errors as ellipses instead of location classes, and haul-out data wihtin the modeling framework.
 
 The following are analysis steps used to generate a dataset of adult bearded seal movements and movement statistics in support of PDV modeling to be conducted by Liz VanWormer (evanwormer@ucdavis.edu). The bearded seal movement data are from seven adult and sub-adult bearded seals. Data are provided via the private R package `kotzeb0912`. Bearded seals routinely haul-out on land over the course of a day; therefore, haul-out behavior should be included in the movement model to provide accurate estimates of location. The analysis will model the movement of each animal using `crawl` and estimate instantaneous speed values. 
 
-####1) Load the necessary packages and prep the data
+### 1. Load the necessary packages and prep the data
 
 ```{r message=FALSE}
 # library(kotzeb0912)
@@ -219,7 +267,7 @@ Prior to modeling the movement with `crawl`, we will use the `argosfilter` packa
 
 ```
 
-####2) Project the data
+### 2. Project the data
 
 This example uses a library of defined projections (epsg:3571). To see if your region has already been defined serach for it on [spatialreference.org] (spatialreference.org).  
 ```{r message=FALSE}
@@ -229,7 +277,7 @@ This example uses a library of defined projections (epsg:3571). To see if your r
 # data=spTransform(data, CRS("+init=epsg:3571"))
 ```
 
-####3) Fit the model
+### 3. Fit the model
 The code below will loop over the PTT  numbers and fit the CTCRW models for each seal. Refer to Step 3 in the Northern fur seal model for details on the initial parameters. 
 ```{r message=FALSE}
 # ids = unique(data@data$deployid)              #define seal IDs
@@ -259,7 +307,7 @@ The code below will loop over the PTT  numbers and fit the CTCRW models for each
 
 ```
 
-####4) Predict regularly-spaced locations
+### 4. Predict regularly-spaced locations
 This function predicts the regular-timed locations along the movement path using the posterior mean and variance of the track.  
 
 ```{r message=FALSE}
@@ -285,7 +333,7 @@ This function predicts the regular-timed locations along the movement path using
 # proj4string(predData_sp) <- CRS("+init=epsg:3571")
 ```
 
-####5) Plot the output
+### 5. Plot the output
 Using ggplot, look at the predicted movement path. Be sure to adjust `fte_theme()` to a theme you choose.
 
 ```{r plot-1}
