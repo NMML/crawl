@@ -109,84 +109,164 @@ for(i in 1:iter){
 # library(kotzeb0912)
 library(sp)
 library(rgdal)
-library(trip)
-library(crawl)
 library(argosfilter)
 library(parallel)
+library(tidyr)
 library(dplyr)
 library(lubridate)
+library(ggplot2)
 
 ## ----message=FALSE-------------------------------------------------------
-# locs <- dplyr::filter(kotzeb0912_locs,instr=="Mk10") %>% 
-#   dplyr::arrange(deployid,unique_posix)
-# # speedfilter using the paralell package for multi-core speed
-# cfilter<-mclapply(split(locs,locs$deployid),function(x) sdafilter(
-#   lat=x$latitude, lon=x$longitude, dtime=x$unique_posix,
-#   lc=x$quality, ang=-1,vmax=3.5),mc.preschedule=F,mc.cores=3)
-# cfilter<-do.call("c",cfilter)
-# cfilter<-as.vector(cfilter)
-# locs$filtered <- cfilter
-# 
-# data <- filter(locs,filtered=="not", !is.na(error_semimajor_axis)) %>% arrange(deployid,unique_posix) %>% as.data.frame(.)
-
+data("beardedSeals")
+beardedSeals
 
 ## ----message=FALSE-------------------------------------------------------
-# coordinates(data) = ~longitude+latitude
-# proj4string(data) = CRS("+proj=longlat +datum=WGS84")
-# 
-# data=spTransform(data, CRS("+init=epsg:3571"))
+beardedSeals %>% 
+  group_by(deployid,date_time) %>% 
+  filter(n()>1)
 
 ## ----message=FALSE-------------------------------------------------------
-# ids = unique(data@data$deployid)              #define seal IDs
-# model.fits = vector("list",length(ids))       #make an list of the seal IDs
-# names(model.fits) = ids                       #define the names of each model as the seal ID
-# 
-# for(i in 1:length(ids)){                      
-#   idData = subset(data,deployid==ids[i])      #subset the data using the first PTT (seal ID)
-#   diagData = model.matrix(~error_semimajor_axis+error_semiminor_axis+error_ellipse_orientation, idData@data)[,-1] 
-#   idData@data = cbind(idData@data, argosDiag2Cov(diagData[,1], diagData[,2], diagData[,3]))
-#   init = list(
-#     a=c(coordinates(idData)[1,1],0,coordinates(idData)[1,2],0),
-#     P=diag(c(5000^2,10*3600^2, 5000^2, 10*3600^2))
-#   )
-#   model.fits[[i]] = crwMLE(mov.model=~1, 
-#                            err.model=list(x=~ln.sd.x-1, y=~ln.sd.y-1, rho=~error.corr), 
-#                            data=idData, 
-#                            Time.name="unique_posix", 
-#                            initial.state=init,
-#                            fixPar = c(1,1,NA,NA), 
-#                            theta=c(log(10), 3), 
-#                            initialSANN=list(maxit=2500),
-#                            #prior=function(par){-(abs(par[2]-3)/10)^2/2},
-#                            control=list(REPORT=10, trace=1))
-#   print(model.fits[[i]])
-# }
+library(xts)
+date_unique <-beardedSeals %>% 
+  group_by(deployid) %>%
+  do(unique_date = xts::make.time.unique(.$date_time,eps=1)) %>%
+  tidyr::unnest(unique_date) %>%
+  mutate(unique_posix = as.POSIXct(.$unique_date,origin='1970-01-01 00:00:00',tz='UTC')) %>%
+  dplyr::arrange(deployid,unique_posix) %>% 
+  dplyr::select(unique_posix)
 
+beardedSeals <- beardedSeals %>% arrange(deployid,date_time) %>%
+  bind_cols(date_unique)
 
 ## ----message=FALSE-------------------------------------------------------
-# predData=NULL
-# for(i in 1:length(model.fits)){
-#   if(any(is.nan(model.fits[[i]]$se))) {
-#     next
-#   }
-#   model.fits[[i]]$data$unique_posix <- lubridate::with_tz(
-#     model.fits[[i]]$data$unique_posix,"GMT")
-#   predTimes <- seq(
-#     lubridate::ceiling_date(min(model.fits[[i]]$data$unique_posix),"hour"),
-#     lubridate::floor_date(max(model.fits[[i]]$data$unique_posix),"hour"),
-#     "1 hour")
-#   tmp = crwPredict(model.fits[[i]], predTime=predTimes)
-#   crwPredictPlot(tmp,plotType="map")
-#   predData = rbind(predData, tmp)
-# }
-# 
-# predData$predTimes <- intToPOSIX(predData$TimeNum)
-# predData_sp <- predData
-# coordinates(predData_sp) <- ~mu.x+mu.y
-# proj4string(predData_sp) <- CRS("+init=epsg:3571")
+beardedSeals %>% 
+  group_by(deployid,unique_posix) %>% 
+  filter(n()>1)
+
+## ----message=FALSE-------------------------------------------------------
+beardedSeals <- beardedSeals %>%  
+  dplyr::arrange(deployid,unique_posix)
+
+# speedfilter using the paralell package for multi-core speed
+cfilter<-mclapply(split(beardedSeals, beardedSeals$deployid),
+                  function(x) sdafilter(
+                    lat=x$latitude, 
+                    lon=x$longitude, 
+                    dtime=x$unique_posix,
+                    lc=x$quality, 
+                    ang=-1,
+                    vmax=5),
+                  mc.preschedule=F,mc.cores=3)
+
+cfilter<-do.call("c",cfilter)
+cfilter<-as.vector(cfilter)
+beardedSeals$filtered <- cfilter
+
+beardedSeals <- beardedSeals %>% 
+  dplyr::filter(filtered=="not", !is.na(error_semimajor_axis)) %>%
+  arrange(deployid,unique_posix)
+
+## ----message=FALSE-------------------------------------------------------
+beardedSeals <- as.data.frame(beardedSeals)
+coordinates(beardedSeals) = ~longitude+latitude
+proj4string(beardedSeals) = CRS("+proj=longlat +datum=WGS84")
+
+beardedSeals <- spTransform(beardedSeals, CRS("+init=epsg:3571"))
+
+## ----message=FALSE-------------------------------------------------------
+ids = unique(beardedSeals@data$deployid)      #define seal IDs
+
+library(doParallel)
+n.cores <- detectCores()
+registerDoParallel(cores=3)
+
+model_fits <-
+  foreach(i = 1:length(ids)) %dopar% {
+    id_data = subset(beardedSeals,deployid == ids[i])
+    
+    diag_data = model.matrix(
+      ~ error_semimajor_axis + error_semiminor_axis + error_ellipse_orientation,
+      id_data@data
+    )[,-1]
+    
+    id_data@data = cbind(id_data@data, 
+                         argosDiag2Cov(
+                           diag_data[,1], 
+                           diag_data[,2], 
+                           diag_data[,3]))
+    
+    init = list(a = c(coordinates(id_data)[1,1],0,
+                      coordinates(id_data)[1,2],0),
+                P = diag(c(5000 ^ 2,10 * 3600 ^ 2, 
+                           5000 ^ 2, 10 * 3600 ^ 2)))
+    
+    fit <- crwMLE(
+      mov.model =  ~ 1,
+      err.model = list(
+        x =  ~ ln.sd.x - 1, 
+        y =  ~ ln.sd.y - 1, 
+        rho =  ~ error.corr
+      ),
+      data = id_data,
+      Time.name = "unique_posix",
+      initial.state = init,
+      fixPar = c(1,1,NA,NA),
+      theta = c(log(10), 3),
+      initialSANN = list(maxit = 2500),
+      #prior=function(par){-(abs(par[2]-3)/10)^2/2},
+      control = list(REPORT = 10, trace = 1)
+    )
+    fit
+  }
+
+names(model_fits) <- ids
+
+print(model_fits)
+
+## ----message=FALSE-------------------------------------------------------
+predData <- foreach(i = 1:length(model_fits)) %dopar% {
+
+  model_fits[[i]]$data$unique_posix <- lubridate::with_tz(
+    model_fits[[i]]$data$unique_posix,"GMT")
+  predTimes <- seq(
+    lubridate::ceiling_date(min(model_fits[[i]]$data$unique_posix),"hour"),
+    lubridate::floor_date(max(model_fits[[i]]$data$unique_posix),"hour"),
+    "1 hour")
+  tmp = crwPredict(model_fits[[i]], predTime=predTimes)
+}
+
+predData <- bind_rows(predData) %>% as.data.frame(.)
+
+predData$predTimes <- intToPOSIX(predData$TimeNum)
+predData_sp <- predData
+coordinates(predData_sp) <- ~mu.x+mu.y
+proj4string(predData_sp) <- CRS("+init=epsg:3571")
 
 ## ----plot-1--------------------------------------------------------------
-# p1 <- ggplot(data=predData,aes(x=mu.x,y=mu.y)) + geom_path(aes(colour=deployid)) + 
-#   fte_theme()
-# p1
+theme_map = function(base_size=9, base_family="")
+{
+    require(grid)
+    theme_bw(base_size=base_size, base_family=base_family) %+replace%
+    theme(axis.title.x=element_text(vjust=0),
+          axis.title.y=element_text(angle=90, vjust=1.25),
+          axis.text.y=element_text(angle=90),
+          axis.ticks=element_line(colour="black", size=0.25),
+          legend.background=element_rect(fill=NA, colour=NA),
+          legend.direction="vertical",
+          legend.key=element_rect(fill=NA, colour="white"),
+          legend.text=element_text(),
+          legend.title=element_text(face="bold", hjust=0),
+          panel.border=element_rect(fill=NA, colour="black"),
+          panel.grid.major=element_line(colour="grey92", size=0.3, linetype=1),
+          panel.grid.minor=element_blank(),
+          plot.title=element_text(vjust=1),
+          strip.background=element_rect(fill="grey90", colour="black", size=0.3),
+          strip.text=element_text()
+          )
+}
+
+p1 <- ggplot(data=predData,aes(x=mu.x,y=mu.y)) + 
+  geom_path(aes(colour=deployid)) + xlab("easting (meters)") +
+  ylab("northing (meters)") + theme_map()
+p1
 
