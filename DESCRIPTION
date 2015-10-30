@@ -17,7 +17,15 @@ LinkingTo:
 Suggests: 
     ggplot2,
     knitr,
-    rmarkdown
+    rmarkdown,
+    sp,
+    rgdal,
+    argosfilter,
+    parallel,
+    tidyr,
+    dplyr,
+    lubridate,
+    xts
 Description: The Correlated RAndom Walk Library of
     R functions was designed for fitting continuous-time
     correlated random walk (CTCRW) models with time indexed
