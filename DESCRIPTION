@@ -19,7 +19,6 @@ Suggests:
     ggplot2,
     knitr,
     rmarkdown,
-    sp,
     rgdal,
     argosfilter,
     parallel,
