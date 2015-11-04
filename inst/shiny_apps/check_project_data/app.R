@@ -2,7 +2,6 @@
 library(shiny)
 library(sp)
 library(rgdal)
-library(crawl)
 
 colnames = ''
 colnames2= ''
