@@ -111,6 +111,7 @@ server <- function(input,output,session) {
     if(is.null(newData())) {return()}
     if(input$projection==TRUE) stop ('')
     projdata <- newData()
+    #if(is.na(projdata[,input$Lat])) stop ('')
     coordinates(projdata) <- ~x+y
     proj4string(projdata) <- CRS("+proj=longlat")
     
@@ -150,7 +151,7 @@ server <- function(input,output,session) {
     content = function(file) {
       if(input$projection==TRUE) {write.csv(datasetInput(),file)}
       else 
-        write.csv(projData(), file)
+        write.csv(projData(), file, row.names=FALSE)
     })
 }
 
@@ -210,10 +211,11 @@ ui <- fluidPage(
       h4("Time"),
       h5('Does Time Contain NAs?'), verbatimTextOutput('time'),
       h5("Time Class?"), verbatimTextOutput('timeClass'),
-      helpText('Note: Time must be either numeric or POSIX. If your data is not in either of these classes, please convert it prior to implementing a crawl model.'),
+      helpText('Note: Time must be either numeric or POSIX. If your data are not in either of these classes, please convert it prior to implementing a crawl model.'),
       
       h4('Lat/Long'),
       h5('Location Class'),verbatimTextOutput('lat'),verbatimTextOutput('long'),
+      helpText('Note: This version of the data check app does not project data that has missing Lat/Long values. If you have missing coordinate values, please see the Harbor Seal vignette for details on how to proceed.'),
       
       h4("Covariates"),
       h5('Do Covariates Contain NAs?'),
