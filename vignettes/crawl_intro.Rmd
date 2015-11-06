@@ -245,6 +245,105 @@ for(i in 1:iter){
 Compare the sampled data to the predicted movement path from step 5
 
 --------------------------------------------------
+## Harbor Seal Demo
+This example uses crawl to model the movements of one animal using location classes for locaiton error estimates, and incorporating a haul-out model into the movement process. The basic CTCRW model assumes the animal is in continuous motion for the length of the track, which is not the case for harbor seals and other animals that haul-out between foraging trips. This demo includes a continuously valued covariate which produces a model where a smooth range of haul-out behavior is allowed to act on the movement of the seal. This example also provides details on how to handle missing values that occur when locations and dry-time values are measured at different rates. 
+
+### Load and clean the data
+```{r}
+library(crawl)
+library(sp)
+library(rgdal)
+library(ggplot2)
+data("harborSeal")
+head(harborSeal)
+```
+Define the location classes as factors
+```{r}
+harborSeal$Argos_loc_class = factor(harborSeal$Argos_loc_class, levels=c("3","2","1","0","A","B"))
+```
+
+### Make sure your data is projected
+Locations and dry-times are measured at different times; therefore, these data include times that do not have an associated location estimate. The lat/long for these times is set as a missing value. The rgdal package will not work with NAs in the data so projection will involve a few more steps than what was done with the Northern fur seal example above. 
+
+First, get rid of the rows with NAs in the lat/long. (We are assuming that if a latitude value is missing, the longitude value is also missing.) 
+```{r}
+toProj = harborSeal[!is.na(harborSeal$latitude),c("Time","latitude","longitude")]
+```
+Tell R which columns represent the coordinates for the data
+```{r, message=FALSE}
+coordinates(toProj) = ~longitude+latitude
+```
+Convert to a Spatial Points Data Frame and project. This example uses a library of defined projections (epsg:3338). To see if your region has already been defined serach for it on [spatialreference.org] (spatialreference.org). 
+```{r}
+proj4string(toProj) <- CRS("+proj=longlat")
+toProj <- spTransform(toProj, CRS("+init=epsg:3338"))
+```
+Now that the data are projected, convert the spdf back into a data.frame and merge the projected coordinates with the missing values we removed in step 1. 
+```{r}
+toProj = as.data.frame(toProj)
+colnames(toProj)[2:3] = c("x","y")
+harborSeal = merge(toProj, harborSeal, by="Time", all=TRUE)
+harborSeal = harborSeal[order(harborSeal$Time),]
+```
+
+### Set initial parameters and priors for the model
+
+Our initial locations were unknown because we allowed the animals to range freely, thus reducing capture effects on the data. Therefore, we used `a` and `P` values that were large enough to represent an unknown initial state when recording lat/long. 
+```{r}
+initial = list(a=c(harborSeal$x[1],0,harborSeal$y[1],0),
+               P=diag(c(10000^2,5400^2,10000^2,5400^2)))
+```
+Here, we are fixing the known Argos location errors and the haul-out parameter.
+```{r}
+fixPar = c(log(250), log(500), log(1500), rep(NA,5), 0)
+
+displayPar( mov.model=~1, err.model=list(x=~Argos_loc_class-1),data=harborSeal,activity=~I(1-DryTime),fixPar=fixPar)
+```
+Set the constraint parameter
+```{r}
+constr=list(lower=c(rep(log(1500),3), rep(-Inf,2)),
+            upper=rep(Inf,5))
+```
+
+### Fit the model
+This example uses an intercept model, with the haul-out model represented in the 'activity' parameter, and the error model defined using the Argos location classes. We did not define a prior for this model. A prior is generally not necessary for Maximum Likelihood Estimation; however, you may want to include one if you have optimization problems or you want to 'select' for fixed parameters via regularization.  
+```{r,message=FALSE}
+set.seed(123)
+fit1 <- crwMLE(
+     mov.model=~1, err.model=list(x=~Argos_loc_class-1), activity=~I(1-DryTime),
+     data=harborSeal, coord=c("x","y"), Time.name="Time", 
+     initial.state=initial, fixPar=fixPar, theta=c(rep(log(5000),3),log(3*3600), 0),
+     constr=constr,
+     control=list(maxit=2000, trace=1, REPORT=1)
+     )
+```
+View the model output:
+```{r}
+print(fit1)
+```
+
+###Predict regularly-spaced locations.
+In this example `predTime=NULL` because there are already hourly times in the data due to the activity parameter 
+```{r}
+pred1 = crwPredict(fit1, predTime=NULL, flat=TRUE)
+```
+View the predicted movement path using ggplot2
+```{r}
+p1=ggplot(aes(x=mu.x, y=mu.y), data=pred1) + geom_path(col="red", asp=TRUE) + geom_point(aes(x=x, y=y), col="blue") + coord_fixed()
+
+p2=ggplot(aes(x=Time, y=mu.x), data=pred1) + geom_ribbon(aes(ymin=mu.x-2*se.mu.x, ymax=mu.x+2*se.mu.x), fill="green", alpha=0.5)  + 
+  +   geom_path(, col="red") + geom_point(aes(x=Time, y=x), col="blue", size=1)
+
+p3=ggplot(aes(x=Time, y=mu.y), data=pred1) + geom_ribbon(aes(ymin=mu.y-2*se.mu.y, ymax=mu.y+2*se.mu.y), fill="green", alpha=0.5)  + 
+  +   geom_path(, col="red") + geom_point(aes(x=Time, y=y), col="blue", size=1)
+
+suppressWarnings(print(p1))
+suppressWarnings(print(p2))
+suppressWarnings(print(p3))
+```
+
+
+--------------------------------------------------
 
 ## Bearded Seal Example
 
