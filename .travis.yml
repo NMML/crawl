@@ -4,9 +4,7 @@ language: r
 warnings_are_errors: true
 sudo: required
 apt_packages:
- - gdal
-r_binary_packages:
- - rgdal
+ - gdal-bin
 branches:
   only:
     - devel
