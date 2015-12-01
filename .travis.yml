@@ -3,9 +3,8 @@
 language: r
 warnings_are_errors: true
 sudo: required
-apt_packages:
- - libgdal1-dev
- - libproj-dev
+r_binary_packages:
+ - rgdal
 branches:
   only:
     - devel
