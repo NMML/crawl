@@ -6,3 +6,4 @@ sudo: required
 branches:
   only:
     - devel
+r_binary_packages: rgdal
