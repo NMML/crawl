@@ -24,7 +24,7 @@ constr=list(
 
 ln.prior = function(theta){-abs(theta[4]+3)/0.5}
 
-#set.seed(123)
+set.seed(321)
 fit1 <- crwMLE(
   mov.model=~1, err.model=list(x=~Argos_loc_class-1), drift=TRUE,
   data=northernFurSeal, Time.name="Time", 

@@ -5,7 +5,7 @@ Version: 1.922
 Date: 2015-11-03
 Author: Devin S. Johnson
 Maintainer: Devin S. Johnson <devin.johnson@noaa.gov>
-Imports: 
+Imports:
     mvtnorm,
     sp,
     raster,
@@ -13,9 +13,9 @@ Imports:
     methods,
     shiny
 LinkingTo: 
-    Rcpp, 
+    Rcpp,
     RcppArmadillo
-Suggests: 
+Suggests:
     ggplot2,
     knitr,
     rmarkdown,
@@ -38,3 +38,4 @@ LazyLoad: yes
 ByteCompile: TRUE
 NeedsCompilation: yes
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1

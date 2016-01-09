@@ -106,7 +106,6 @@ for(i in 1:iter){
   }
 
 ## ----message=FALSE-------------------------------------------------------
-# library(kotzeb0912)
 library(sp)
 library(rgdal)
 library(argosfilter)

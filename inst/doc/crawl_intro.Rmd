@@ -260,7 +260,6 @@ The bearded seal movement data from three bearded seals are included with `crawl
 ### Load the necessary packages and examine the data
 
 ```{r message=FALSE}
-# library(kotzeb0912)
 library(sp)
 library(rgdal)
 library(argosfilter)
