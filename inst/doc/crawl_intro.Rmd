@@ -354,6 +354,8 @@ beardedSeals <- beardedSeals %>%
 
 ### Convert to SpatialPointsDataFrame and Project
 
+Passing a properly projected _SpatialPointsDataFrame_ to `crawl::crwMLE()` is the preferred practice. The _SpatialPointsDataFrame_ insures the spatial structure of the data is properly specified. By projecting the coordinates from geographic, the user can avoid common pitfalls associated with geographic coordinate systems (e.g., crossing 180, converting decimal degrees to meters away from the equator). Here, since our data range from the Bering and Chukchi seas, we specify the [North Pole Lambers Albert Equal Area Bering Sea](http://spatialreference.org/ref/epsg/wgs-84-north-pole-laea-bering-sea/) projection by refering the shorthand EPSG code of 3571.
+
  
 ```{r message=FALSE}
 beardedSeals <- as.data.frame(beardedSeals)
@@ -365,7 +367,9 @@ beardedSeals <- spTransform(beardedSeals, CRS("+init=epsg:3571"))
 
 ### Fit the model
 
-The code below will loop over the PTT  numbers and fit the CTCRW models for each seal. Refer to Step 3 in the Northern fur seal model for details on the initial parameters. 
+It is not uncommon for a user to have multiple animals from the same study that need to be modeled as part of the same analysis. This approach is well suited for a parallelized programming approach that takes advantage of modern computer hardware (often with 8 or more CPU cores) and the functionality provided by the `foreach` and `doParallel` packages. This is not intended to be a detailed tutorial on running parallel analysis within R, but should provide most users a basic example. The code below will loop over the `deployid` identifiers and fit the CTCRW models for each seal and returned object, `model_fits` is a list of model fits. Refer to Step 3 in the Northern fur seal model for details on the initial parameters. 
+
+Unlike with the Northern fur seal model, the data in this example contain parameters for the ellipse errors. 
 
 ```{r message=FALSE}
 ids = unique(beardedSeals@data$deployid)      #define seal IDs
@@ -407,7 +411,6 @@ model_fits <-
       fixPar = c(1,1,NA,NA),
       theta = c(log(10), 3),
       initialSANN = list(maxit = 2500),
-      #prior=function(par){-(abs(par[2]-3)/10)^2/2},
       control = list(REPORT = 10, trace = 1)
     )
     fit
@@ -419,7 +422,7 @@ print(model_fits)
 ```
 
 ### Predict regularly-spaced locations
-This function predicts the regular-timed locations along the movement path using the posterior mean and variance of the track.  
+This function predicts the regular-timed -- in this case, hourly -- locations along the movement path using the posterior mean and variance of the track. 
 
 ```{r message=FALSE}
 predData <- foreach(i = 1:length(model_fits)) %dopar% {
@@ -433,16 +436,21 @@ predData <- foreach(i = 1:length(model_fits)) %dopar% {
   tmp = crwPredict(model_fits[[i]], predTime=predTimes)
 }
 
-predData <- bind_rows(predData) %>% as.data.frame(.)
+predData <- dplyr::bind_rows(predData) %>% as.data.frame(.)
 
 predData$predTimes <- intToPOSIX(predData$TimeNum)
+```
+
+While a projected _SpatialPointsDataFrame_ was passed to the `crwMLE()` funtion, the prediction object returned from `crwPredict()` is not a _SpatialPointsDataFrame_. The columns `mu.x` and `mu.y` represent the predicted coordinates which we can coerce into a _SpatialPointsDataFrame_ with the `coordinates()` function and then specify our projection with the `proj4string` function.
+
+```{ message=FALSE}
 predData_sp <- predData
 coordinates(predData_sp) <- ~mu.x+mu.y
 proj4string(predData_sp) <- CRS("+init=epsg:3571")
 ```
 
 ### Plot the output
-Using ggplot, look at the predicted movement path. We will create a custom ggplot theme to provide a mapping look and feel.
+Using ggplot, we can examin the predicted movement path for each bearded seal. We will create a custom ggplot theme to provide a mapping look and feel.
 
 ```{r plot-1}
 theme_map = function(base_size=9, base_family="")

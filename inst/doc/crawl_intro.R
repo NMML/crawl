@@ -212,7 +212,6 @@ model_fits <-
       fixPar = c(1,1,NA,NA),
       theta = c(log(10), 3),
       initialSANN = list(maxit = 2500),
-      #prior=function(par){-(abs(par[2]-3)/10)^2/2},
       control = list(REPORT = 10, trace = 1)
     )
     fit
@@ -234,12 +233,9 @@ predData <- foreach(i = 1:length(model_fits)) %dopar% {
   tmp = crwPredict(model_fits[[i]], predTime=predTimes)
 }
 
-predData <- bind_rows(predData) %>% as.data.frame(.)
+predData <- dplyr::bind_rows(predData) %>% as.data.frame(.)
 
 predData$predTimes <- intToPOSIX(predData$TimeNum)
-predData_sp <- predData
-coordinates(predData_sp) <- ~mu.x+mu.y
-proj4string(predData_sp) <- CRS("+init=epsg:3571")
 
 ## ----plot-1--------------------------------------------------------------
 theme_map = function(base_size=9, base_family="")
