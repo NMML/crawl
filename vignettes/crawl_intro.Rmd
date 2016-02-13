@@ -1,15 +1,15 @@
 ---
 title: "Learning to `crawl`"
-subtitle: "Modeling Animal Movement by Example\n"
 author: "Kenady Wilson, Josh London, and Devin Johnson"
-date: "`r Sys.Date()`"
-output: 
-  html_document: 
+date: '`r Sys.Date()`'
+output:
+  pdf_document: default
+  html_document:
     number_sections: yes
-vignette: >
-  %\VignetteIndexEntry{Intro to crawl}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+subtitle: |
+  Modeling Animal Movement by Example
+vignette: |
+  %\VignetteIndexEntry{Intro to crawl} %\VignetteEncoding{UTF-8} %\VignetteEngine{knitr::rmarkdown}
 ---
 
 <style type="text/css">
