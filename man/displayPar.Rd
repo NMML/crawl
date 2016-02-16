@@ -21,7 +21,7 @@ portion of the model.}
 drift component.}
 
 \item{data}{data.frame object containg telemetry and covariate data. A
-\code{\link{SpatialPointsDataFrame}} object from the package 'sp' will also be accepted.}
+\code{SpatialPointsDataFrame} object from the package 'sp' will also be accepted.}
 
 \item{theta}{starting values for parameter optimization.}
 

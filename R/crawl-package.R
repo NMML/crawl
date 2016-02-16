@@ -10,8 +10,8 @@
 #' \tabular{ll}{ 
 #' Package: \tab crawl\cr 
 #' Type: \tab Package\cr 
-#' Version: \tab 1.922\cr 
-#' Date: \tab November 3, 2015\cr 
+#' Version: \tab 1.923\cr 
+#' Date: \tab February 13, 2016\cr 
 #' License: \tab CC0 \cr 
 #' LazyLoad: \tab yes\cr 
 #' }
@@ -52,15 +52,12 @@ NULL
 #' \item{longitude}{a numeric vector.}
 #' 
 #' }
-#' @references
-#' 
-#' Johnson, D., J. London, M. -A. Lea, and J. Durban (2008) Continuous-time
+#' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008) Continuous-time
 #' random walk model for animal telemetry data. Ecology 89:1208-1215.
-#' @source Alska Ecosystems Program National Marine Mammal Laboratory Alaska
-#' Fisheries Science Center National Marine Fisheries Service, NOAA 7600 Sand
+#' @source Marine Mammal Laboratory, Alaska
+#' Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
 #' Point Way NE Seattle, WA 98115
 #' @keywords datasets
-#' @useDynLib crawl
 NULL
 
 #' Harbor seal relocation data set used in Johnson et al. (2008)
@@ -86,16 +83,39 @@ NULL
 #' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
 #' Continuous-time random walk model for animal telemetry data. Ecology
 #' 89:1208-1215.
-#' @source Polar Ecosystems Program National Marine Mammal Laboratory Alaska
-#' Fisheries Science Center National Marine Fisheries Service, NOAA 7600 Sand
-#' Point Way, NE Seattle, WA 98115
+#' @source Marine Mammal Laboratory, Alaska
+#' Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
+#' Point Way NE Seattle, WA 98115
 #' @keywords datasets
-#' @examples
-#' 
-#' 
-#' data(harborSeal)
-#' head(harborSeal)
 NULL
+
+#' Bearded Seal Location Data
+#' 
+#' 
+#' @name beardedSeals
+#' @docType data
+#' @format A data frame with 27,548 observations on 3 bearded seals in Alaska:
+#' 
+#' \describe{
+#' \item{deployid}{Unique animal ID}
+#' \item{ptt}{Hardware ID}
+#' \item{instr}{Hardware type}
+#' \item{date_time}{Time of location}
+#' \item{type}{Location type}
+#' \item{quality}{Argos location quality}
+#' \item{latitude}{Observed latitude}
+#' \item{longitude}{Observed longitude}
+#' \item{error_radius}{Argos error radius}
+#' \item{error_semimajor_axis}{Argos error ellipse major axis length}
+#' \item{error_semiminor_axis}{Argos error ellipse minor axis length}
+#' \item{error_ellipse_orientation}{Argos error ellispse degree orientation}
+#' }
+#' @source Marine Mammal Laboratory, Alaska
+#' Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
+#' Point Way NE Seattle, WA 98115
+#' @keywords datasets
+NULL
+
 
 
 
@@ -110,11 +130,9 @@ NULL
           "Type 'vignette('crawl_intro')' to see examples of package use, and\n",
           "'demo(package='crawl')' will provide a list of demos.\n",
           "The raw code for the demos can be found by typing:\n",
-          "'system.file('demo', package='crawl')'\n",
-          "*** WARNING ***\n",
-          "    This version of crawl is under heavy development!")
-                        )
-
+          "'system.file('demo', package='crawl')'\n")
+  )
+  
 }
 
 # .onUnload <- function(libpath)

@@ -17,18 +17,12 @@
 \item{Argos_loc_class}{a factor with levels \code{0} \code{1}
 \code{2} \code{3} \code{A} \code{B}}.}}
 \source{
-Polar Ecosystems Program National Marine Mammal Laboratory Alaska
-Fisheries Science Center National Marine Fisheries Service, NOAA 7600 Sand
-Point Way, NE Seattle, WA 98115
+Marine Mammal Laboratory, Alaska
+Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
+Point Way NE Seattle, WA 98115
 }
 \description{
 Harbor seal relocation data set used in Johnson et al. (2008)
-}
-\examples{
-
-
-data(harborSeal)
-head(harborSeal)
 }
 \author{
 Devin S. Johnson

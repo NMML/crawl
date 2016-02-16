@@ -3,13 +3,15 @@ title: "Learning to `crawl`"
 author: "Kenady Wilson, Josh London, and Devin Johnson"
 date: '`r Sys.Date()`'
 output:
-  pdf_document: default
   html_document:
     number_sections: yes
+  pdf_document: default
 subtitle: |
   Modeling Animal Movement by Example
 vignette: |
-  %\VignetteIndexEntry{Intro to crawl} %\VignetteEncoding{UTF-8} %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Intro to crawl} 
+  %\VignetteEncoding{UTF-8} 
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 <style type="text/css">
@@ -44,7 +46,7 @@ Run the following checks on your data prior to building a `crawl` model:
     
     `as.POSIXct(strptime("2011-03-27", "%Y-%m-%d %H:%M:%S"))`
     
-    Users may also find the functions within the [lubridate](https://cran.r-project.org/web/packages/lubridate/index.html) package also useful. Additionally, the date-time values should all be unique for a given animal. Duplicate date-time values are a known aspect of Argos data and duplicates should either be filtered from the data set or adjusted. Users can consult the `make.time.unique()` function within the [xts](https://cran.r-project.org/web/packages/xts/index.html) package or the `adjust.duplicateTimes()` function wtihin the [trip](https://cran.r-project.org/web/packages/xts/index.html) package in order to adjust any duplicate date-time values by 1 second.
+    Users may also find the functions within the [lubridate](https://cran.r-project.org/package=lubridate) package also useful. Additionally, the date-time values should all be unique for a given animal. Duplicate date-time values are a known aspect of Argos data and duplicates should either be filtered from the data set or adjusted. Users can consult the `make.time.unique()` function within the [xts](https://cran.r-project.org/packages=xts) package or the `adjust.duplicateTimes()` function wtihin the [trip](https://cran.r-project.org/package=trip) package in order to adjust any duplicate date-time values by 1 second.
 
 * **Latitude and Longitude (X and Y values)**
 
@@ -141,7 +143,7 @@ constr=list(lower=c(rep(log(1500),2), rep(-Inf,2)),
             upper=rep(Inf,4))
 ```
 
-Set a prior. The prior used in this example is a Laplace prior (double exponential). To set your own Laplace prior or to get more information on the distribution itself, look into the `ddoublex()` fucntion in the R package [smoothmest](https://cran.r-project.org/web/packages/smoothmest/index.html). This funtion has the foloowing density: exp(-abs(x-mu)/lambda)/(2*lambda). The prior below is on the log scale. If you need to adjust the prior, we recommend first adjusting the lambda value (0.5).  For more information on using a Laplace prior in general see: [Hooten and Hobbs (2015) Ecological Monographs 85:3-28] (http://www.esajournals.org/doi/full/10.1890/14-0661.1).
+Set a prior. The prior used in this example is a Laplace prior (double exponential). To set your own Laplace prior or to get more information on the distribution itself, look into the `ddoublex()` fucntion in the R package [smoothmest](https://cran.r-project.org/package=smoothmest). This funtion has the foloowing density: exp(-abs(x-mu)/lambda)/(2*lambda). The prior below is on the log scale. If you need to adjust the prior, we recommend first adjusting the lambda value (0.5).  For more information on using a Laplace prior in general see: [Hooten and Hobbs (2015) Ecological Monographs 85:3-28] (http://www.esajournals.org/doi/full/10.1890/14-0661.1).
 
 ```{r, message=FALSE}
 ln.prior = function(theta){-abs(theta[4]-3)/0.5}
@@ -245,7 +247,9 @@ for(i in 1:iter){
 Compare the sampled data to the predicted movement path from step 5
 
 --------------------------------------------------
+
 ## Harbor Seal Demo
+
 This example uses crawl to model the movements of one animal using location classes for locaiton error estimates, and incorporating a haul-out model into the movement process. The basic CTCRW model assumes the animal is in continuous motion for the length of the track, which is not the case for harbor seals and other animals that haul-out between foraging trips. This demo includes a continuously valued covariate which produces a model where a smooth range of haul-out behavior is allowed to act on the movement of the seal. This example also provides details on how to handle missing values that occur when locations and dry-time values are measured at different rates. 
 
 ### Load and clean the data
@@ -296,7 +300,6 @@ initial = list(a=c(harborSeal$x[1],0,harborSeal$y[1],0),
 Here, we are fixing the known Argos location errors and the haul-out parameter.
 ```{r}
 fixPar = c(log(250), log(500), log(1500), rep(NA,5), 0)
-
 displayPar( mov.model=~1, err.model=list(x=~Argos_loc_class-1),data=harborSeal,activity=~I(1-DryTime),fixPar=fixPar)
 ```
 Set the constraint parameter
@@ -329,19 +332,18 @@ pred1 = crwPredict(fit1, predTime=NULL, flat=TRUE)
 ```
 View the predicted movement path using ggplot2
 ```{r}
-p1=ggplot(aes(x=mu.x, y=mu.y), data=pred1) + geom_path(col="red", asp=TRUE) + geom_point(aes(x=x, y=y), col="blue") + coord_fixed()
+p1=ggplot(aes(x=mu.x, y=mu.y), data=pred1) + geom_path(col="red") + geom_point(aes(x=x, y=y), col="blue") + coord_fixed()
 
-p2=ggplot(aes(x=Time, y=mu.x), data=pred1) + geom_ribbon(aes(ymin=mu.x-2*se.mu.x, ymax=mu.x+2*se.mu.x), fill="green", alpha=0.5)  + 
-  +   geom_path(, col="red") + geom_point(aes(x=Time, y=x), col="blue", size=1)
+p2=ggplot(aes(x=Time, y=mu.x), data=pred1) + geom_ribbon(aes(ymin=mu.x-2*se.mu.x,ymax=mu.x+2*se.mu.x),fill="green", alpha=0.5)  + geom_path(col="red") + geom_point(aes(x=Time, y=x), col="blue", size=1)
 
-p3=ggplot(aes(x=Time, y=mu.y), data=pred1) + geom_ribbon(aes(ymin=mu.y-2*se.mu.y, ymax=mu.y+2*se.mu.y), fill="green", alpha=0.5)  + 
-  +   geom_path(, col="red") + geom_point(aes(x=Time, y=y), col="blue", size=1)
+p3=ggplot(aes(x=Time, y=mu.y), data=pred1) + 
+  geom_ribbon(aes(ymin=mu.y-2*se.mu.y,ymax=mu.y+2*se.mu.y), fill="green", alpha=0.5)  + 
+  geom_path(col="red") + geom_point(aes(x=Time, y=y), col="blue", size=1)
 
 suppressWarnings(print(p1))
 suppressWarnings(print(p2))
 suppressWarnings(print(p3))
 ```
-
 
 --------------------------------------------------
 
@@ -350,7 +352,7 @@ suppressWarnings(print(p3))
 This example builds off of the details listed in the Northern fur seal example and condenses the code to model the movement for multiple animals. We also run the data through an initial, course speed filter to remove extreme outliers. This example differs from the Northern fur seal example in that it:
 
 * demonstrates some data preparation steps
-* employs a course speed filter using the [argosfilter](https://cran.r-project.org/web/packages/argosfilter/index.html) package
+* employs a course speed filter using the [argosfilter](https://cran.r-project.org/package=argosfilter) package
 * demonstrates modeling of multiple animals, 
 * Argos location errors are specified as ellipses instead of location classes,
 
@@ -369,7 +371,7 @@ library(lubridate)
 library(ggplot2)
 ```
 
-Some initial tidying of the data has been done prior to inclusion with the package. [dplyr](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) was used for this process and this resulted in a `tbl_df` object. 
+Some initial tidying of the data has been done prior to inclusion with the package [dplyr](https://cran.rstudio.com/package=dplyr) was used for this process and this resulted in a `tbl_df` object. 
 
 ```{r message=FALSE}
 data("beardedSeals")

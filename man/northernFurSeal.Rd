@@ -17,8 +17,8 @@
 
 }}
 \source{
-Alska Ecosystems Program National Marine Mammal Laboratory Alaska
-Fisheries Science Center National Marine Fisheries Service, NOAA 7600 Sand
+Marine Mammal Laboratory, Alaska
+Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
 Point Way NE Seattle, WA 98115
 }
 \description{

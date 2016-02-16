@@ -13,7 +13,7 @@
 #'@param drift logical indicating whether or not to include a random
 #'drift component.
 #'@param data data.frame object containg telemetry and covariate data. A
-#'\code{\link{SpatialPointsDataFrame}} object from the package 'sp' will also be accepted.
+#'\code{SpatialPointsDataFrame} object from the package 'sp' will also be accepted.
 #'@param theta starting values for parameter optimization.
 #'@param fixPar Values of parameters which are held fixed to the given value.
 #'@param ... Additional arguments (probably for testing new features.)
@@ -40,8 +40,8 @@ displayPar <- function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     Time.name <- data@TOR.columns[1]
   }
   if(inherits(data, "SpatialPoints")) {  
-    if("+proj=longlat" %in% strsplit(proj4string(data), " ")[[1]]) stop("Location data must be projected.")	
-    coordVals <- as.data.frame(coordinates(data))	
+    if("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) stop("Location data must be projected.")	
+    coordVals <- as.data.frame(sp::coordinates(data))	
     coord <- names(coordVals)	
     data <- cbind(slot(data,"data"), coordVals)    
   }

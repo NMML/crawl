@@ -6,4 +6,7 @@
 \usage{
 check_csv()
 }
+\description{
+Users can start a beta version of Shiny app that allows for data checking and basic location projection.
+}
 

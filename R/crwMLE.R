@@ -186,8 +186,8 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     Time.name <- data@TOR.columns[1]
   }
   if(inherits(data, "SpatialPoints")) {	
-    if("+proj=longlat" %in% strsplit(proj4string(data), " ")[[1]]) stop("Location data must be projected.")	
-    coordVals <- as.data.frame(coordinates(data))	
+    if("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) stop("Location data must be projected.")	
+    coordVals <- as.data.frame(sp::coordinates(data))	
     coord <- names(coordVals)	
     data <- cbind(slot(data,"data"), coordVals)    
   }

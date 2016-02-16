@@ -5,4 +5,5 @@
 ^\\.git$
 ^\.travis\.yml$
 ^README\.Rmd$
+^README\.md$
 ^README-.*\.png$
