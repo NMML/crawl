@@ -46,7 +46,7 @@ Run the following checks on your data prior to building a `crawl` model:
     
     `as.POSIXct(strptime("2011-03-27", "%Y-%m-%d %H:%M:%S"))`
     
-    Users may also find the functions within the [lubridate](https://cran.r-project.org/package=lubridate) package also useful. Additionally, the date-time values should all be unique for a given animal. Duplicate date-time values are a known aspect of Argos data and duplicates should either be filtered from the data set or adjusted. Users can consult the `make.time.unique()` function within the [xts](https://cran.r-project.org/packages=xts) package or the `adjust.duplicateTimes()` function wtihin the [trip](https://cran.r-project.org/package=trip) package in order to adjust any duplicate date-time values by 1 second.
+    Users may also find the functions within the [lubridate](https://cran.r-project.org/package=lubridate) package also useful. Additionally, the date-time values should all be unique for a given animal. Duplicate date-time values are a known aspect of Argos data and duplicates should either be filtered from the data set or adjusted. Users can consult the `make.time.unique()` function within the [xts](https://cran.r-project.org/package=xts) package or the `adjust.duplicateTimes()` function wtihin the [trip](https://cran.r-project.org/package=trip) package in order to adjust any duplicate date-time values by 1 second.
 
 * **Latitude and Longitude (X and Y values)**
 
@@ -427,22 +427,26 @@ beardedSeals %>%
 
 Prior to modeling the movement, we will use the `argosfilter` package to pass the Argos locations through a speed filter algorithm. The nature of the Argos satellite system and deployments on wild, marine animals inevitably leads to obviously erroneous locations in the dataset. While the movement models can handle inclusion of these locations, they can sometimes lead to non-convegence or biologically unreasonable movement parameters. Users should use this approach with some caution, however, as we do not want to remove informative observations. To mitigate these issues, here, we pass the data through a speed filter with a speed greater than twice the expected max speed for bearded seals (vmax=5.0 m/s). The `sdafilter` function also has the capability to remove spikes along the observed track. We set `ang = -1` to disable this functionality.
 
-Also notice that we emply the `parallel::mclapply()` function in order to perform this procedure in parallel and save some time.
+Also notice that we emply the `doParallel` and `foreach` function in order to perform this procedure in parallel and save some time.
 
 ```{r message=FALSE}
 beardedSeals <- beardedSeals %>%  
   dplyr::arrange(deployid,unique_posix)
 
-# speedfilter using the paralell package for multi-core speed
-cfilter<-mclapply(split(beardedSeals, beardedSeals$deployid),
-                  function(x) sdafilter(
-                    lat=x$latitude, 
-                    lon=x$longitude, 
-                    dtime=x$unique_posix,
-                    lc=x$quality, 
+library(doParallel)
+registerDoParallel(cores=3)
+
+split_data <- split(beardedSeals,beardedSeals$deployid)
+
+cfilter <- foreach(i = 1:length(split_data)) %dopar% {
+  sdafilter(
+                    lat=split_data[[i]]$latitude, 
+                    lon=split_data[[i]]$longitude, 
+                    dtime=split_data[[i]]$unique_posix,
+                    lc=split_data[[i]]$quality, 
                     ang=-1,
-                    vmax=5),
-                  mc.preschedule=F,mc.cores=3)
+                    vmax=5)
+}
 
 cfilter<-do.call("c",cfilter)
 cfilter<-as.vector(cfilter)
@@ -475,8 +479,6 @@ Unlike with the Northern fur seal model, the data in this example contain parame
 ```{r message=FALSE}
 ids = unique(beardedSeals@data$deployid)      #define seal IDs
 
-library(doParallel)
-n.cores <- detectCores()
 registerDoParallel(cores=3)
 
 model_fits <-

@@ -214,16 +214,20 @@ beardedSeals %>%
 beardedSeals <- beardedSeals %>%  
   dplyr::arrange(deployid,unique_posix)
 
-# speedfilter using the paralell package for multi-core speed
-cfilter<-mclapply(split(beardedSeals, beardedSeals$deployid),
-                  function(x) sdafilter(
-                    lat=x$latitude, 
-                    lon=x$longitude, 
-                    dtime=x$unique_posix,
-                    lc=x$quality, 
+library(doParallel)
+registerDoParallel(cores=3)
+
+split_data <- split(beardedSeals,beardedSeals$deployid)
+
+cfilter <- foreach(i = 1:length(split_data)) %dopar% {
+  sdafilter(
+                    lat=split_data[[i]]$latitude, 
+                    lon=split_data[[i]]$longitude, 
+                    dtime=split_data[[i]]$unique_posix,
+                    lc=split_data[[i]]$quality, 
                     ang=-1,
-                    vmax=5),
-                  mc.preschedule=F,mc.cores=3)
+                    vmax=5)
+}
 
 cfilter<-do.call("c",cfilter)
 cfilter<-as.vector(cfilter)
@@ -243,8 +247,6 @@ beardedSeals <- spTransform(beardedSeals, CRS("+init=epsg:3571"))
 ## ----message=FALSE-------------------------------------------------------
 ids = unique(beardedSeals@data$deployid)      #define seal IDs
 
-library(doParallel)
-n.cores <- detectCores()
 registerDoParallel(cores=3)
 
 model_fits <-
