@@ -22,7 +22,6 @@ Suggests:
     sp,
     rgdal,
     argosfilter,
-    parallel,
     tidyr,
     dplyr,
     lubridate,

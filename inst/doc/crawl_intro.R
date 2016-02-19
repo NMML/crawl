@@ -215,7 +215,8 @@ beardedSeals <- beardedSeals %>%
   dplyr::arrange(deployid,unique_posix)
 
 library(doParallel)
-registerDoParallel(cores=3)
+n.cores <- detectCores()
+registerDoParallel(cores=n.cores)
 
 split_data <- split(beardedSeals,beardedSeals$deployid)
 
@@ -247,7 +248,8 @@ beardedSeals <- spTransform(beardedSeals, CRS("+init=epsg:3571"))
 ## ----message=FALSE-------------------------------------------------------
 ids = unique(beardedSeals@data$deployid)      #define seal IDs
 
-registerDoParallel(cores=3)
+
+registerDoParallel(cores=n.cores)
 
 model_fits <-
   foreach(i = 1:length(ids)) %dopar% {

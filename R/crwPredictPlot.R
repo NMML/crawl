@@ -14,6 +14,7 @@
 #' @return A plot.
 #' @author Devin S. Johnson and Sebastian Luque
 #' @seealso See \code{demo(northernFurSealDemo)} for additional examples.
+#' @importFrom graphics lines plot
 #' @export
 "crwPredictPlot" <- function(object, plotType="ll",...)
 {
