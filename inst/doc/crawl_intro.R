@@ -103,7 +103,7 @@ crwPredictPlot(predObj, 'map')
 for(i in 1:iter){
   samp <- crwPostIS(simObj)
   lines(samp$alpha.sim[,'mu.x'], samp$alpha.sim[,'mu.y'],col=cols[i]) 
-  }
+}
 
 ## ------------------------------------------------------------------------
 library(crawl)
@@ -147,12 +147,12 @@ constr=list(lower=c(rep(log(1500),3), rep(-Inf,2)),
 ## ----message=FALSE-------------------------------------------------------
 set.seed(123)
 fit1 <- crwMLE(
-     mov.model=~1, err.model=list(x=~Argos_loc_class-1), activity=~I(1-DryTime),
-     data=harborSeal, coord=c("x","y"), Time.name="Time", 
-     initial.state=initial, fixPar=fixPar, theta=c(rep(log(5000),3),log(3*3600), 0),
-     constr=constr,
-     control=list(maxit=2000, trace=1, REPORT=1)
-     )
+  mov.model=~1, err.model=list(x=~Argos_loc_class-1), activity=~I(1-DryTime),
+  data=harborSeal, coord=c("x","y"), Time.name="Time", 
+  initial.state=initial, fixPar=fixPar, theta=c(rep(log(5000),3),log(3*3600), 0),
+  constr=constr,
+  control=list(maxit=2000, trace=1, REPORT=1)
+)
 
 ## ------------------------------------------------------------------------
 print(fit1)
@@ -176,8 +176,6 @@ suppressWarnings(print(p3))
 ## ----message=FALSE-------------------------------------------------------
 library(sp)
 library(rgdal)
-library(argosfilter)
-library(parallel)
 library(tidyr)
 library(dplyr)
 library(lubridate)
@@ -215,27 +213,25 @@ beardedSeals <- beardedSeals %>%
   dplyr::arrange(deployid,unique_posix)
 
 library(doParallel)
-registerDoParallel(cores=2)
+library(argosfilter)
 
 split_data <- split(beardedSeals,beardedSeals$deployid)
 
-cfilter <- foreach(i = 1:length(split_data)) %dopar% {
-  sdafilter(
-                    lat=split_data[[i]]$latitude, 
-                    lon=split_data[[i]]$longitude, 
-                    dtime=split_data[[i]]$unique_posix,
-                    lc=split_data[[i]]$quality, 
-                    ang=-1,
-                    vmax=5)
+registerDoParallel(cores=2)
+beardedSeals$filtered <- foreach(i = 1:length(split_data), .combine = c) %dopar% {
+  argosfilter::sdafilter(
+    lat=split_data[[i]]$latitude, 
+    lon=split_data[[i]]$longitude, 
+    dtime=split_data[[i]]$unique_posix,
+    lc=split_data[[i]]$quality, 
+    ang=-1,
+    vmax=5)
 }
-
-cfilter<-do.call("c",cfilter)
-cfilter<-as.vector(cfilter)
-beardedSeals$filtered <- cfilter
+stopImplicitCluster()
 
 beardedSeals <- beardedSeals %>% 
-  dplyr::filter(filtered=="not", !is.na(error_semimajor_axis)) %>%
-  arrange(deployid,unique_posix)
+  dplyr::filter(., filtered=="not" & !is.na(error_semimajor_axis)) %>%
+  arrange(.,deployid,unique_posix)
 
 ## ----message=FALSE-------------------------------------------------------
 beardedSeals <- as.data.frame(beardedSeals)
@@ -247,27 +243,27 @@ beardedSeals <- spTransform(beardedSeals, CRS("+init=epsg:3571"))
 ## ----message=FALSE-------------------------------------------------------
 ids = unique(beardedSeals@data$deployid)      #define seal IDs
 
+registerDoParallel(cores=2)
 model_fits <-
   foreach(i = 1:length(ids)) %dopar% {
     id_data = subset(beardedSeals,deployid == ids[i])
-    
     diag_data = model.matrix(
       ~ error_semimajor_axis + error_semiminor_axis + error_ellipse_orientation,
       id_data@data
     )[,-1]
     
     id_data@data = cbind(id_data@data, 
-                         argosDiag2Cov(
+                         crawl::argosDiag2Cov(
                            diag_data[,1], 
                            diag_data[,2], 
                            diag_data[,3]))
     
-    init = list(a = c(coordinates(id_data)[1,1],0,
-                      coordinates(id_data)[1,2],0),
+    init = list(a = c(sp::coordinates(id_data)[1,1],0,
+                      sp::coordinates(id_data)[1,2],0),
                 P = diag(c(5000 ^ 2,10 * 3600 ^ 2, 
                            5000 ^ 2, 10 * 3600 ^ 2)))
     
-    fit <- crwMLE(
+    fit <- crawl::crwMLE(
       mov.model =  ~ 1,
       err.model = list(
         x =  ~ ln.sd.x - 1, 
@@ -284,32 +280,33 @@ model_fits <-
     )
     fit
   }
+stopImplicitCluster()
 
 names(model_fits) <- ids
 
 print(model_fits)
 
 ## ----message=FALSE-------------------------------------------------------
-predData <- foreach(i = 1:length(model_fits)) %dopar% {
-
+registerDoParallel(cores=2)
+predData <- foreach(i = 1:length(model_fits), .combine = rbind) %dopar% {
+  
   model_fits[[i]]$data$unique_posix <- lubridate::with_tz(
     model_fits[[i]]$data$unique_posix,"GMT")
   predTimes <- seq(
     lubridate::ceiling_date(min(model_fits[[i]]$data$unique_posix),"hour"),
     lubridate::floor_date(max(model_fits[[i]]$data$unique_posix),"hour"),
     "1 hour")
-  tmp = crwPredict(model_fits[[i]], predTime=predTimes)
+  tmp = crawl::crwPredict(model_fits[[i]], predTime=predTimes)
 }
-
-predData <- dplyr::bind_rows(predData) %>% as.data.frame(.)
+stopImplicitCluster()
 
 predData$predTimes <- intToPOSIX(predData$TimeNum)
 
 ## ----plot-1--------------------------------------------------------------
 theme_map = function(base_size=9, base_family="")
 {
-    require(grid)
-    theme_bw(base_size=base_size, base_family=base_family) %+replace%
+  require(grid)
+  theme_bw(base_size=base_size, base_family=base_family) %+replace%
     theme(axis.title.x=element_text(vjust=0),
           axis.title.y=element_text(angle=90, vjust=1.25),
           axis.text.y=element_text(angle=90),
@@ -325,7 +322,7 @@ theme_map = function(base_size=9, base_family="")
           plot.title=element_text(vjust=1),
           strip.background=element_rect(fill="grey90", colour="black", size=0.3),
           strip.text=element_text()
-          )
+    )
 }
 
 p1 <- ggplot(data=predData,aes(x=mu.x,y=mu.y)) + 
