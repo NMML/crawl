@@ -7,30 +7,25 @@
 #' 
 
 #' 
-#' This function calls compiled Fortran code which can be viewed in the
-#' \code{src} directory of the crawl library.
+#' This function calls compiled C++ code which can be viewed in the
+#' \code{src} directory of the crawl source package.
 #' 
 #' @param theta parameter values.
 #' @param fixPar values of parameters held fixed (contains \code{NA} for
 #' \code{theta} values).
-#' @param y latitude locations.
-#' @param x longitude loations.
-#' @param loctype vector with 1 for unobserved locations, and 0 for observed locations.
+#' @param y N by 2 matrix of coordinates with the longitude coordinate in the first column.
+#' @param noObs vector with 1 for unobserved locations, and 0 for observed locations.
 #' @param delta time difference to next location.
-#' @param a1.y initial state value for latitude.
-#' @param a1.x initial state value for longitude.
-#' @param P1.x intial state covariance matrix for latitude.
-#' @param P1.y inital state covariance matrix for longitude.
-#' @param lonAdj = 1/cos(y*pi/180) as described in Johnson et al. (2008) for
-#' polar coords. = 1 for non-polar coords.
+#' @param a initial state mean.
+#' @param P intial state covariance matrix
 #' @param mov.mf Movement covariate data.
 #' @param err.mfX longitude error covariate data.
 #' @param err.mfY latitude error covariate data.
-#' @param stop.mf stopping covariate.
+#' @param rho A vector of known correlation coefficients for the error model, typically used for modern ARGOS data.
+#' @param activity Stopping covariate (= 0 if animal is not moving).
 #' @param n.errX number or longitude error parameters.
 #' @param n.errY number of latitude error parameters.
 #' @param n.mov number or movement parameters.
-#' @param stopMod Logical. indicates wheteher a stop model is specified.
 #' @param driftMod Logical. inicates whether a drift model is specified.
 #' @param prior Function of theta that returns the log-density of the prior
 #' @param need.hess Whether or not the Hessian will need to be calculated from
@@ -43,65 +38,50 @@
 #' Continuous-time model for animal telemetry data. Ecology 89:1208-1215.
 #' @export
 
-"crwN2ll" <- function(theta, fixPar, y, x, loctype, delta, a1.y, a1.x,
-                      P1.x, P1.y, lonAdj, mov.mf, err.mfX, err.mfY, stop.mf,
-                      n.errX, n.errY, n.mov, stopMod, driftMod, prior, need.hess, constr=list(lower=-Inf, upper=Inf))
+crwN2ll = function(theta, fixPar, y, noObs, delta, a,
+                   P, mov.mf, err.mfX, err.mfY, rho=NULL, activity=NULL,
+                   n.errX, n.errY, n.mov, driftMod, prior, need.hess, 
+                   constr=list(lower=-Inf, upper=Inf))
 {
-	if(!need.hess & any(theta < constr$lower | theta > constr$upper)) return(Inf)
-    N <- length(y)
-    par <- fixPar
-    par[is.na(fixPar)] <- theta
-   ###
-   ### Process parameters for Fortran
-   ###
-   if (!is.null(err.mfX)) {
-      theta.errX <- par[1:n.errX]
-      tau2x <- exp(2 * err.mfX %*% theta.errX)
-   } else tau2x <- rep(0.0, N)
-   if (!is.null(err.mfY)) {
-      theta.errY <- par[(n.errX + 1):(n.errX + n.errY)]
-      tau2y <- exp(2 * err.mfY %*% theta.errY)
-   } else tau2y <- tau2x
-   theta.mov <- par[(n.errX + n.errY + 1):(n.errX + n.errY + 2 * n.mov)]
-   sig2 <- exp(2 * (mov.mf %*% theta.mov[1:n.mov]))
-   b <- exp(mov.mf %*% theta.mov[(n.mov + 1):(2 * n.mov)])
-   stay <- rep(0, N)
-   if (stopMod) {
-      stop.mf <- stop.mf
-      theta.stop <- par[(n.errX + n.errY + 2 * n.mov + 1)]
-      b <- b / ((1 - stop.mf) ^ exp(theta.stop))
-      stay <- ifelse(b==Inf, 1, 0)
-      b <- ifelse(b==Inf, 9999, b) 
-   }
-   if (driftMod) {
-      theta.drift <- par[(n.errX + n.errY + 2 * n.mov + 1):
-                                    (n.errX + n.errY + 2 * n.mov + 2)]
-      b.drift <- exp(log(b) - log(1+exp(theta.drift[2])))
-      sig2.drift <- exp(log(sig2) + 2 * theta.drift[1]) #rep(exp(2*theta.drift[1]), length(sig2)) #
-      call.lik <- "crwdriftn2ll"
-   } else {
-      b.drift <- sig2.drift <- 0.0
-      call.lik <- "crwn2ll"
-   }
-   movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod)
-    out <- .Fortran(call.lik,
-                    tau2y=as.double(tau2y),
-                    tau2x=as.double(tau2x),
-                    Qmat=as.double(as.matrix(movMats$Qmat)),
-                    Tmat=as.double(as.matrix(movMats$Tmat)),
-                    x=as.double(x),
-                    y=as.double(y),
-                    loctype=as.integer(loctype),
-                    stay=as.integer(stay),
-                    ay=as.double(a1.y),
-                    ax=as.double(a1.x),
-                    Py=as.double(P1.y),
-                    Px=as.double(P1.x),
-                    lonadj=as.double(lonAdj),
-                    N=as.integer(N),
-                    lly=as.double(0),
-                    llx=as.double(0),
-                    package="crawl")
-    if(is.null(prior)) return(-2 * (out$lly + out$llx))
-	else return(-2 * (out$lly + out$llx + prior(theta)))
+  if(!need.hess & any(theta < constr$lower | theta > constr$upper)) return(Inf)
+  N <- nrow(y)
+  par <- fixPar
+  par[is.na(fixPar)] <- theta
+  ###
+  ### Process parameters for Fortran
+  ###
+  if (!is.null(err.mfX)) {
+    theta.errX <- par[1:n.errX]
+    Hmat <- exp(2 * err.mfX %*% theta.errX)
+  } else Hmat <- rep(0.0, N)
+  if (!is.null(err.mfY)) {
+    theta.errY <- par[(n.errX + 1):(n.errX + n.errY)]
+    Hmat <- cbind(Hmat,exp(2 * err.mfY %*% theta.errY))
+  } else Hmat <- cbind(Hmat, Hmat)
+  if(!is.null(rho)){
+    Hmat = cbind(Hmat, sqrt(Hmat[,1])*sqrt(Hmat[,2])*rho)
+  } else {Hmat = cbind(Hmat, rep(0,N))}
+  Hmat[noObs==1,] = 0
+  theta.mov <- par[(n.errX + n.errY + 1):(n.errX + n.errY + 2 * n.mov)]
+  sig2 <- exp(2 * (mov.mf %*% theta.mov[1:n.mov]))
+  b <- exp(mov.mf %*% theta.mov[(n.mov + 1):(2 * n.mov)])
+  if (!is.null(activity)) {
+    theta.stop <- par[(n.errX + n.errY + 2 * n.mov + 1)]
+    b <- b / ((activity) ^ exp(theta.stop))
+    active <- ifelse(b==Inf, 0, 1)
+    b <- ifelse(b==Inf, 0, b) 
+  } else {active=rep(1,N)}
+  if (driftMod) {
+    theta.drift <- par[(n.errX + n.errY + 2 * n.mov + 1):
+                         (n.errX + n.errY + 2 * n.mov + 2)]
+    b.drift <- exp(log(b) - log(1+exp(theta.drift[2])))
+    sig2.drift <- exp(log(sig2) + 2 * theta.drift[1]) 
+    ll <- CTCRWNLL_DRIFT( y=as.matrix(y), Hmat, b, b.drift, sig2, sig2.drift, delta, noObs, active, a,  P)$ll
+  } else {
+    ll <- CTCRWNLL( y=as.matrix(y), Hmat, b, sig2, delta, noObs, active, a,  P)$ll
+  }
+  #movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod=FALSE)
+
+  if(is.null(prior)) return(-2 * ll)
+  else return(-2 * (ll + prior(theta)))
 }

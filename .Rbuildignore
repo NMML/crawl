@@ -3,5 +3,7 @@
 ^\\.gitignore$
 ^\\.DS_Store$
 ^\\.git$
-^test\.cpp$
-^src/test\.cpp$
+^\.travis\.yml$
+^README\.Rmd$
+^README\.md$
+^README-.*\.png$

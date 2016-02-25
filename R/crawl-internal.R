@@ -154,6 +154,14 @@
                   -698969170L, -1437928171L, -1156402799L, 1122493543L,
                   -607411559L, 55417736L, 1993198746L, 929142911L,
                   70336915L, -991939639L, -1545046851L, 304940986L)
+
+erf = function(x){
+  return(2*pnorm(x*sqrt(2))-1)
+}
+erfinv = function(z){
+  if(-1>=z | z>=1) stop("Correlation outside of (-1,1)\n")
+  qnorm((z+1)/2)/sqrt(2)
+}
                   
 makeAvail <- function(i, Tmat, Qmat, predx, predy, vary, varx, driftMod, lonadj){
   .T <- matrix(0, 2+driftMod,2+driftMod)
@@ -200,43 +208,4 @@ getSD <- function(x){
 	else return(0)
 }
 
-# dmvslash <- function(x, mu, Sigma, q, log.p=FALSE){
-# 	p <- length(x)
-# 	if(missing(mu)) mu <- rep(0,p)
-# 	if(missing(Sigma)) Sigma <- diag(rep(1,p))
-# 	if(all(x==0)) out <- (q/(q+p))*(1/(2*pi))^(p/2)
-# 	else{
-# 		z <- sqrt(t(x-mu)%*%solve(Sigma, (x-mu)))
-# 		a <- (q+p)/2
-# 		integral <- integrate(f=function(t,a){t^(a-1) * exp(-t)}, a=a, lower=0, upper=z^2/2)$value
-# 		out <- (q * 2^((q+p)/2 - 1) * integral)/((2*pi)^(p/2) * z^(q+p))
-# 	}
-# 	if(log.p) return(log(out))
-# 	else return(out)
-# }
-
-
-# rmvtslash <- function(mu, Sigma, q=Inf, lower, upper){
-# 	p <- length(mu)
-# 	if(length(lower)!=p | length(upper)!=p) stop("\nLimits are not the correct size\n")
-# 	out <- rep(NA,p)
-# 	div <- ifelse(q==Inf, 1, runif(1,0,1)^(1/q))
-# 	truncLo <- pnorm(div*(lower[1]-mu[1])/sqrt(Sigma[1,1]))
-# 	truncUp <- pnorm((div*upper[1]-mu[1])/sqrt(Sigma[1,1]))
-# 	out[1] <- mu[1] + sqrt(Sigma[1,1])*(qnorm(runif(1, truncLo, truncUp))/div)
-# 	if(p>1){	
-# 		for(i in 2:p){
-# 			S12 <- Sigma[i,1:(i-1)]
-# 			S22 <- Sigma[1:(i-1),1:(i-1)]
-# 			res <- out[1:(i-1)]-mu[1:(i-1)]
-# 			mu.c <- mu[i] + S12%*%solve(S22, res)
-# 			S.c <- Sigma[i,i] - S12%*%solve(S22,S12)
-# 			truncLo <- pnorm(div*(lower[i]-mu.c)/sqrt(S.c))
-# 			truncUp <- pnorm((div*upper[i]-mu.c)/sqrt(S.c))
-# 			out[i] <- mu.c + sqrt(S.c)*(qnorm(runif(1, truncLo, truncUp))/div)
-# 		}
-# 		return(out)
-# 	}
-# 	else return(out)
-# }
 

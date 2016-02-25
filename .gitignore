@@ -14,4 +14,4 @@ crawl.Rproj
 *.tar.gz
 *.zip
 *.tgz
-src/test.cpp
+inst/doc

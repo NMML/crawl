@@ -1,3 +1,4 @@
+ 
 getQT <- function(sig2, b, sig2.drift, b.drift, delta, driftMod)
 {
 	Qmat <- matrix(0, length(b), 3+2*driftMod)
