@@ -7,7 +7,7 @@ citEntry(entry = "Misc",
                    as.person("Kenady Wilson")),
   year         = "2016",
   doi          = "10.5281/zenodo.56317",
-  url          = "https://cran.r-project.org/web/packages/crawl/index.html"
+  url          = "https://cran.r-project.org/web/packages/crawl/index.html")
 
   textVersion  =
   paste("Johnson, Devin S., J.M. London, K. Wilson (2016).",
