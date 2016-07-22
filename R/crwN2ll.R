@@ -68,6 +68,7 @@ crwN2ll = function(theta, fixPar, y, noObs, delta, a,
   if (!is.null(activity)) {
     theta.stop <- par[(n.errX + n.errY + 2 * n.mov + 1)]
     b <- b / ((activity) ^ exp(theta.stop))
+    sig2 = sig2 * ((activity) ^ exp(theta.stop))
     active <- ifelse(b==Inf, 0, 1)
     b <- ifelse(b==Inf, 0, b) 
   } else {active=rep(1,N)}

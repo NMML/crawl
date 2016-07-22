@@ -10,7 +10,8 @@ proj4string(northernFurSeal) <- CRS("+proj=longlat")
 northernFurSeal <- spTransform(northernFurSeal, CRS("+proj=aea +lat_1=30 +lat_2=70 +lat_0=52 +lon_0=-170 +x_0=0 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs"))
 
 initial = list(
-  a=c(coordinates(northernFurSeal)[1,1],0,0,coordinates(northernFurSeal)[1,2],0,0),
+  a=c(coordinates(northernFurSeal)[1,1],0,0,
+      coordinates(northernFurSeal)[1,2],0,0),
   P=diag(c(10000^2,5400^2,5400^2,10000^2,5400^2,5400^2))
 )
 
