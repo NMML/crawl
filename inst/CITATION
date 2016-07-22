@@ -6,7 +6,7 @@ citEntry(entry = "Misc",
                    as.person("Josh M. London"), 
                    as.person("Kenady Wilson")),
   year         = "2016",
-  url          = "https://cran.r-project.org/package=crawl")
+  url          = "https://cran.r-project.org/package=crawl",
 
   textVersion  =
   paste("Johnson, Devin S., J.M. London, K. Wilson (2016).",
