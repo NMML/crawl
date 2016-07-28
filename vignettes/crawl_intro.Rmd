@@ -143,7 +143,9 @@ constr=list(lower=c(rep(log(1500),2), rep(-Inf,2)),
             upper=rep(Inf,4))
 ```
 
-Set a prior. The prior used in this example is a Laplace prior (double exponential). To set your own Laplace prior or to get more information on the distribution itself, look into the `ddoublex()` fucntion in the R package [smoothmest](https://cran.r-project.org/package=smoothmest). This funtion has the foloowing density: exp(-abs(x-mu)/lambda)/(2*lambda). The prior below is on the log scale. If you need to adjust the prior, we recommend first adjusting the lambda value (0.5).  For more information on using a Laplace prior in general see: [Hooten and Hobbs (2015) Ecological Monographs 85:3-28] (http://www.esajournals.org/doi/full/10.1890/14-0661.1).
+#### Set a prior. 
+
+The prior used in this example is a Laplace prior (double exponential). To set your own Laplace prior or to get more information on the distribution itself, look into the `ddoublex()` function in the R package [smoothmest](https://cran.r-project.org/package=smoothmest). This function has the foloowing density: $exp(-abs(x-mu)/lambda)/(2*lambda)$. The prior below is on the log scale. If you need to adjust the prior, we recommend first adjusting the lambda value (0.5).  For more information on using a Laplace prior in general see: [Hooten and Hobbs (2015) Ecological Monographs 85:3-28] (http://www.esajournals.org/doi/full/10.1890/14-0661.1).
 
 ```{r, message=FALSE}
 ln.prior = function(theta){-abs(theta[4]-3)/0.5}
@@ -481,7 +483,7 @@ model_fits <-
     id_data = subset(beardedSeals,deployid == ids[i])
     diag_data = model.matrix(
       ~ error_semimajor_axis + error_semiminor_axis + error_ellipse_orientation,
-      id_data@data
+      model.frame( ~ ., id_data@data, na.action = na.pass)
     )[,-1]
     
     id_data@data = cbind(id_data@data, 
