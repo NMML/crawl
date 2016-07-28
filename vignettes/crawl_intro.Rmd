@@ -121,9 +121,7 @@ improve optimization.
 
 3. **Your animal hauls out on land.** 
 
-The haul-out model has a curve fit to binomial (0,1) data that estimates not 
-only the 0's and 1's, but all the values inbetween. You can fix the haul-out 
-parameter to just about anything. 
+The activity model specifies the autocorrelation parameter $\beta_i = \beta/A^\phi$ and $\sigma_i^2 = \sigma_i^2*A^\phi$ for activity index of an animal, $A \in [0,1]$. E.g., See the harbor seal example in the next section. If the researcher only has binary data $A = 0$ or 1, then $\phi$ is unidentafiable and can be set to $\phi = 1$ 
 
 ```{r,message=FALSE}
 fixPar = c(log(250), log(500), log(1500), rep(NA,3), NA)
