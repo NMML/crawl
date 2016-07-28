@@ -7,11 +7,11 @@
 argosDiag2Cov(Major, Minor, Orientation)
 }
 \arguments{
-\item{Major}{A vector containing the major axis information for each observation}
+\item{Major}{A vector containing the major axis information for each observation (na values are ok)}
 
-\item{Minor}{A vector containing the minor axis information for each observation}
+\item{Minor}{A vector containing the minor axis information for each observation (na values are ok)}
 
-\item{Orientation}{A vector containing the angle orientation of the Major axis from North}
+\item{Orientation}{A vector containing the angle orientation of the Major axis from North (na values are ok)}
 }
 \value{
 A \code{data.frame} with the following columns
