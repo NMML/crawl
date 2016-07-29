@@ -249,7 +249,7 @@ model_fits <-
     id_data = subset(beardedSeals,deployid == ids[i])
     diag_data = model.matrix(
       ~ error_semimajor_axis + error_semiminor_axis + error_ellipse_orientation,
-      id_data@data
+      model.frame( ~ ., id_data@data, na.action = na.pass)
     )[,-1]
     
     id_data@data = cbind(id_data@data, 

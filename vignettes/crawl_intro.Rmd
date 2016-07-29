@@ -369,7 +369,7 @@ library(lubridate)
 library(ggplot2)
 ```
 
-Some initial tidying of the data has been done prior to inclusion with the package [dplyr](https://cran.rstudio.com/package=dplyr) was used for this process and this resulted in a `tbl_df` object. 
+Some initial tidying of the data has been done prior to inclusion with the package [dplyr](https://cran.r-project.org/package=dplyr) was used for this process and this resulted in a `tbl_df` object. 
 
 ```{r message=FALSE}
 data("beardedSeals")
@@ -397,7 +397,7 @@ beardedSeals %>%
   filter(n()>1)
 ```
 
-Note that while the `date_time` columns are duplicated, values for `quality`, `latitude`, and `longitude` differ. Since we have no objective method for selecting one record over the other, we will opt to adjust one of the duplicate times by increasing the `date_time` by 1 second. In this example, we use the `make.time.unique()` function from the [xts](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) package (along with some dplyr and [tidyr](https://cran.rstudio.com/web/packages/tidyr/vignettes/tidy-data.html) magic) to create a new column, `unique_posix`.
+Note that while the `date_time` columns are duplicated, values for `quality`, `latitude`, and `longitude` differ. Since we have no objective method for selecting one record over the other, we will opt to adjust one of the duplicate times by increasing the `date_time` by 1 second. In this example, we use the `make.time.unique()` function from the [xts](https://cran.r-project.org/package=xts) package (along with some dplyr and [tidyr](https://cran.r-project.org/package=tidyr) magic) to create a new column, `unique_posix`.
 
 ```{r message=FALSE}
 library(xts)
