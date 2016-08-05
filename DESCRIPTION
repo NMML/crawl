@@ -1,8 +1,8 @@
 Package: crawl
 Type: Package
 Title: Fit Continuous-Time Correlated Random Walk Models to Animal Movement Data
-Version: 2.0.2
-Date: 2016-08-03
+Version: 2.0.3
+Date: 2016-08-05
 Author: Devin S. Johnson
 Maintainer: Devin S. Johnson <devin.johnson@noaa.gov>
 Depends:
@@ -11,7 +11,9 @@ Imports:
     mvtnorm,
     Rcpp (>= 0.11.1),
     methods,
-    shiny
+    shiny,
+    dplyr,
+    raster
 LinkingTo: 
     Rcpp,
     RcppArmadillo
@@ -23,7 +25,6 @@ Suggests:
     rgdal,
     argosfilter,
     tidyr,
-    dplyr,
     lubridate,
     xts,
     doParallel
