@@ -13,7 +13,9 @@ Imports:
     methods,
     shiny,
     dplyr,
-    raster
+    raster,
+    gdistance,
+    sp
 LinkingTo: 
     Rcpp,
     RcppArmadillo
@@ -21,7 +23,6 @@ Suggests:
     ggplot2,
     knitr,
     rmarkdown,
-    sp,
     rgdal,
     argosfilter,
     tidyr,

@@ -32,10 +32,11 @@
 #' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
 #' Continuous-time correlated random walk model for animal telemetry data.
 #' Ecology 89(5) 1208-1215.
+#' @import dplyr
 #' @importFrom Rcpp evalCpp
 #' @importFrom graphics layout
 #' @importFrom methods as slot 
-#' @importFrom stats approx filter model.frame model.matrix 
+#' @importFrom stats approx model.frame model.matrix 
 #'             na.pass optim pchisq pexp pnorm qnorm 
 #'             rchisq runif sd
 #' @useDynLib crawl

@@ -1,5 +1,4 @@
 #' @title Find the sections of a path that pass thorugh a restricted area
-#' 
 #' @description This function is used to identify sections of a path that pass through 
 #' restricted areas. the CTCRW model is crawl cannot actively steer paths away 
 #' from restricted areas as it knows nothing of spatial information. So, this function
@@ -13,7 +12,6 @@
 #' that crosses a restricted area. The columns provide the start and end row indices of \code{xy} where
 #' the section occurs and the previous and post locations that are in unrestricted space.
 #' @author Josh M. London (josh.london@noaa.gov)
-#' @importFrom dplyr lag lead mutate %>%
 #' @importFrom raster extract 
 #' @export
 
@@ -25,10 +23,74 @@ get_restricted_segments = function(xy, res_raster){
   end_idx <- which(c(in.segment, FALSE) == TRUE & 
                      dplyr::lead(c(in.segment, FALSE) == FALSE))
   restricted_segments <- data.frame(start_idx, end_idx) %>% 
-    rowwise() %>% 
+    dplyr::rowwise() %>% 
     dplyr::mutate(start_x = xy$mu.x[start_idx-1],
-           start_y = xy$mu.y[start_idx-1],
-           end_x = xy$mu.x[end_idx+1],
-           end_y = xy$mu.y[end_idx+1])
+                  start_y = xy$mu.y[start_idx-1],
+                  end_x = xy$mu.x[end_idx+1],
+                  end_y = xy$mu.y[end_idx+1])
   return(restricted_segments)
 }
+
+
+#' @title Project path away from restricted areas
+#' @description Corrects a path so that it does not travel through a restricted area.
+#' @param xy Coordinate locations for the path. Can be one of the following classes: 
+#' (1) a two column matrix, 
+#' (2) 'SpatialPoints' object from the sp package,
+#' (3) 'crwPredict' object from the \code{crwPredict} function
+#' (4) 'crwIS' object from the \code{crwPostIS} function
+#' @param res_raster A raster object that indicates which areas are restricted from use
+#' should be 1 for restricted areas and 0 for unrestricted areas.
+#' @param directions Passed to the \code{gdistance::transition} function in the gdistance
+#' package
+#' @return Either matrix or 'SpatialPoints' object with path projected around
+#' restricted areas
+#' @importFrom gdistance transition shortestPath
+#' @importFrom sp coordinates
+#' @importFrom raster cellFromXY asFactor
+#' @importFrom stats approx
+#' @export
+#' 
+fix_path = function(xy, res_raster, directions=16){
+  seg = get_restricted_segments(xy, res_raster)
+  if(missing(directions)) directions=16
+  A = raster::asFactor(res_raster==0)
+  trans = gdistance::transition(A, "areas", directions)
+  if(inherits(xy, "SpatialPoints")){
+    loc_data = sp::coordinates(xy)
+  } else if(inherits(xy, "matrix")){
+    if(ncol(xy)!=2) stop("xy matrix does not have 2 columns")
+    loc_data = xy
+  } else if(inherits(xy, "crwPredict")){
+    loc_data = as.matrix(xy[,c("mu.x","mu.y")]) 
+  } else if(inherits(xy, "crwIS")){
+    loc_data = xy$alpha.sim[,c("mu.x","mu.y")]
+  } else stop("Unrecognized 'xy' format")
+  idx = as.matrix(seg[,1:2])
+  start_xy = as.matrix(seg[,3:4])
+  end_xy = as.matrix(seg[,5:6])
+  for(i in 1:nrow(seg)){
+    if(raster::cellFromXY(res_raster, start_xy[i,]) == raster::cellFromXY(res_raster, end_xy[i,])){
+      path_pts = do.call("cbind",
+                         stats::approx(x=c(start_xy[i,1],end_xy[i,1]), 
+                               y=c(start_xy[i,2],end_xy[i,2]),
+                               n=as.integer(seg[i,2]-seg[i,1]+1)
+                         ))
+    } else{
+      path = gdistance::shortestPath(trans[[1]], start_xy[i,], end_xy[i,],"SpatialLines")
+      path_pts = sp::coordinates(
+        sp::spsample(path, n=as.integer(seg[i,2]-seg[i,1]+1), "regular")
+      )
+    }
+    loc_data[idx[i,1]:idx[i,2],] = as.matrix(path_pts)
+  }
+  if(inherits(xy, "SpatialPoints")){
+    loc_data = as.data.frame(loc_data)
+    sp::coordinates(loc_data) = c(1,2)
+  } 
+  return(loc_data)
+}
+
+
+
+
