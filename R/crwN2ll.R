@@ -59,7 +59,8 @@ crwN2ll = function(theta, fixPar, y, noObs, delta, a,
     Hmat <- cbind(Hmat,exp(2 * err.mfY %*% theta.errY))
   } else Hmat <- cbind(Hmat, Hmat)
   if(!is.null(rho)){
-    Hmat = cbind(Hmat, sqrt(Hmat[,1])*sqrt(Hmat[,2])*rho)
+    # Hmat = cbind(Hmat, sqrt(Hmat[,1])*sqrt(Hmat[,2])*rho)
+    Hmat = cbind(Hmat, exp(log(Hmat[,1])/2 + log(Hmat[,2])/2)*rho)
   } else {Hmat = cbind(Hmat, rep(0,N))}
   Hmat[noObs==1,] = 0
   theta.mov <- par[(n.errX + n.errY + 1):(n.errX + n.errY + 2 * n.mov)]

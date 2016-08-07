@@ -138,7 +138,7 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   var <- zapsmall(out$predVar)
   obsFit <- data.frame(predObs.x=out$predObs[1,],
                        predObs.y=out$predObs[2,])
-  obsFit$outlier.chisq <- out$chisq
+  obsFit$outlier.chisq <- as.vector(out$chisq)
   obsFit$naive.p.val <- 1 - pchisq(obsFit$outlier.chisq, 2)
   if(getUseAvail){
     warning("'getUseAvail' not implemented yet in this version of 'crawl' contact maintainer to fix this! ")

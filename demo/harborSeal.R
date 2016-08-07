@@ -51,11 +51,3 @@ p3=ggplot(aes(x=Time, y=mu.y), data=pred1) + geom_ribbon(aes(ymin=mu.y-2*se.mu.y
 suppressWarnings(print(p1))
 suppressWarnings(print(p2))
 suppressWarnings(print(p3))
-# ggsave("map.pdf", p1)
-# ggsave("xaxis.pdf", p2, width=10, height=2)
-# ggsave("yaxis.pdf", p3, width=10, height=2)
-
-
-# 
-# ##See simulated annealing start values
-# fit2$init$par
