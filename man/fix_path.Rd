@@ -4,7 +4,7 @@
 \alias{fix_path}
 \title{Project path away from restricted areas}
 \usage{
-fix_path(xy, res_raster, directions = 16)
+fix_path(xy, res_raster, trans)
 }
 \arguments{
 \item{xy}{Coordinate locations for the path. Can be one of the following classes: 
@@ -13,11 +13,10 @@ fix_path(xy, res_raster, directions = 16)
 (3) 'crwPredict' object from the \code{crwPredict} function
 (4) 'crwIS' object from the \code{crwPostIS} function}
 
-\item{res_raster}{A raster object that indicates which areas are restricted from use
-should be 1 for restricted areas and 0 for unrestricted areas.}
+\item{res_raster}{An indicator raster object with cells = 1 if it is 'off-limits'
+and 0 elsewise.}
 
-\item{directions}{Passed to the \code{gdistance::transition} function in the gdistance
-package}
+\item{trans}{A transition matrix object from the gdistance package.}
 }
 \value{
 Either matrix or 'SpatialPoints' object with path projected around

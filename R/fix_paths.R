@@ -39,23 +39,19 @@ get_restricted_segments = function(xy, res_raster){
 #' (2) 'SpatialPoints' object from the sp package,
 #' (3) 'crwPredict' object from the \code{crwPredict} function
 #' (4) 'crwIS' object from the \code{crwPostIS} function
-#' @param res_raster A raster object that indicates which areas are restricted from use
-#' should be 1 for restricted areas and 0 for unrestricted areas.
-#' @param directions Passed to the \code{gdistance::transition} function in the gdistance
-#' package
+#' @param res_raster An indicator raster object with cells = 1 if it is 'off-limits'
+#' and 0 elsewise.
+#' @param trans A transition matrix object from the gdistance package.
 #' @return Either matrix or 'SpatialPoints' object with path projected around
 #' restricted areas
 #' @importFrom gdistance transition shortestPath
 #' @importFrom sp coordinates
-#' @importFrom raster cellFromXY asFactor
+#' @importFrom raster cellFromXY 
 #' @importFrom stats approx
 #' @export
 #' 
-fix_path = function(xy, res_raster, directions=16){
+fix_path = function(xy, res_raster, trans){
   seg = get_restricted_segments(xy, res_raster)
-  if(missing(directions)) directions=16
-  A = raster::asFactor(res_raster==0)
-  trans = gdistance::transition(A, "areas", directions)
   if(inherits(xy, "SpatialPoints")){
     loc_data = sp::coordinates(xy)
   } else if(inherits(xy, "matrix")){
@@ -77,7 +73,7 @@ fix_path = function(xy, res_raster, directions=16){
                                n=as.integer(seg[i,2]-seg[i,1]+1)
                          ))
     } else{
-      path = gdistance::shortestPath(trans[[1]], start_xy[i,], end_xy[i,],"SpatialLines")
+      path = gdistance::shortestPath(trans, start_xy[i,], end_xy[i,],"SpatialLines")
       path_pts = sp::coordinates(
         sp::spsample(path, n=as.integer(seg[i,2]-seg[i,1]+1), "regular")
       )
@@ -87,6 +83,7 @@ fix_path = function(xy, res_raster, directions=16){
   if(inherits(xy, "SpatialPoints")){
     loc_data = as.data.frame(loc_data)
     sp::coordinates(loc_data) = c(1,2)
+    sp::proj4string(loc_data) = sp::proj4string(xy)
   } 
   return(loc_data)
 }
