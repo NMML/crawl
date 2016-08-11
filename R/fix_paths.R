@@ -69,9 +69,11 @@ fix_path = function(xy, res_raster, trans){
   seg = get_restricted_segments(loc_data, res_raster)
   idx = as.matrix(seg[,1:2])
   start_xy = as.matrix(seg[,3:4])
+  start_cell = cellFromXY(start_xy)
   end_xy = as.matrix(seg[,5:6])
+  end_cell = cellFromXY(end_xy)
   for(i in 1:nrow(seg)){
-    if(raster::cellFromXY(res_raster, start_xy[i,]) == raster::cellFromXY(res_raster, end_xy[i,])){
+    if(start_cell[i] == end_cell[i]){
       path_pts = do.call("cbind",
                          stats::approx(x=c(start_xy[i,1],end_xy[i,1]), 
                                y=c(start_xy[i,2],end_xy[i,2]),
