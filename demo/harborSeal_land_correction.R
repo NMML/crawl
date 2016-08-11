@@ -42,14 +42,22 @@ fit1 <- crwMLE(
 
 predTimes <- seq(min(harborSeal$Time), max(harborSeal$Time), by = 0.5)
 
+# Created predicted path
 hs_pred <- crawl::crwPredict(fit1, predTime=predTimes)
-coordinates(hs_pred) <- ~mu.x+mu.y
-proj4string(hs_pred) <- CRS("+init=epsg:3338")
+# coordinates(hs_pred) <- ~mu.x+mu.y
+# proj4string(hs_pred) <- CRS("+init=epsg:3338")
+
+# Create simulated posterior track
+simObj <- crwSimulator(fit1, predTimes, parIS=0)
+samp = crwPostIS(simObj, fullPost = FALSE)
 
 # Get land raster
 land = raster(system.file("raster/land_res.grd", package="crawl"))
 plot(land)
-plot(as(hs_pred, "SpatialLines"), add=T)
+lines(hs_pred$mu.x, hs_pred$mu.y)
+
+# plot(land)
+# lines(samp$alpha.sim[,"mu.x"], samp$alpha.sim[,"mu.y"], col="red")
 
 # Convert to water areas
 water = asFactor(1-land)
@@ -58,4 +66,8 @@ trans = transition(water, "areas", directions = 16)[[1]]
 # Move path based on shortest distance around land
 new_hs_pred = fix_path(hs_pred, land, trans)
 plot(land)
-plot(as(new_hs_pred, "SpatialLines"), col="red", add=T)
+lines(new_hs_pred, col="red")
+
+# new_samp = fix_path(samp, land, trans)
+# plot(land)
+# lines(samp, col="red")

@@ -24,10 +24,10 @@ get_restricted_segments = function(xy, res_raster){
                      dplyr::lead(c(in.segment, FALSE) == FALSE))
   restricted_segments <- data.frame(start_idx, end_idx) %>% 
     dplyr::rowwise() %>% 
-    dplyr::mutate(start_x = xy$mu.x[start_idx-1],
-                  start_y = xy$mu.y[start_idx-1],
-                  end_x = xy$mu.x[end_idx+1],
-                  end_y = xy$mu.y[end_idx+1])
+    dplyr::mutate(start_x = xy[start_idx-1,1],
+                  start_y = xy[start_idx-1,2],
+                  end_x = xy[end_idx+1,1],
+                  end_y = xy[end_idx+1,2])
   return(restricted_segments)
 }
 
@@ -51,7 +51,6 @@ get_restricted_segments = function(xy, res_raster){
 #' @export
 #' 
 fix_path = function(xy, res_raster, trans){
-  seg = get_restricted_segments(xy, res_raster)
   if(inherits(xy, "SpatialPoints")){
     loc_data = sp::coordinates(xy)
   } else if(inherits(xy, "matrix")){
@@ -62,6 +61,7 @@ fix_path = function(xy, res_raster, trans){
   } else if(inherits(xy, "crwIS")){
     loc_data = xy$alpha.sim[,c("mu.x","mu.y")]
   } else stop("Unrecognized 'xy' format")
+  seg = get_restricted_segments(loc_data, res_raster)
   idx = as.matrix(seg[,1:2])
   start_xy = as.matrix(seg[,3:4])
   end_xy = as.matrix(seg[,5:6])
