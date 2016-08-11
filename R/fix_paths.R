@@ -17,6 +17,11 @@
 
 get_restricted_segments = function(xy, res_raster){
   restricted <- raster::extract(res_raster, xy)
+  if(max(which(restricted==0)) < length(restricted)){
+    warning(paste("Path ends in restricted area, last ", 
+                  length(restricted)-max(which(restricted==0)),
+                  " observations removed"))
+  }
   in.segment <- (restricted > 0)
   start_idx <- which(c(FALSE, in.segment) == TRUE &
                        dplyr::lag(c(FALSE, in.segment) ==FALSE)) - 1

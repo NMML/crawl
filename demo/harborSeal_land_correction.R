@@ -48,16 +48,13 @@ hs_pred <- crawl::crwPredict(fit1, predTime=predTimes)
 # proj4string(hs_pred) <- CRS("+init=epsg:3338")
 
 # Create simulated posterior track
-simObj <- crwSimulator(fit1, predTimes, parIS=0)
-samp = crwPostIS(simObj, fullPost = FALSE)
+# simObj <- crwSimulator(fit1, predTimes, parIS=0)
+# samp = crwPostIS(simObj, fullPost = FALSE)
 
 # Get land raster
 land = raster(system.file("raster/land_res.grd", package="crawl"))
 plot(land)
 lines(hs_pred$mu.x, hs_pred$mu.y)
-
-# plot(land)
-# lines(samp$alpha.sim[,"mu.x"], samp$alpha.sim[,"mu.y"], col="red")
 
 # Convert to water areas
 water = asFactor(1-land)
@@ -70,4 +67,4 @@ lines(new_hs_pred, col="red")
 
 # new_samp = fix_path(samp, land, trans)
 # plot(land)
-# lines(samp, col="red")
+# lines(new_samp, col="red")
