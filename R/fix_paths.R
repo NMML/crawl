@@ -1,8 +1,9 @@
 #' @title Find the sections of a path that pass thorugh a restricted area
 #' @description This function is used to identify sections of a path that pass through 
-#' restricted areas. the CTCRW model is crawl cannot actively steer paths away 
+#' restricted areas. the CTCRW model in crawl cannot actively steer paths away 
 #' from restricted areas as it knows nothing of spatial information. So, this function
 #' will identify areas that for which the unrestrained path passes through these areas.
+#' If the path/points end within the restricted area, those records will be removed.
 #' The user can then use this information to adjust the path as desired. 
 #' @param xy A \code{SpatialPoints} object from the \code{sp} package or a 
 #' 2-column matrix of x and y locations
@@ -21,6 +22,8 @@ get_restricted_segments = function(xy, res_raster){
     warning(paste("Path ends in restricted area, last ", 
                   length(restricted)-max(which(restricted==0)),
                   " observations removed"))
+    xy <- xy[1:max(which(restricted == 0)),]
+    restricted <- restricted[1:max(which(restricted == 0))]
   }
   in.segment <- (restricted > 0)
   start_idx <- which(c(FALSE, in.segment) == TRUE &
@@ -28,7 +31,7 @@ get_restricted_segments = function(xy, res_raster){
   end_idx <- which(c(in.segment, FALSE) == TRUE & 
                      dplyr::lead(c(in.segment, FALSE) == FALSE))
   restricted_segments <- data.frame(start_idx, end_idx) %>% 
-    dplyr::rowwise() %>% 
+    dplyr::rowwise(.) %>% 
     dplyr::mutate(start_x = xy[start_idx-1,1],
                   start_y = xy[start_idx-1,2],
                   end_x = xy[end_idx+1,1],
