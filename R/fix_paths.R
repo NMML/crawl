@@ -36,6 +36,11 @@ get_restricted_segments = function(xy, res_raster){
                   start_y = xy[start_idx-1,2],
                   end_x = xy[end_idx+1,1],
                   end_y = xy[end_idx+1,2])
+  fixed_len <- length(restricted)
+  restricted_segments <- list(
+    restricted_segments = restricted_segments,
+    fixed_len = fixed_len
+  )
   return(restricted_segments)
 }
 
@@ -69,7 +74,9 @@ fix_path = function(xy, res_raster, trans){
   } else if(inherits(xy, "crwIS")){
     loc_data = xy$alpha.sim[,c("mu.x","mu.y")]
   } else stop("Unrecognized 'xy' format")
-  seg = get_restricted_segments(loc_data, res_raster)
+  rs = get_restricted_segments(loc_data, res_raster)
+  seg = rs$restricted_segments
+  loc_data = loc_data[1:rs$fixed_len,]
   idx = as.matrix(seg[,1:2])
   start_xy = as.matrix(seg[,3:4])
   start_cell = cellFromXY(res_raster, start_xy)
