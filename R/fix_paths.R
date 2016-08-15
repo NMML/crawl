@@ -1,8 +1,9 @@
 #' @title Find the sections of a path that pass thorugh a restricted area
 #' @description This function is used to identify sections of a path that pass through 
-#' restricted areas. the CTCRW model is crawl cannot actively steer paths away 
+#' restricted areas. the CTCRW model in crawl cannot actively steer paths away 
 #' from restricted areas as it knows nothing of spatial information. So, this function
 #' will identify areas that for which the unrestrained path passes through these areas.
+#' If the path/points end within the restricted area, those records will be removed.
 #' The user can then use this information to adjust the path as desired. 
 #' @param xy A \code{SpatialPoints} object from the \code{sp} package or a 
 #' 2-column matrix of x and y locations
@@ -21,6 +22,8 @@ get_restricted_segments = function(xy, res_raster){
     warning(paste("Path ends in restricted area, last ", 
                   length(restricted)-max(which(restricted==0)),
                   " observations removed"))
+    xy <- xy[1:max(which(restricted == 0)),]
+    restricted <- restricted[1:max(which(restricted == 0))]
   }
   in.segment <- (restricted > 0)
   start_idx <- which(c(FALSE, in.segment) == TRUE &
@@ -28,11 +31,16 @@ get_restricted_segments = function(xy, res_raster){
   end_idx <- which(c(in.segment, FALSE) == TRUE & 
                      dplyr::lead(c(in.segment, FALSE) == FALSE))
   restricted_segments <- data.frame(start_idx, end_idx) %>% 
-    dplyr::rowwise() %>% 
+    dplyr::rowwise(.) %>% 
     dplyr::mutate(start_x = xy[start_idx-1,1],
                   start_y = xy[start_idx-1,2],
                   end_x = xy[end_idx+1,1],
                   end_y = xy[end_idx+1,2])
+  fixed_len <- length(restricted)
+  restricted_segments <- list(
+    restricted_segments = restricted_segments,
+    fixed_len = fixed_len
+  )
   return(restricted_segments)
 }
 
@@ -66,7 +74,9 @@ fix_path = function(xy, res_raster, trans){
   } else if(inherits(xy, "crwIS")){
     loc_data = xy$alpha.sim[,c("mu.x","mu.y")]
   } else stop("Unrecognized 'xy' format")
-  seg = get_restricted_segments(loc_data, res_raster)
+  rs = get_restricted_segments(loc_data, res_raster)
+  seg = rs$restricted_segments
+  loc_data = loc_data[1:rs$fixed_len,]
   idx = as.matrix(seg[,1:2])
   start_xy = as.matrix(seg[,3:4])
   start_cell = cellFromXY(res_raster, start_xy)
