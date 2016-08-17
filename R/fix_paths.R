@@ -49,7 +49,7 @@ get_restricted_segments = function(xy, res_raster){
 #' @description Corrects a path so that it does not travel through a restricted area.
 #' @param xy Coordinate locations for the path. Can be one of the following classes: 
 #' (1) a two column matrix, 
-#' (2) 'SpatialPoints' object from the sp package,
+#' (2) 'SpatialPoints' or 'SpatialPointsDataFrame' object from the sp package,
 #' (3) 'crwPredict' object from the \code{crwPredict} function
 #' (4) 'crwIS' object from the \code{crwPostIS} function
 #' @param res_raster An indicator raster object with cells = 1 if it is 'off-limits'
@@ -64,7 +64,7 @@ get_restricted_segments = function(xy, res_raster){
 #' @export
 #' 
 fix_path = function(xy, res_raster, trans){
-  if(inherits(xy, "SpatialPoints")){
+  if(inherits(xy, c("SpatialPoints", "SpatialPointsDataFrame"))) {
     loc_data = sp::coordinates(xy)
   } else if(inherits(xy, "matrix")){
     if(ncol(xy)!=2) stop("xy matrix does not have 2 columns")
