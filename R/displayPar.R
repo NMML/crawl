@@ -14,6 +14,7 @@
 #'drift component.
 #'@param data data.frame object containg telemetry and covariate data. A
 #'\code{SpatialPointsDataFrame} object from the package 'sp' will also be accepted.
+#'@param Time.name character indicating name of the location time column
 #'@param theta starting values for parameter optimization.
 #'@param fixPar Values of parameters which are held fixed to the given value.
 #'@param ... Additional arguments (probably for testing new features.)

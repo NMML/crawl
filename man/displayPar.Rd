@@ -5,7 +5,7 @@
 \title{Display the order of parameters along with fixed values and starting values}
 \usage{
 displayPar(mov.model = ~1, err.model = NULL, activity = NULL,
-  drift = FALSE, data, theta, fixPar, ...)
+  drift = FALSE, data, Time.name, theta, fixPar, ...)
 }
 \arguments{
 \item{mov.model}{formula object specifying the time indexed covariates for
@@ -22,6 +22,8 @@ drift component.}
 
 \item{data}{data.frame object containg telemetry and covariate data. A
 \code{SpatialPointsDataFrame} object from the package 'sp' will also be accepted.}
+
+\item{Time.name}{character indicating name of the location time column}
 
 \item{theta}{starting values for parameter optimization.}
 
