@@ -14,6 +14,7 @@
 #'drift component.
 #'@param data data.frame object containg telemetry and covariate data. A
 #'\code{SpatialPointsDataFrame} object from the package 'sp' will also be accepted.
+#'@param Time.name character indicating name of the location time column
 #'@param theta starting values for parameter optimization.
 #'@param fixPar Values of parameters which are held fixed to the given value.
 #'@param ... Additional arguments (probably for testing new features.)
@@ -35,7 +36,7 @@
 #'  
 #'@export 
 
-displayPar <- function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE, data, theta, fixPar, ...){
+displayPar <- function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE, data, Time.name, theta, fixPar, ...){
   if(inherits(data, "trip")){
     Time.name <- data@TOR.columns[1]
   }
@@ -45,10 +46,10 @@ displayPar <- function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     coord <- names(coordVals)	
     data <- cbind(slot(data,"data"), coordVals)    
   }
-#   if(inherits(data[,Time.name],"POSIXct")){
-#     data$TimeNum <- as.numeric(data[,Time.name])#/3600
-#     Time.name <- "TimeNum"
-#   }
+  if(inherits(data[,Time.name],"POSIXct")){
+    data$TimeNum <- as.numeric(data[,Time.name])#/3600
+    Time.name <- "TimeNum"
+  }
   
   
   ### Check for duplicate time records ###
