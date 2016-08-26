@@ -43,7 +43,7 @@ get_restricted_segments = function(xy, res_raster){
   end_idx <- which(c(in.segment, FALSE) == TRUE & 
                      dplyr::lead(c(in.segment, FALSE) == FALSE))
   restricted_segments <- data.frame(start_idx, end_idx) %>% 
-    dplyr::rowwise(.) %>% 
+    dplyr::rowwise() %>% 
     dplyr::mutate(start_x = xy[start_idx-1,1],
                   start_y = xy[start_idx-1,2],
                   end_x = xy[end_idx+1,1],
