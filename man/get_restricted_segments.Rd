@@ -20,9 +20,10 @@ the section occurs and the previous and post locations that are in unrestricted 
 }
 \description{
 This function is used to identify sections of a path that pass through 
-restricted areas. the CTCRW model is crawl cannot actively steer paths away 
+restricted areas. the CTCRW model in crawl cannot actively steer paths away 
 from restricted areas as it knows nothing of spatial information. So, this function
 will identify areas that for which the unrestrained path passes through these areas.
+If the path/points end within the restricted area, those records will be removed.
 The user can then use this information to adjust the path as desired.
 }
 \author{
