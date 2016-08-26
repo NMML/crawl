@@ -18,28 +18,39 @@
 
 get_restricted_segments = function(xy, res_raster){
   restricted <- raster::extract(res_raster, xy)
+  
+  head_start <- 1
+  tail_end <- length(restricted)
+  
+  if(min(which(restricted==1)) == 1) {
+    warning(paste0("Path starts in restricted area, first ",
+                  min(which(restricted==0)) - 1,
+                  " observations removed"))
+    head_start = min(which(restricted==0))
+  }
   if(max(which(restricted==0)) < length(restricted)){
     warning(paste("Path ends in restricted area, last ", 
                   length(restricted)-max(which(restricted==0)),
                   " observations removed"))
-    xy <- xy[1:max(which(restricted == 0)),]
-    restricted <- restricted[1:max(which(restricted == 0))]
+    tail_end <- max(which(restricted==0))
   }
+  xy <- xy[head_start:tail_end,]
+  restricted <- restricted[head_start:tail_end]
+  
   in.segment <- (restricted > 0)
   start_idx <- which(c(FALSE, in.segment) == TRUE &
                        dplyr::lag(c(FALSE, in.segment) ==FALSE)) - 1
   end_idx <- which(c(in.segment, FALSE) == TRUE & 
                      dplyr::lead(c(in.segment, FALSE) == FALSE))
   restricted_segments <- data.frame(start_idx, end_idx) %>% 
-    dplyr::rowwise(.) %>% 
+    dplyr::rowwise() %>% 
     dplyr::mutate(start_x = xy[start_idx-1,1],
                   start_y = xy[start_idx-1,2],
                   end_x = xy[end_idx+1,1],
                   end_y = xy[end_idx+1,2])
-  fixed_len <- length(restricted)
   restricted_segments <- list(
     restricted_segments = restricted_segments,
-    fixed_len = fixed_len
+    fixed_range = c(head_start,tail_end)
   )
   return(restricted_segments)
 }
@@ -49,7 +60,7 @@ get_restricted_segments = function(xy, res_raster){
 #' @description Corrects a path so that it does not travel through a restricted area.
 #' @param xy Coordinate locations for the path. Can be one of the following classes: 
 #' (1) a two column matrix, 
-#' (2) 'SpatialPoints' object from the sp package,
+#' (2) 'SpatialPoints' or 'SpatialPointsDataFrame' object from the sp package,
 #' (3) 'crwPredict' object from the \code{crwPredict} function
 #' (4) 'crwIS' object from the \code{crwPostIS} function
 #' @param res_raster An indicator raster object with cells = 1 if it is 'off-limits'
@@ -64,7 +75,7 @@ get_restricted_segments = function(xy, res_raster){
 #' @export
 #' 
 fix_path = function(xy, res_raster, trans){
-  if(inherits(xy, "SpatialPoints")){
+  if(inherits(xy, c("SpatialPoints", "SpatialPointsDataFrame"))) {
     loc_data = sp::coordinates(xy)
   } else if(inherits(xy, "matrix")){
     if(ncol(xy)!=2) stop("xy matrix does not have 2 columns")
@@ -76,7 +87,7 @@ fix_path = function(xy, res_raster, trans){
   } else stop("Unrecognized 'xy' format")
   rs = get_restricted_segments(loc_data, res_raster)
   seg = rs$restricted_segments
-  loc_data = loc_data[1:rs$fixed_len,]
+  loc_data = loc_data[rs$fixed_range[1]:rs$fixed_range[2],]
   idx = as.matrix(seg[,1:2])
   start_xy = as.matrix(seg[,3:4])
   start_cell = cellFromXY(res_raster, start_xy)
