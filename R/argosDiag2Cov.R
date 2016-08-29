@@ -27,6 +27,7 @@ argosDiag2Cov = function(Major, Minor, Orientation){
   v2 = (a/k)^2*cos(theta)^2 + (b/k)^2*sin(theta)^2
   c12 = ((a^2 - b^2)/k^2)*cos(theta)*sin(theta)
   rho = c12/(sqrt(v1)*sqrt(v2))
+  check = (v1*v2-c12^2) > 0 
   if(any(rho > 1 | rho < -1, na.rm=TRUE)) stop("Faulty Argos error correlation calculated from 'argosDiag2Cov' function")
-  return(data.frame(ln.sd.x=log(sqrt(v1)), ln.sd.y=log(sqrt(v2)), error.corr=rho))
+  return(data.frame(ln.sd.x=log(sqrt(v1)), ln.sd.y=log(sqrt(v2)), error.corr=rho, diag.check=check))
 }
