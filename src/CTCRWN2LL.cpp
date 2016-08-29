@@ -52,7 +52,8 @@ Rcpp::List CTCRWNLL(const arma::mat& y, const  arma::mat& Hmat,
         Pest = T*Pest*T.t() + Q;
       } else{
         ll += - (log(detF) + dot(v,solve(F,v)))/2; 
-        K = T*Pest*Z.t()*F.i();     
+        // K = T*Pest*Z.t()*inv_sympd(F);  
+        K = T*Pest*Z.t()*F.i();
         L = T - K*Z;
         aest = T*aest + K*v;
         Pest = T*Pest*L.t() + Q;
