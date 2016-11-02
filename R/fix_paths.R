@@ -48,6 +48,7 @@ get_restricted_segments = function(xy, res_raster){
                   start_y = xy[start_idx-1,2],
                   end_x = xy[end_idx+1,1],
                   end_y = xy[end_idx+1,2])
+  wkdjfhksdj
   restricted_segments <- list(
     restricted_segments = restricted_segments,
     fixed_range = c(head_start,tail_end)
