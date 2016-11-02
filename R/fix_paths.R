@@ -16,8 +16,8 @@
 #' @importFrom raster extract 
 #' @export
 
-get_restricted_segments = function(xy, res_raster){
-  restricted <- raster::extract(res_raster, xy)
+get_restricted_segments = function(xyt, res_raster){
+  restricted <- raster::extract(res_raster, xyt[,1:2])
   
   head_start <- 1
   tail_end <- length(restricted)
@@ -34,7 +34,7 @@ get_restricted_segments = function(xy, res_raster){
                   " observations removed"))
     tail_end <- max(which(restricted==0))
   }
-  xy <- xy[head_start:tail_end,]
+  xyt <- xyt[head_start:tail_end,]
   restricted <- restricted[head_start:tail_end]
   
   in.segment <- (restricted > 0)
@@ -48,7 +48,6 @@ get_restricted_segments = function(xy, res_raster){
                   start_y = xy[start_idx-1,2],
                   end_x = xy[end_idx+1,1],
                   end_y = xy[end_idx+1,2])
-  wkdjfhksdj
   restricted_segments <- list(
     restricted_segments = restricted_segments,
     fixed_range = c(head_start,tail_end)
@@ -75,7 +74,7 @@ get_restricted_segments = function(xy, res_raster){
 #' @importFrom stats approx
 #' @export
 #' 
-fix_path = function(xy, res_raster, trans){
+fix_path = function(xy, t, res_raster, trans){
   if(inherits(xy, c("SpatialPoints", "SpatialPointsDataFrame"))) {
     loc_data = sp::coordinates(xy)
   } else if(inherits(xy, "matrix")){
@@ -89,6 +88,8 @@ fix_path = function(xy, res_raster, trans){
   rs = get_restricted_segments(loc_data, res_raster)
   seg = rs$restricted_segments
   loc_data = loc_data[rs$fixed_range[1]:rs$fixed_range[2],]
+  time = t
+  time = time[rs$fixed_range[1]:rs$fixed_range[2]]
   idx = as.matrix(seg[,1:2])
   start_xy = as.matrix(seg[,3:4])
   start_cell = cellFromXY(res_raster, start_xy)
@@ -114,7 +115,7 @@ fix_path = function(xy, res_raster, trans){
     sp::coordinates(loc_data) = c(1,2)
     sp::proj4string(loc_data) = sp::proj4string(xy)
   } 
-  return(loc_data)
+  return(cbind(loc_data,time))
 }
 
 
