@@ -39,7 +39,7 @@ set.seed(321)
 fit1 <- crwMLE(
   mov.model=~bs(harborSeal$Time, df=df), err.model=list(x=~Argos_loc_class-1), activity=~I(1-DryTime),
   data=harborSeal, coord=c("x","y"), Time.name="Time", 
-  initial.state=initial.cpp, fixPar=fixPar, 
+  initial.state=initial, fixPar=fixPar, 
   constr=constr,
   theta = theta.start,
   prior=prior,
@@ -52,7 +52,7 @@ print(fit1)
 pred1 = crwPredict(fit1, predTime=NULL, speedEst=FALSE, flat=TRUE, getUseAvail=FALSE)
 
 require(ggplot2)
-p1=ggplot(aes(x=mu.x, y=mu.y), data=pred1) + geom_path(col="red", asp=TRUE) + geom_point(aes(x=x, y=y), col="blue") + coord_fixed()
+p1=ggplot(aes(x=mu.x, y=mu.y), data=pred1) + geom_path(col="red") + geom_point(aes(x=x, y=y), col="blue") + coord_fixed()
 p2=ggplot(aes(x=Time, y=mu.x), data=pred1) + geom_ribbon(aes(ymin=mu.x-2*se.mu.x, ymax=mu.x+2*se.mu.x), fill="green", alpha=0.5)  + 
   geom_path(, col="red") + geom_point(aes(x=Time, y=x), col="blue", size=1)
 p3=ggplot(aes(x=Time, y=mu.y), data=pred1) + geom_ribbon(aes(ymin=mu.y-2*se.mu.y, ymax=mu.y+2*se.mu.y), fill="green", alpha=0.5)  + 
