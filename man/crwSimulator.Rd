@@ -5,7 +5,7 @@
 \title{Construct a posterior simulation object for the CTCRW state vectors}
 \usage{
 crwSimulator(object.crwFit, predTime = NULL, method = "IS", parIS = 1000,
-  df = Inf, grid.eps = 1, crit = 2.5, scale = 1)
+  df = Inf, grid.eps = 1, crit = 2.5, scale = 1, force.quad)
 }
 \arguments{
 \item{object.crwFit}{A model object from \code{\link{crwMLE}}.}
@@ -26,6 +26,9 @@ posterior}
 
 \item{scale}{Scale multiplier for the covariance matrix of the t
 approximation}
+
+\item{force.quad}{A logical indicating whether or not to force the execution 
+of the quadrature method for large parameter vectors.}
 }
 \value{
 List with the following elements:
