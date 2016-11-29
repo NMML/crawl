@@ -62,7 +62,7 @@
   se <- sqrt(diag(Cmat))
   err.mfX <- object.sim$err.mfX
   err.mfY <- object.sim$err.mfY
-  parMLE <- object.sim$par
+  par <- object.sim$par
   n2ll.mode <- -2*object.sim$loglik
   activity <- object.sim$activity
   driftMod <- object.sim$driftMod
@@ -84,17 +84,18 @@
   ###
   ### Sample parameter vector
   ###
-  if(fullPost & is.null(object.sim$thetaSampList)) {
-    eps <- rmvtt(mu=rep(0,sum(eInd)), Sigma=scale*Cmat, df=df, lower-par[eInd], upper-par[eInd])
-    par[eInd] <- par[eInd] + eps
-    if(df==Inf) dens <- dmvnorm(eps, sigma=scale*Cmat, log=TRUE) - dmvnorm(0.0*eps, sigma=scale*Cmat, log=TRUE)
-    else dens <- dmvt(eps, sigma=scale*Cmat, df=df, log=TRUE) - dmvt(0.0*eps, sigma=scale*Cmat, df=df, log=TRUE)
-  } else if (fullPost & !is.null(object.sim$thetaSampList)) {
-    if(is.null(thetaSamp)) thetaSamp <- length(object.sim$thetaSampList)
-    parRow <- sample(1:nrow(object.sim$thetaSampList[[thetaSamp]]), 1, prob=object.sim$thetaSampList[[thetaSamp]][,1])
-    par <- as.vector(object.sim$thetaSampList[[thetaSamp]][parRow,-c(1:3)])
-    #print(parRow)
-  } else par <- object.sim$par
+  if(fullPost){
+    if(is.null(object.sim$thetaSampList)){
+      eps <- rmvtt(mu=rep(0,sum(eInd)), Sigma=scale*Cmat, df=df, lower-par[eInd], upper-par[eInd])
+      par[eInd] <- par[eInd] + eps
+      if(df==Inf) dens <- dmvnorm(eps, sigma=scale*Cmat, log=TRUE) - dmvnorm(0.0*eps, sigma=scale*Cmat, log=TRUE)
+      else dens <- dmvt(eps, sigma=scale*Cmat, df=df, log=TRUE) - dmvt(0.0*eps, sigma=scale*Cmat, df=df, log=TRUE)
+    } else{
+      if(is.null(thetaSamp)) thetaSamp <- length(object.sim$thetaSampList)
+      parRow <- sample(1:nrow(object.sim$thetaSampList[[thetaSamp]]), 1, prob=object.sim$thetaSampList[[thetaSamp]][,1])
+      par <- as.vector(object.sim$thetaSampList[[thetaSamp]][parRow,-c(1:3)])
+    }
+  }
   
   ###
   ### Process parameters for C++

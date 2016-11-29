@@ -36,6 +36,9 @@
 #' (difference in log-likelihood)
 #' @param scale Scale multiplier for the covariance matrix of the t
 #' approximation
+#' @param force.quad A logical indicating whether or not to force the execution 
+#' of the quadrature method for large parameter vectors.
+
 #' @return
 #' 
 #' List with the following elements:
@@ -102,7 +105,7 @@ crwSimulator = function(
   df=Inf, 
   grid.eps=1, 
   crit=2.5, 
-  scale=1) {
+  scale=1, force.quad) {
   ## Model definition/parameters ##
   data <- object.crwFit$data
   driftMod <- object.crwFit$random.drift
@@ -154,6 +157,6 @@ crwSimulator = function(
               loglik=object.crwFit$loglik, Time=data[,tn], Time.name=tn, 
               coord=object.crwFit$coord, prior=object.crwFit$prior)
   class(out) <- 'crwSimulator'
-  if(parIS>1 & object.crwFit$need.hess==TRUE) out <- crwSamplePar(out, method=method, size=parIS, df=df, grid.eps=grid.eps, crit=crit, scale=scale)
+  if(parIS>1 & object.crwFit$need.hess==TRUE) out <- crwSamplePar(out, method=method, size=parIS, df=df, grid.eps=grid.eps, crit=crit, scale=scale, force.quad = force.quad)
   return(out)
 }

@@ -28,6 +28,8 @@
 #' (difference in log-likelihood)
 #' @param scale Scale multiplier for the covariance matrix of the t
 #' approximation
+#' @param force.quad A logical indicating whether or not to force the execution 
+#' of the quadrature method for large parameter vectors.
 #' @return
 #' 
 #' List with the following elements:
@@ -87,7 +89,7 @@
 #' @seealso See \code{demo(northernFurSealDemo)} for example.
 #' @export
 #' @import mvtnorm
-crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1, crit=2.5, scale=1)
+crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1, crit=2.5, scale=1, force.quad)
 {
   if(!inherits(object.sim, 'crwSimulator'))
     stop("Argument needs to be of class 'crwSimulator'\nUse 'crwSimulator( )' to create")
@@ -114,6 +116,7 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
   lower <- object.sim$lower
   upper <- object.sim$upper 
   prior <- object.sim$prior
+  if(missing(force.quad)) force.quad=FALSE
   message("\nComputing importance weights ...\n")
   if(method=="IS"){
     thetaMat <- matrix(NA, size, length(fixPar)+3)
@@ -138,6 +141,10 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
     
   }
   else if(method=="quadrature"){
+    npar=n.mov+n.errX+n.errY
+    if(!force.quad & npar>6) stop(
+      "Using method 'quadrature' when there are >6 parameters is not advised!\nIf you would still like to use it, add 'force.quad=TRUE' to the function arguments."
+      )
     Eigen.list <- eigen(Cmat, symmetric=TRUE)
     V <- Eigen.list$vectors
     D <- diag(sqrt(Eigen.list$values))
