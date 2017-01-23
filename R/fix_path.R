@@ -18,7 +18,7 @@
 
 get_restricted_segments = function(xy, res_raster){
   restricted <- raster::extract(res_raster, xy)
-  if (sum(restricted) == 0, na.rm=TRUE) {return(NULL)}
+  if (sum(restricted,na.rm=TRUE) == 0) {return(NULL)}
   head_start <- 1
   tail_end <- length(restricted)
   if (min(which(restricted == 1)) == 1) {
