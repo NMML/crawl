@@ -5,7 +5,7 @@
 #' will identify areas that for which the unrestrained path passes through these areas.
 #' If the path/points end within the restricted area, those records will be removed.
 #' The user can then use this information to adjust the path as desired. 
-#' @param xyt A \code{SpatialPoints} object from the \code{sp} package or a 
+#' @param xy A \code{SpatialPoints} object from the \code{sp} package or a 
 #' 2-column matrix of x and y locations
 #' @param res_raster A \code{raster} object from the raster package that indicates 
 #' restricted areas with a 1, else 0 for unrestricted areas.  
@@ -16,8 +16,8 @@
 #' @importFrom raster extract 
 #' @export
 
-get_restricted_segments = function(xyt, res_raster){
-  restricted <- raster::extract(res_raster, xyt[,1:2])
+get_restricted_segments = function(xy, res_raster){
+  restricted <- raster::extract(res_raster, xy[,1:2])
   
   head_start <- 1
   tail_end <- length(restricted)
@@ -34,7 +34,7 @@ get_restricted_segments = function(xyt, res_raster){
                   " observations removed"))
     tail_end <- max(which(restricted==0))
   }
-  xyt <- xyt[head_start:tail_end,]
+  xy <- xy[head_start:tail_end,]
   restricted <- restricted[head_start:tail_end]
   
   in.segment <- (restricted > 0)
