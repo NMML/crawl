@@ -19,12 +19,13 @@
 get_restricted_segments = function(xy, res_raster){
   restricted <- raster::extract(res_raster, xy)
   if (sum(restricted,na.rm=TRUE) == 0) {return(NULL)}
+  
   head_start <- 1
   tail_end <- length(restricted)
   if (min(which(restricted == 1)) == 1) {
     warning(paste0("Path starts in restricted area, first ",
-                  min(which(restricted==0)) - 1,
-                  " observations removed"))
+                   min(which(restricted==0)) - 1,
+                   " observations removed"))
     head_start = min(which(restricted==0))
   }
   if(max(which(restricted==0)) < length(restricted)){
@@ -62,6 +63,7 @@ get_restricted_segments = function(xy, res_raster){
 #' (2) 'SpatialPoints' or 'SpatialPointsDataFrame' object from the sp package,
 #' (3) 'crwPredict' object from the \code{crwPredict} function
 #' (4) 'crwIS' object from the \code{crwPostIS} function
+#' @param t A vector of times associated with xy locations
 #' @param res_raster An indicator raster object with cells = 1 if it is 'off-limits'
 #' and 0 elsewise.
 #' @param trans A transition matrix object from the gdistance package.
@@ -73,7 +75,7 @@ get_restricted_segments = function(xy, res_raster){
 #' @importFrom stats approx
 #' @export
 #' 
-fix_path = function(xy, res_raster, trans){
+fix_path = function(xy, t, res_raster, trans){
   if(inherits(xy, c("SpatialPoints", "SpatialPointsDataFrame"))) {
     loc_data = sp::coordinates(xy)
   } else if(inherits(xy, "matrix")){
@@ -92,6 +94,8 @@ fix_path = function(xy, res_raster, trans){
   
   seg = rs$restricted_segments
   loc_data = loc_data[rs$fixed_range[1]:rs$fixed_range[2],]
+  time = t
+  time = time[rs$fixed_range[1]:rs$fixed_range[2]]
   idx = as.matrix(seg[,1:2])
   start_xy = as.matrix(seg[,3:4])
   start_cell = cellFromXY(res_raster, start_xy)
@@ -101,8 +105,8 @@ fix_path = function(xy, res_raster, trans){
     if(start_cell[i] == end_cell[i]){
       path_pts = do.call("cbind",
                          stats::approx(x=c(start_xy[i,1],end_xy[i,1]), 
-                               y=c(start_xy[i,2],end_xy[i,2]),
-                               n=as.integer(seg[i,2]-seg[i,1]+1)
+                                       y=c(start_xy[i,2],end_xy[i,2]),
+                                       n=as.integer(seg[i,2]-seg[i,1]+1)
                          ))
     } else{
       path = gdistance::shortestPath(trans, start_xy[i,], end_xy[i,],"SpatialLines")
@@ -129,7 +133,3 @@ fix_path = function(xy, res_raster, trans){
   }
   return(loc_data)
 }
-
-
-
-

@@ -9,8 +9,8 @@
 #' \tabular{ll}{ 
 #' Package: \tab crawl\cr 
 #' Type: \tab Package\cr 
-#' Version: \tab 2.0.4\cr 
-#' Date: \tab November 29, 2016\cr 
+#' Version: \tab 2.1.0\cr 
+#' Date: \tab February 3, 2017\cr 
 #' License: \tab CC0 \cr 
 #' LazyLoad: \tab yes\cr 
 #' }
@@ -135,12 +135,9 @@ NULL
   date <- info$Date
   packageStartupMessage(
     paste(paste(package, version, paste("(",date, ")", sep=""), "\n"), 
-          "Type 'vignette('crawl_intro')' to see examples of package use, and\n",
-          "'demo(package='crawl')' will provide a list of demos.\n",
-          "The raw code for the demos can be found by typing:\n",
-          "'system.file('demo', package='crawl')'\n")
+          "Demos and documentation can be found at our new GitHub repository:\n",
+          "https://dsjohnson.github.io/crawl_examples/")
   )
-  
 }
 
 # .onUnload <- function(libpath)
