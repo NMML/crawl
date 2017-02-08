@@ -86,6 +86,11 @@ fix_path = function(xy, t, res_raster, trans){
   } else if(inherits(xy, "crwIS")){
     loc_data = xy$alpha.sim[,c("mu.x","mu.y")]
   } else stop("Unrecognized 'xy' format")
+  
+  if (!missing(t) && inherits(xy,c("crwPredict","crwIS"))) {
+    warning("time vector provided for crwPredict or crwIS object. time vector ignored")
+  }
+  
   rs = get_restricted_segments(loc_data, res_raster)
   if (is.null(rs$restricted_segments) || 
      nrow(rs$restricted_segments) == 0) { 
@@ -94,8 +99,10 @@ fix_path = function(xy, t, res_raster, trans){
   
   seg = rs$restricted_segments
   loc_data = loc_data[rs$fixed_range[1]:rs$fixed_range[2],]
-  time = t
-  time = time[rs$fixed_range[1]:rs$fixed_range[2]]
+  if (!missing(t) && !inherits(xy,c("crwPredict","crwIS"))) {
+    time = t
+    time = time[rs$fixed_range[1]:rs$fixed_range[2]]
+  }
   idx = as.matrix(seg[,1:2])
   start_xy = as.matrix(seg[,3:4])
   start_cell = cellFromXY(res_raster, start_xy)
@@ -116,20 +123,23 @@ fix_path = function(xy, t, res_raster, trans){
     }
     loc_data[idx[i,1]:idx[i,2],] = as.matrix(path_pts)
   }
-  if(inherits(xy, "SpatialPoints")){
+  if (inherits(xy, "SpatialPoints")){
     loc_data = as.data.frame(loc_data)
-    if(inherits(xy,"SpatialPointsDataFrame")) {
-      loc_data <- cbind(loc_data,
+    if (inherits(xy,"SpatialPointsDataFrame")) {
+      loc_data <- cbind(loc_data,time,
                         xy@data[rs$fixed_range[1]:rs$fixed_range[2],])
     }
     sp::coordinates(loc_data) = c(1,2)
     sp::proj4string(loc_data) = sp::proj4string(xy)
   }
-  if(inherits(xy,"crwIS")) {
+  if (inherits(xy,"crwIS")) {
     loc_data <- as.data.frame(loc_data)
     loc_data <- cbind(loc_data,
                       num_time = xy$Time[rs$fixed_range[1]:rs$fixed_range[2]],
                       locType = xy$locType[rs$fixed_range[1]:rs$fixed_range[2]])
+  }
+  if (inherits(xy,"matrix")) {
+    loc_data <- cbind(loc_data,time)
   }
   return(loc_data)
 }
