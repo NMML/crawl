@@ -18,6 +18,9 @@
 
 get_restricted_segments = function(xy, res_raster){
   restricted <- raster::extract(res_raster, xy)
+  if (any(is.na(restricted))) {
+    stop("points in xy fall outside the extent of res_raster")
+  }
   if (sum(restricted,na.rm=TRUE) == 0) {return(NULL)}
   
   head_start <- 1
@@ -39,7 +42,7 @@ get_restricted_segments = function(xy, res_raster){
   
   in.segment <- (restricted > 0)
   start_idx <- which(c(FALSE, in.segment) == TRUE &
-                       dplyr::lag(c(FALSE, in.segment) ==FALSE)) - 1
+                       dplyr::lag(c(FALSE, in.segment) == FALSE)) - 1
   end_idx <- which(c(in.segment, FALSE) == TRUE & 
                      dplyr::lead(c(in.segment, FALSE) == FALSE))
   restricted_segments <- data.frame(start_idx, end_idx) %>% 
