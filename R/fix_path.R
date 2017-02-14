@@ -115,6 +115,9 @@ fix_path = function(xy, t, res_raster, trans){
     loc_data = as.data.frame(loc_data)
     sp::coordinates(loc_data) = c(1,2)
     sp::proj4string(loc_data) = sp::proj4string(xy)
-  } 
-  return(cbind(loc_data,time))
+    if(!is.null(t)) as(loc_data, "SpatialPointsDataFrame", data=data.frame(time=t))
+    return(loc_data)
+  } else{
+    return(cbind(loc_data,time))
+  }
 }
