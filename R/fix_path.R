@@ -17,12 +17,15 @@
 #' @export
 
 get_restricted_segments = function(xy, res_raster){
-  restricted <- raster::extract(res_raster, xy[,1:2])
+  restricted <- raster::extract(res_raster, xy)
+  if (any(is.na(restricted))) {
+    stop("points in xy fall outside the extent of res_raster")
+  }
+  if (sum(restricted,na.rm=TRUE) == 0) {return(NULL)}
   
   head_start <- 1
   tail_end <- length(restricted)
-  
-  if(min(which(restricted==1)) == 1) {
+  if (min(which(restricted == 1)) == 1) {
     warning(paste0("Path starts in restricted area, first ",
                    min(which(restricted==0)) - 1,
                    " observations removed"))
@@ -39,7 +42,7 @@ get_restricted_segments = function(xy, res_raster){
   
   in.segment <- (restricted > 0)
   start_idx <- which(c(FALSE, in.segment) == TRUE &
-                       dplyr::lag(c(FALSE, in.segment) ==FALSE)) - 1
+                       dplyr::lag(c(FALSE, in.segment) == FALSE)) - 1
   end_idx <- which(c(in.segment, FALSE) == TRUE & 
                      dplyr::lead(c(in.segment, FALSE) == FALSE))
   restricted_segments <- data.frame(start_idx, end_idx) %>% 
@@ -86,11 +89,23 @@ fix_path = function(xy, t, res_raster, trans){
   } else if(inherits(xy, "crwIS")){
     loc_data = xy$alpha.sim[,c("mu.x","mu.y")]
   } else stop("Unrecognized 'xy' format")
+  
+  if (!missing(t) && inherits(xy,c("crwPredict","crwIS"))) {
+    warning("time vector provided for crwPredict or crwIS object. time vector ignored")
+  }
+  
   rs = get_restricted_segments(loc_data, res_raster)
+  if (is.null(rs$restricted_segments) || 
+     nrow(rs$restricted_segments) == 0) { 
+    return(xy)
+    }
+  
   seg = rs$restricted_segments
   loc_data = loc_data[rs$fixed_range[1]:rs$fixed_range[2],]
-  time = t
-  time = time[rs$fixed_range[1]:rs$fixed_range[2]]
+  if (!missing(t) && !inherits(xy,c("crwPredict","crwIS"))) {
+    time = t
+    time = time[rs$fixed_range[1]:rs$fixed_range[2]]
+  }
   idx = as.matrix(seg[,1:2])
   start_xy = as.matrix(seg[,3:4])
   start_cell = cellFromXY(res_raster, start_xy)
@@ -111,11 +126,30 @@ fix_path = function(xy, t, res_raster, trans){
     }
     loc_data[idx[i,1]:idx[i,2],] = as.matrix(path_pts)
   }
-  if(inherits(xy, "SpatialPoints")){
+  if (inherits(xy, "SpatialPoints")){
     loc_data = as.data.frame(loc_data)
+    if (inherits(xy,"SpatialPointsDataFrame")) {
+      loc_data <- cbind(loc_data,time,
+                        xy@data[rs$fixed_range[1]:rs$fixed_range[2],])
+    }
     sp::coordinates(loc_data) = c(1,2)
     sp::proj4string(loc_data) = sp::proj4string(xy)
-    if(!is.null(t)) as(loc_data, "SpatialPointsDataFrame", data=data.frame(time=t))
+    
+  }
+  if (inherits(xy,"crwIS")) {
+    loc_data <- as.data.frame(loc_data)
+    loc_data <- cbind(loc_data,
+                      num_time = xy$Time[rs$fixed_range[1]:rs$fixed_range[2]],
+                      locType = xy$locType[rs$fixed_range[1]:rs$fixed_range[2]])
+  }
+  if (inherits(xy,"matrix")) {
+    loc_data <- cbind(loc_data,time)
+  }
+  return(loc_data)
+  
+  if(!is.null(t)) {
+    loc_data = SpatialPointsDataFrame(
+      loc_data,data=data.frame(time=t))
     return(loc_data)
   } else{
     return(cbind(loc_data,time))
