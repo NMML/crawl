@@ -134,7 +134,7 @@ fix_path = function(xy, t, res_raster, trans){
     }
     sp::coordinates(loc_data) = c(1,2)
     sp::proj4string(loc_data) = sp::proj4string(xy)
-<<<<<<< HEAD
+    
   }
   if (inherits(xy,"crwIS")) {
     loc_data <- as.data.frame(loc_data)
