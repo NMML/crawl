@@ -134,6 +134,7 @@ fix_path = function(xy, t, res_raster, trans){
     }
     sp::coordinates(loc_data) = c(1,2)
     sp::proj4string(loc_data) = sp::proj4string(xy)
+<<<<<<< HEAD
   }
   if (inherits(xy,"crwIS")) {
     loc_data <- as.data.frame(loc_data)
@@ -145,4 +146,11 @@ fix_path = function(xy, t, res_raster, trans){
     loc_data <- cbind(loc_data,time)
   }
   return(loc_data)
-}
+  
+  if(!is.null(t)) as(loc_data, 
+                     "SpatialPointsDataFrame", 
+                     data=data.frame(time=t))
+    return(loc_data)
+  } else{
+    return(cbind(loc_data,time))
+  }
