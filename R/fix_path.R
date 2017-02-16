@@ -147,10 +147,11 @@ fix_path = function(xy, t, res_raster, trans){
   }
   return(loc_data)
   
-  if(!is.null(t)) as(loc_data, 
-                     "SpatialPointsDataFrame", 
-                     data=data.frame(time=t))
+  if(!is.null(t)) {
+    loc_data = SpatialPointsDataFrame(
+      loc_data,data=data.frame(time=t))
     return(loc_data)
   } else{
     return(cbind(loc_data,time))
   }
+}
