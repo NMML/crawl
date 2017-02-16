@@ -192,4 +192,3 @@ optimization.
 \author{
 Devin S. Johnson, Josh M. London
 }
-

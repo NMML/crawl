@@ -29,4 +29,3 @@ The user can then use this information to adjust the path as desired.
 \author{
 Josh M. London (josh.london@noaa.gov)
 }
-

@@ -49,10 +49,9 @@ This function takes the model spesification arguments to the \code{\link{crwMLE}
 with the parameter names in the order that \code{crwMLE} will use during model fitting. This is useful for specifying 
 values for the \code{fixPar} or \code{theta} (starting values for free parameters) arguments.
 }
-\author{
-Devin S. Johnson
-}
 \seealso{
 \code{demo(northernFurSealDemo)} for example.
 }
-
+\author{
+Devin S. Johnson
+}

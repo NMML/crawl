@@ -53,4 +53,3 @@ mergeTrackStop(track, stopData, Time.name="TimeVar")
 \author{
 Devin S. Johnson
 }
-

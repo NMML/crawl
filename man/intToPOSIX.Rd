@@ -34,4 +34,3 @@ intToPOSIX(timeVector, tz="")
 \author{
 Devin S. Johnson
 }
-
