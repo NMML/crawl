@@ -4,7 +4,7 @@
 \alias{fix_path}
 \title{Project path away from restricted areas}
 \usage{
-fix_path(xy, t, res_raster, trans)
+fix_path(xy, time, res_raster, trans)
 }
 \arguments{
 \item{xy}{Coordinate locations for the path. Can be one of the following classes: 
@@ -13,7 +13,7 @@ fix_path(xy, t, res_raster, trans)
 (3) 'crwPredict' object from the \code{crwPredict} function
 (4) 'crwIS' object from the \code{crwPostIS} function}
 
-\item{t}{A vector of times associated with xy locations}
+\item{time}{A vector of times associated with xy locations}
 
 \item{res_raster}{An indicator raster object with cells = 1 if it is 'off-limits'
 and 0 elsewise.}
@@ -27,4 +27,3 @@ restricted areas
 \description{
 Corrects a path so that it does not travel through a restricted area.
 }
-

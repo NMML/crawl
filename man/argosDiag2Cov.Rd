@@ -28,4 +28,3 @@ with \code{cbind} to use with the \code{crwMLE} function.
 \author{
 Devin S. Johnson
 }
-

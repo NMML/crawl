@@ -28,4 +28,3 @@ workspace), AIC, delta AIC, and Akaike weights will be calculated.
 \author{
 Devin S. Johnson
 }
-

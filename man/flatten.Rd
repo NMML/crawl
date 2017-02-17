@@ -17,10 +17,9 @@ for the state standard errors
 \dQuote{Flattens} a list form \code{\link{crwPredict}} object into a flat
 data.frame.
 }
-\author{
-Devin S. Johnson
-}
 \seealso{
 \code{\link{northernFurSeal}} for use example
 }
-
+\author{
+Devin S. Johnson
+}
