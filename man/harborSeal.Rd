@@ -24,13 +24,12 @@ Point Way NE Seattle, WA 98115
 \description{
 Harbor seal relocation data set used in Johnson et al. (2008)
 }
-\author{
-Devin S. Johnson
-}
 \references{
 Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
 Continuous-time random walk model for animal telemetry data. Ecology
 89:1208-1215.
 }
+\author{
+Devin S. Johnson
+}
 \keyword{datasets}
-

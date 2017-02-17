@@ -35,4 +35,3 @@ mat2
 \author{
 Devin S. Johnson
 }
-

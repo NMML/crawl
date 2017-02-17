@@ -29,4 +29,3 @@ Point Way NE Seattle, WA 98115
 Bearded Seal Location Data
 }
 \keyword{datasets}
-

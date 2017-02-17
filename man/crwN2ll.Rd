@@ -62,9 +62,6 @@ method presented in Johnson et al. (2008).
 This function calls compiled C++ code which can be viewed in the
 \code{src} directory of the crawl source package.
 }
-\author{
-Devin S. Johnson
-}
 \references{
 Johnson, D., J. London, M. -A. Lea, and J. Durban. 2008.
 Continuous-time model for animal telemetry data. Ecology 89:1208-1215.
@@ -72,4 +69,6 @@ Continuous-time model for animal telemetry data. Ecology 89:1208-1215.
 \seealso{
 \code{\link{crwMLE}}
 }
-
+\author{
+Devin S. Johnson
+}

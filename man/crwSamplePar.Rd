@@ -99,10 +99,9 @@ locations using \code{\link{crwPostIS}}. This function is usually called
 from \code{\link{crwPostIS}}. The average user should have no need to call
 this function directly.
 }
-\author{
-Devin S. Johnson
-}
 \seealso{
 See \code{demo(northernFurSealDemo)} for example.
 }
-
+\author{
+Devin S. Johnson
+}

@@ -66,7 +66,7 @@ get_restricted_segments = function(xy, res_raster){
 #' (2) 'SpatialPoints' or 'SpatialPointsDataFrame' object from the sp package,
 #' (3) 'crwPredict' object from the \code{crwPredict} function
 #' (4) 'crwIS' object from the \code{crwPostIS} function
-#' @param t A vector of times associated with xy locations
+#' @param time A vector of times associated with xy locations
 #' @param res_raster An indicator raster object with cells = 1 if it is 'off-limits'
 #' and 0 elsewise.
 #' @param trans A transition matrix object from the gdistance package.
@@ -78,7 +78,7 @@ get_restricted_segments = function(xy, res_raster){
 #' @importFrom stats approx
 #' @export
 #' 
-fix_path = function(xy, t, res_raster, trans){
+fix_path = function(xy, time=NULL, res_raster, trans){
   if(inherits(xy, c("SpatialPoints", "SpatialPointsDataFrame"))) {
     loc_data = sp::coordinates(xy)
   } else if(inherits(xy, "matrix")){
@@ -102,10 +102,12 @@ fix_path = function(xy, t, res_raster, trans){
   
   seg = rs$restricted_segments
   loc_data = loc_data[rs$fixed_range[1]:rs$fixed_range[2],]
+
   if (!missing(t) && !inherits(xy,c("crwPredict","crwIS"))) {
     time = t
     time = time[rs$fixed_range[1]:rs$fixed_range[2]]
   }
+
   idx = as.matrix(seg[,1:2])
   start_xy = as.matrix(seg[,3:4])
   start_cell = cellFromXY(res_raster, start_xy)
@@ -126,6 +128,7 @@ fix_path = function(xy, t, res_raster, trans){
     }
     loc_data[idx[i,1]:idx[i,2],] = as.matrix(path_pts)
   }
+
   if (inherits(xy, "SpatialPoints")){
     loc_data = as.data.frame(loc_data)
     if (inherits(xy,"SpatialPointsDataFrame")) {
@@ -150,8 +153,9 @@ fix_path = function(xy, t, res_raster, trans){
   if(!is.null(t)) {
     loc_data = SpatialPointsDataFrame(
       loc_data,data=data.frame(time=t))
+
     return(loc_data)
   } else{
-    return(cbind(loc_data,time))
+    return(loc_data)
   }
 }

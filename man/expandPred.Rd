@@ -37,4 +37,3 @@ expandPred(x, Time=origTime, predTime, time.col=TRUE)
 \author{
 Devin S. Johnson
 }
-

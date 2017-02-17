@@ -47,11 +47,10 @@ detection.
 The requirements for \code{data} are the same as those for fitting the model
 in \code{\link{crwMLE}}.
 }
-\author{
-Devin S. Johnson
-}
 \references{
 de Jong, P. and Penzer, J. (1998) Diagnosing shocks in time
 series. Journal of the American Statistical Association 93:796-806.
 }
-
+\author{
+Devin S. Johnson
+}

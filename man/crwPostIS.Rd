@@ -58,10 +58,9 @@ supplied. When calulating averages of track functions for Bayes estimates
 one should use the importance sampling weights to calculate a weighted
 average (normalizing first, so the weights sum to 1).
 }
-\author{
-Devin S. Johnson
-}
 \seealso{
 See \code{demo(northernFurSealDemo)} for example.
 }
-
+\author{
+Devin S. Johnson
+}
