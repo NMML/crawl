@@ -17,9 +17,17 @@
 #' in \code{\link{crwMLE}}.
 #' 
 #' @param object.crwFit A model object from \code{\link{crwMLE}}.
-#' @param predTime vector of additional prediction times (numeric or POSIXct).
+#' @param predTime vector of additional prediction times (numeric or POSIXct). Alternatively, a character vector specifying a time interval (see Details).
 #' @param flat logical. Should the result be returned as a flat data.frame.
 #' @param ... Additional arguments for testing new features
+#' 
+#' @details 
+#' \itemize{
+#' \item("predTime"){
+#' \code{predTime} can be either passed as a separate vector of POSIXct or numeric values for additional prediction times beyond the observed times. If the original data were provided as a POSIXct type, then \code{crwPredict} can derive a sequence of regularly spaced prediction times from the original data. This is specified by providing a character string that corresponds to the \code{by} argument of the \code{seq.POSIXt} function (e.g. '1 hour', '30 mins'). \code{crwPredict} will round the first observed time up to the nearest unit (e.g. '1 hour' will round up to the nearest hour, '30 mins' will round up to the nearest minute) and start the sequence from there. The last observation time is truncated down to the nearest unit to specify the end time.
+#' }
+#' }
+#' 
 #' @return
 #' 
 #' List with the following elements:
@@ -38,6 +46,8 @@
 #' If \code{flat} is set to \code{TRUE} then a data set is returned with the
 #' columns of the original data plus the state estimates, standard errors (se),
 #' speed estimates, and the fit statistics and naive p-values.
+#' 
+#' 
 #' @author Devin S. Johnson
 #' @references de Jong, P. and Penzer, J. (1998) Diagnosing shocks in time
 #' series. Journal of the American Statistical Association 93:796-806.
@@ -49,6 +59,19 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   if(flat & getUseAvail){
     warning("The 'flat=TRUE' argument cannot be used in conjunction with 'getUseAvail=TRUE' argument.")
     flat <- FALSE
+  }
+  
+  if(inherits(predTime,"character")) {
+    t_int <- unlist(strsplit(predTime, " "))
+    if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
+      min_dt <- crawl::intToPOSIX(min(object.crwFit$data$TimeNum,na.rm=TRUE))
+      max_dt <- crawl::intToPOSIX(max(object.crwFit$data$TimeNum,na.rm=TRUE))
+      min_dt <- round(min_dt,t_int[2])
+      max_dt <- trunc(max_dt,t_int[2])
+      predTime <- seq(min_dt, max_dt, by = predTime)
+    } else {
+      stop("predTime not specified correctly. see documentation for seq.POSIXt")
+    }
   }
   
   ## Model definition/parameters ##
