@@ -73,12 +73,12 @@ get_restricted_segments = function(xy, res_raster){
 #' @return Either matrix or 'SpatialPoints' object with path projected around
 #' restricted areas
 #' @importFrom gdistance transition shortestPath
-#' @importFrom sp coordinates
+#' @importFrom sp coordinates SpatialPointsDataFrame
 #' @importFrom raster cellFromXY 
 #' @importFrom stats approx
 #' @export
 #' 
-fix_path = function(xy, time=NULL, res_raster, trans){
+fix_path = function(xy, time, res_raster, trans){
   if(inherits(xy, c("SpatialPoints", "SpatialPointsDataFrame"))) {
     loc_data = sp::coordinates(xy)
   } else if(inherits(xy, "matrix")){
@@ -90,7 +90,7 @@ fix_path = function(xy, time=NULL, res_raster, trans){
     loc_data = xy$alpha.sim[,c("mu.x","mu.y")]
   } else stop("Unrecognized 'xy' format")
   
-  if (!missing(t) && inherits(xy,c("crwPredict","crwIS"))) {
+  if (!missing(time) && inherits(xy,c("crwPredict","crwIS"))) {
     warning("time vector provided for crwPredict or crwIS object. time vector ignored")
   }
   
@@ -103,8 +103,7 @@ fix_path = function(xy, time=NULL, res_raster, trans){
   seg = rs$restricted_segments
   loc_data = loc_data[rs$fixed_range[1]:rs$fixed_range[2],]
 
-  if (!missing(t) && !inherits(xy,c("crwPredict","crwIS"))) {
-    time = t
+  if (!missing(time) && !inherits(xy,c("crwPredict","crwIS"))) {
     time = time[rs$fixed_range[1]:rs$fixed_range[2]]
   }
 
@@ -142,7 +141,7 @@ fix_path = function(xy, time=NULL, res_raster, trans){
   if (inherits(xy,"crwIS")) {
     loc_data <- as.data.frame(loc_data)
     loc_data <- cbind(loc_data,
-                      num_time = xy$Time[rs$fixed_range[1]:rs$fixed_range[2]],
+                      Time = xy$Time[rs$fixed_range[1]:rs$fixed_range[2]],
                       locType = xy$locType[rs$fixed_range[1]:rs$fixed_range[2]])
   }
   if (inherits(xy,"matrix")) {
@@ -150,9 +149,9 @@ fix_path = function(xy, time=NULL, res_raster, trans){
   }
   return(loc_data)
   
-  if(!is.null(t)) {
+  if(!missing(time)) {
     loc_data = SpatialPointsDataFrame(
-      loc_data,data=data.frame(time=t))
+      loc_data,data=data.frame(time))
 
     return(loc_data)
   } else{
