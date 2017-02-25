@@ -191,11 +191,11 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     coord <- names(coordVals)	
     data <- cbind(slot(data,"data"), coordVals)    
   }
-  if(inherits(data,"sf") && inherits(data$geom,"sfc_POINT")) {
-    coordVals <- as.data.frame(do.call(rbind,data$geom),col.names = c("x","y"))
+  if(inherits(data,"sf") && inherits(data$geometry,"sfc_POINT")) {
+    coordVals <- as.data.frame(do.call(rbind,data$geometry),col.names = c("x","y"))
     coord <- names(coordVals)
     data <- data.frame(data)
-    data <- within(data,rm(geom))
+    data <- within(data,rm(geometry))
     data <- cbind(data, coordVals)
   }
   if(inherits(data[,Time.name],"POSIXct")){
