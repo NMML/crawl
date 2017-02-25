@@ -196,6 +196,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     coord <- names(coordVals)
     data <- data.frame(data)
     data <- within(data,rm(geometry))
+    data = data[,!colnames(data) %in% c("geometry")]
     data <- cbind(data, coordVals)
   }
   if(inherits(data[,Time.name],"POSIXct")){
