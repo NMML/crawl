@@ -15,8 +15,7 @@ Imports:
     dplyr,
     raster,
     gdistance,
-    sp,
-    broom
+    sp
 LinkingTo: 
     Rcpp,
     RcppArmadillo
@@ -27,9 +26,12 @@ Suggests:
     rgdal,
     argosfilter,
     tidyr,
+    dplyr,
     lubridate,
     xts,
-    doParallel
+    broom,
+    doParallel,
+    sf
 Description: The Correlated Random Walk Library of
     R functions was designed for fitting continuous-time
     correlated random walk models with time indexed
