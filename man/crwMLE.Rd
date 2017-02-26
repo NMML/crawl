@@ -25,10 +25,10 @@ drift component. For most data this is usually not necessary. See \code{\link{no
 using a drift model.}
 
 \item{data}{data.frame object containg telemetry and covariate data. A 
-'SpatialPointsDataFrame' object from the package 'sp' or an 'STIDF' from the package 
-'spacetime' will also be accepted. In which case the
-\code{coord} (and \code{Time.name} for 'STIDF') values will be taken from the spatial
-data set and ignored in the arguments.}
+'SpatialPointsDataFrame' object from the package 'sp' or an 'sf' object
+from the 'sf' package with a geometry column of type \code{sfc_POINT}.
+'spacetime' will also be accepted. Values for coords will be taken from 
+the spatial data set and ignored in the arguments.}
 
 \item{coord}{A 2-vector of character values giving the names of the "X" and
 "Y" coordinates in \code{data}.}

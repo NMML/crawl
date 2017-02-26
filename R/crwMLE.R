@@ -70,10 +70,10 @@
 #' drift component. For most data this is usually not necessary. See \code{\link{northernFurSeal}} for an example
 #' using a drift model.
 #' @param data data.frame object containg telemetry and covariate data. A 
-#'   'SpatialPointsDataFrame' object from the package 'sp' or an 'STIDF' from the package 
-#'   'spacetime' will also be accepted. In which case the
-#'   \code{coord} (and \code{Time.name} for 'STIDF') values will be taken from the spatial
-#'   data set and ignored in the arguments.
+#'   'SpatialPointsDataFrame' object from the package 'sp' or an 'sf' object
+#'   from the 'sf' package with a geometry column of type \code{sfc_POINT}.
+#'   'spacetime' will also be accepted. Values for coords will be taken from 
+#'   the spatial data set and ignored in the arguments.
 #' @param coord A 2-vector of character values giving the names of the "X" and
 #' "Y" coordinates in \code{data}.
 #' @param Time.name character indicating name of the location time column
@@ -191,13 +191,17 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     coord <- names(coordVals)	
     data <- cbind(slot(data,"data"), coordVals)    
   }
-  if(inherits(data,"sf") && inherits(data$geometry,"sfc_POINT")) {
-    coordVals <- as.data.frame(do.call(rbind,data$geometry),col.names = c("x","y"))
-    coord <- names(coordVals)
-    data <- data.frame(data)
-    data <- within(data,rm(geometry))
-    data <- data[,!colnames(data) %in% c("geometry")]
-    data <- cbind(data, coordVals)
+  if(inherits(data,"sf") && inherits(sf::st_geometry(data),"sfc_POINT")) {
+    if(!any(names(data) %in% c("x","y"))) {
+      warning("no 'x' and 'y' columns detected in 'sf' object so will create")
+      coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
+      coordVals <- setNames(coordVals, c("x","y"))
+      sf::st_geometry(data) <- NULL
+      data <- cbind(data, coordVals)
+    } else {
+      warning("'x' and 'y' columns detected in 'sf' so will use these")
+      sf::st_geometry(data) <- NULL
+    }
   }
   if(inherits(data,"tbl_df")) {
     data <- as.data.frame(data)
