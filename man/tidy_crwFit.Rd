@@ -9,3 +9,7 @@ tidy_crwFit(fit)
 \arguments{
 \item{fit}{\code{crwFit} object from \code{crawl::crwMLE}}
 }
+\description{
+this function mimics the approach taken by \code{broom::tidy}
+to present model output parameters in a tidy, data frame structure.
+}

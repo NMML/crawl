@@ -195,7 +195,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     if(!any(names(data) %in% c("x","y"))) {
       warning("no 'x' and 'y' columns detected in 'sf' object so will create")
       coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
-      coordVals <- setNames(coordVals, c("x","y"))
+      coordVals <- stats::setNames(coordVals, c("x","y"))
       sf::st_geometry(data) <- NULL
       data <- cbind(data, coordVals)
     } else {
