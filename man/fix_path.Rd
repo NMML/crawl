@@ -4,7 +4,7 @@
 \alias{fix_path}
 \title{Project path away from restricted areas}
 \usage{
-fix_path(xy, time = NULL, res_raster, trans)
+fix_path(xy, time, res_raster, trans)
 }
 \arguments{
 \item{xy}{Coordinate locations for the path. Can be one of the following classes: 
