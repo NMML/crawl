@@ -26,7 +26,6 @@ Suggests:
     rgdal,
     argosfilter,
     tidyr,
-    dplyr,
     lubridate,
     xts,
     broom,

@@ -1,4 +1,5 @@
-#' tidy method for crwFit object
+#' @title tidy-like method for crwFit object
+#' @param fit \code{crwFit} object from \code{crawl::crwMLE}
 #' @export
 tidy_crwFit <- function(fit) {
   terms <- data.frame(term = fit$nms)

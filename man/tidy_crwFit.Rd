@@ -2,10 +2,10 @@
 % Please edit documentation in R/tidy_crwFit.R
 \name{tidy_crwFit}
 \alias{tidy_crwFit}
-\title{tidy method for crwFit object}
+\title{tidy-like method for crwFit object}
 \usage{
 tidy_crwFit(fit)
 }
-\description{
-tidy method for crwFit object
+\arguments{
+\item{fit}{\code{crwFit} object from \code{crawl::crwMLE}}
 }
