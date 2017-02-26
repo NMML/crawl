@@ -30,8 +30,7 @@ Suggests:
     lubridate,
     xts,
     broom,
-    doParallel,
-    sf
+    doParallel
 Description: The Correlated Random Walk Library of
     R functions was designed for fitting continuous-time
     correlated random walk models with time indexed
