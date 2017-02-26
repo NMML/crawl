@@ -15,7 +15,8 @@ Imports:
     dplyr,
     raster,
     gdistance,
-    sp
+    sp,
+    broom
 LinkingTo: 
     Rcpp,
     RcppArmadillo
