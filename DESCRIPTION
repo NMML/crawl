@@ -15,8 +15,7 @@ Imports:
     dplyr,
     raster,
     gdistance,
-    sp,
-    sf
+    sp
 LinkingTo: 
     Rcpp,
     RcppArmadillo
@@ -30,6 +29,7 @@ Suggests:
     lubridate,
     xts,
     broom,
+    sf,
     doParallel
 Description: The Correlated Random Walk Library of
     R functions was designed for fitting continuous-time
