@@ -28,6 +28,8 @@ Suggests:
     tidyr,
     lubridate,
     xts,
+    broom,
+    sf,
     doParallel
 Description: The Correlated Random Walk Library of
     R functions was designed for fitting continuous-time
