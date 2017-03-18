@@ -274,15 +274,17 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   nms <- c(tau.nms, sig.nms, b.nms, active.nms, drift.nms)
   n.par <- length(nms)
   if (missing(fixPar)) fixPar <- rep(NA, n.par)
+  n.theta = sum(is.na(fixPar))
   if (length(fixPar)!=n.par) stop("'fixPar' argument is not the right length! The number of parameters in the model is ", n.par, "\n")
-  if(!(length(constr$lower)==1 | length(constr$lower)==sum(is.na(fixPar)))) stop("The number of lower contraints specified is not correct! The number of free parameters is ", sum(is.na(fixPar)),"\n")
-  if(!(length(constr$upper)==1 | length(constr$upper)==sum(is.na(fixPar)))) stop("The number of upper contraints specified is not correct! The number of free parameters is ", sum(is.na(fixPar)),"\n")
-  if(length(constr$upper)==1) constr$upper <- rep(constr$upper, sum(is.na(fixPar)))
-  if(length(constr$lower)==1) constr$lower <- rep(constr$lower, sum(is.na(fixPar)))
-  if (missing(theta)) theta <- ifelse(constr$lower > -Inf, constr$lower+0.001, 0.0)
-  #theta <- ifelse(is.na(theta), 0.00001, theta)
+  if(!(length(constr$lower)==1 | length(constr$lower)==sum(is.na(fixPar)))) stop("The number of lower contraints specified is not correctly! The number of free parameters is ", sum(is.na(fixPar)),"\n")
+  if(!(length(constr$upper)==1 | length(constr$upper)==sum(is.na(fixPar)))) stop("The number of upper contraints specified is not correctly! The number of free parameters is ", sum(is.na(fixPar)),"\n")
+  # if(length(constr$upper)==1) constr$upper <- rep(constr$upper, sum(is.na(fixPar)))
+  # if(length(constr$lower)==1) constr$lower <- rep(constr$lower, sum(is.na(fixPar)))
+  if (missing(theta)) theta = rep(0,n.theta)
+  theta[theta<constr$lower] = constr$lower + 0.01
+  theta[theta>constr$upper] = constr$upper - 0.01
   if(driftMod & is.na(fixPar[n.par])) theta[sum(is.na(fixPar))] <- log(diff(range(data[,Time.name]))/9)
-  if (length(theta) != sum(is.na(fixPar))) {
+  if (length(theta) != n.theta) {
     stop("\nWrong number of parameters specified in start value.\n")
   }
   
