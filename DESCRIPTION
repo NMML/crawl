@@ -1,8 +1,8 @@
 Package: crawl
 Type: Package
 Title: Fit Continuous-Time Correlated Random Walk Models to Animal Movement Data
-Version: 2.1.0
-Date: 2017-02-17
+Version: 2.1.1
+Date: 2017-03-17
 Author: Devin S. Johnson
 Maintainer: Devin S. Johnson <devin.johnson@noaa.gov>
 Depends:
@@ -28,6 +28,8 @@ Suggests:
     tidyr,
     lubridate,
     xts,
+    broom,
+    sf,
     doParallel
 Description: The Correlated Random Walk Library of
     R functions was designed for fitting continuous-time

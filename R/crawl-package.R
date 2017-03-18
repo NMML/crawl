@@ -9,8 +9,8 @@
 #' \tabular{ll}{ 
 #' Package: \tab crawl\cr 
 #' Type: \tab Package\cr 
-#' Version: \tab 2.1.0\cr 
-#' Date: \tab February 17, 2017\cr 
+#' Version: \tab 2.1.1\cr 
+#' Date: \tab March 17, 2017\cr 
 #' License: \tab CC0 \cr 
 #' LazyLoad: \tab yes\cr 
 #' }
@@ -38,7 +38,7 @@
 #' @importFrom methods as slot 
 #' @importFrom stats approx model.frame model.matrix 
 #'             na.pass optim pchisq pexp pnorm qnorm 
-#'             rchisq runif sd
+#'             rchisq runif sd setNames
 #' @useDynLib crawl
 
 NULL
