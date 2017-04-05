@@ -166,7 +166,7 @@
 
 crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                      data, coord=c("x", "y"), Time.name,
-                     initial.state, theta, fixPar, method="L-BFGS-B", control=NULL, constr=list(lower=-Inf, upper=Inf), 
+                     initial.state, theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
                      prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1)
 {
   #if(drift) stop("At this time drift models are not supported with this function. Use 'crwMLE' for now.\n")
