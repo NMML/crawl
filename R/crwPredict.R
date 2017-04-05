@@ -184,7 +184,7 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   out <- list(originalData=fillCols(data), alpha.hat=pred, 
               V.hat=var, speed=speed, loglik=out$ll, useAvail=UseAvail.lst)
   if (flat) {
-    out <- cbind(fillCols(flatten(out)), obsFit)
+    out <- cbind(fillCols(crawl::flatten(out)), obsFit)
     attr(out, "flat") <- TRUE
     attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
     attr(out, "random.drift") <- driftMod
