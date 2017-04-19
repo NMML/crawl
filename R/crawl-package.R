@@ -39,7 +39,7 @@
 #' @importFrom stats approx model.frame model.matrix 
 #'             na.pass optim pchisq pexp pnorm qnorm 
 #'             rchisq runif sd setNames
-#' @useDynLib crawl
+#' @useDynLib crawl, .registration = TRUE
 
 NULL
 
