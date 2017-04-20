@@ -41,5 +41,4 @@ License: CC0
 LazyLoad: yes
 ByteCompile: TRUE
 NeedsCompilation: yes
-VignetteBuilder: knitr
 RoxygenNote: 6.0.1
