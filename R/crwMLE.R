@@ -281,8 +281,8 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   # if(length(constr$upper)==1) constr$upper <- rep(constr$upper, sum(is.na(fixPar)))
   # if(length(constr$lower)==1) constr$lower <- rep(constr$lower, sum(is.na(fixPar)))
   if (missing(theta)) theta = rep(0,n.theta)
-  theta[theta<constr$lower] = constr$lower + 0.01
-  theta[theta>constr$upper] = constr$upper - 0.01
+  theta[theta<constr$lower] = constr$lower[theta<constr$lower] + 0.01
+  theta[theta>constr$upper] = constr$upper[theta>constr$upper] - 0.01
   if(driftMod & is.na(fixPar[n.par])) theta[sum(is.na(fixPar))] <- log(diff(range(data[,Time.name]))/9)
   if (length(theta) != n.theta) {
     stop("\nWrong number of parameters specified in start value.\n")
