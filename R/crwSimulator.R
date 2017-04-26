@@ -122,6 +122,18 @@ crwSimulator = function(
   
   ## Data setup ##
   if (!is.null(predTime)) {
+    if(inherits(predTime,"character")) {
+      t_int <- unlist(strsplit(predTime, " "))
+      if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
+        min_dt <- crawl::intToPOSIX(min(object.crwFit$data$TimeNum,na.rm=TRUE))
+        max_dt <- crawl::intToPOSIX(max(object.crwFit$data$TimeNum,na.rm=TRUE))
+        min_dt <- round(min_dt,t_int[2])
+        max_dt <- trunc(max_dt,t_int[2])
+        predTime <- seq(min_dt, max_dt, by = predTime)
+      } else {
+        stop("predTime not specified correctly. see documentation for seq.POSIXt")
+      }
+    }
     if(min(predTime) <  data[1, tn]) {
       warning("Predictions times given before first observation!\nOnly those after first observation will be used.")
       predTime <- predTime[predTime>=data[1,tn]]
