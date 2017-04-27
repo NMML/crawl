@@ -144,6 +144,12 @@ fix_path = function(xy, time, res_raster, trans){
                       Time = xy$Time[rs$fixed_range[1]:rs$fixed_range[2]],
                       locType = xy$locType[rs$fixed_range[1]:rs$fixed_range[2]])
   }
+  if (inherits(xy,"crwPredict")) {
+    loc_data <- cbind(xy[rs$fixed_range[1]:rs$fixed_range[2],
+                         setdiff(names(xy),c("mu.x","mu.y"))],
+                      loc_data)
+    class(loc_data) <- append(class(loc_data),"crwPredict")
+  }
   if (inherits(xy,"matrix")) {
     loc_data <- cbind(loc_data,time)
   }
