@@ -125,8 +125,8 @@ crwSimulator = function(
     if(inherits(predTime,"character")) {
       t_int <- unlist(strsplit(predTime, " "))
       if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
-        min_dt <- crawl::intToPOSIX(min(object.crwFit$data$TimeNum,na.rm=TRUE))
-        max_dt <- crawl::intToPOSIX(max(object.crwFit$data$TimeNum,na.rm=TRUE))
+        min_dt <- crawl::intToPOSIX(min(object.crwFit$data$Time,na.rm=TRUE))
+        max_dt <- crawl::intToPOSIX(max(object.crwFit$data$Time,na.rm=TRUE))
         min_dt <- round(min_dt,t_int[2])
         max_dt <- trunc(max_dt,t_int[2])
         predTime <- seq(min_dt, max_dt, by = predTime)
