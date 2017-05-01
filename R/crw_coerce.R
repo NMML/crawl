@@ -24,7 +24,7 @@ crw_as_tibble <- function(crw_object) {
 crw_as_tibble.crwIS <- function(crw_object) {
   tibble::tibble(mu.x = crw_object$alpha.sim[,'mu.x'],
                  mu.y = crw_object$alpha.sim[,'mu.y'],
-                 pred_dt = lubridate::as_datetime(Time),
+                 pred_dt = lubridate::as_datetime(crw_object$Time),
                  locType = crw_object$locType
   ) %>% 
     dplyr::arrange(pred_dt)
