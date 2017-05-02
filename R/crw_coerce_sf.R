@@ -1,9 +1,17 @@
 #' Coerce to sf/sfc object
 #' 
+#' Provides reliable conversion of \code{"crwIS"} and \code{"crwPredict"} objects
+#' into simple features objects supported in the \code{"sf"} package. Both 
+#' \code{"sf"} objects with "POINT" geometry and \code{"sfc_LINESTRING"} objects
+#' are created. Coersion of \code{"crwPredict"} objects to \code{"sfc_LINESTRING"}
+#' has an option \code{"group"} argument when the \code{"crwPredict"} object
+#' includes predictions from multiple deployments. The grouping column will be 
+#' used and a tibble of multiple \code{"sfc_LINESTRING"} objects will be returned
+#' 
 #' @param crw_object an object of class \code{"crwIS"} or \code{"crwPredict"}
 #' @param epsg integer epsg code specifying the coordinate projection
 #' @param ftype character of either "POINT" or "LINESTRING" specifying the feature type
-#' @param group character specifying the column to group by for mulitple LINESTRING features
+#' @param group (optional) character specifying the column to group by for mulitple LINESTRING features
 #' @export
 
 crw_as_sf <- function(crw_object,epsg,ftype,group) {

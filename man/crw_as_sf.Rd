@@ -19,10 +19,16 @@ crw_as_sf(crw_object, epsg, ftype, group)
 
 \item{ftype}{character of either "POINT" or "LINESTRING" specifying the feature type}
 
-\item{group}{character specifying the column to group by for mulitple LINESTRING features}
+\item{group}{(optional) character specifying the column to group by for mulitple LINESTRING features}
 }
 \description{
-Coerce to sf/sfc object
+Provides reliable conversion of \code{"crwIS"} and \code{"crwPredict"} objects
+into simple features objects supported in the \code{"sf"} package. Both 
+\code{"sf"} objects with "POINT" geometry and \code{"sfc_LINESTRING"} objects
+are created. Coersion of \code{"crwPredict"} objects to \code{"sfc_LINESTRING"}
+has an option \code{"group"} argument when the \code{"crwPredict"} object
+includes predictions from multiple deployments. The grouping column will be 
+used and a tibble of multiple \code{"sfc_LINESTRING"} objects will be returned
 }
 \section{Methods (by class)}{
 \itemize{
