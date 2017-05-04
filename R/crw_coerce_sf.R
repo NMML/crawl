@@ -9,37 +9,38 @@
 #' used and a tibble of multiple \code{"sf_LINESTRING"} objects will be returned
 #' 
 #' @param crw_object an object of class \code{"crwIS"} or \code{"crwPredict"}
-#' @param epsg integer epsg code specifying the coordinate projection
 #' @param ftype character of either "POINT" or "LINESTRING" specifying the feature type
 #' @param loctype character vector of location points to include ("p","o")
 #' @param group (optional) character specifying the column to group by for mulitple LINESTRING features
 #' @export
 
-crw_as_sf <- function(crw_object,epsg,ftype,loctype,group) {
+crw_as_sf <- function(crw_object,ftype,loctype,group) {
   UseMethod("crw_as_sf",crw_object)
 }
 
 #' @describeIn crw_as_sf coerce crwIS object to sf (POINT or 
 #' LINESTRING geometry)
 #' @export 
-crw_as_sf.crwIS <- function(crw_object, epsg, ftype,
+crw_as_sf.crwIS <- function(crw_object, ftype,
                             loctype = c("p","o"), 
                             group = NULL) {
   if(!is.null(group)) {
     warning("group argument not applicable to crwIS objects. ignorning")
   }
-  stopifnot(!missing(epsg), !missing(ftype), ftype %in% c("POINT","LINESTRING"))
+  stopifnot(!missing(ftype), ftype %in% c("POINT","LINESTRING"))
+  crw_crs <- ifelse(is.null(attr(crw_object,"epsg")),attr(crw_object,"proj4"),
+                    attr(crw_object,"epsg"))
   if(ftype == "POINT") {
   crw_object <- crw_as_tibble(crw_object) %>% 
     dplyr::filter(locType %in% loctype) %>% 
     sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
-    sf::st_set_crs(epsg)
+    sf::st_set_crs(crw_crs)
   }
   if(ftype == "LINESTRING") {
     crw_object <- crw_as_tibble(crw_object) %>% 
       dplyr::filter(locType %in% loctype) %>%
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
-      sf::st_set_crs(epsg) %>% 
+      sf::st_set_crs(crw_crs) %>% 
       sf::st_coordinates() %>% 
       sf::st_linestring() 
   }
@@ -49,15 +50,17 @@ crw_as_sf.crwIS <- function(crw_object, epsg, ftype,
 #' @describeIn crw_as_sf coerce crwPredict object to sf (POINT or 
 #' LINESTRING geometry) 
 #' @export
-crw_as_sf.crwPredict <- function(crw_object,epsg,ftype,
+crw_as_sf.crwPredict <- function(crw_object,ftype,
                                  loctype = c("p","o"), 
                                  group = NULL) {
-  stopifnot(!missing(epsg), !missing(ftype), ftype %in% c("POINT","LINESTRING"))
+  stopifnot(!missing(ftype), ftype %in% c("POINT","LINESTRING"))
+  crw_crs <- ifelse(is.null(attr(crw_object,"epsg")),attr(crw_object,"proj4"),
+                    attr(crw_object,"epsg"))
   if(ftype == "POINT" && is.null(group)) {
   crw_object <- crw_as_tibble(crw_object) %>% 
     dplyr::filter(locType %in% loctype) %>% 
     sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
-    sf::st_set_crs(epsg) 
+    sf::st_set_crs(crw_crs) 
   }
   if(ftype == "POINT" && !is.null(group)) {
    warning("group argument not applicable for 'POINT' type. ignoring")
@@ -66,7 +69,7 @@ crw_as_sf.crwPredict <- function(crw_object,epsg,ftype,
     crw_object <- crw_as_tibble(crw_object) %>% 
       dplyr::filter(locType %in% loctype) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
-      sf::st_set_crs(epsg) %>% 
+      sf::st_set_crs(crw_crs) %>% 
       sf::st_coordinates() %>% 
       sf::st_linestring() 
   }
@@ -74,7 +77,7 @@ crw_as_sf.crwPredict <- function(crw_object,epsg,ftype,
     crw_object <- crw_as_tibble(crw_object) %>% 
       dplyr::filter(locType %in% loctype) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
-      sf::st_set_crs(epsg) %>% 
+      sf::st_set_crs(crw_crs) %>% 
       dplyr::group_by(group) %>% 
       dplyr::summarize() %>% 
       sf::st_cast("LINESTRING")

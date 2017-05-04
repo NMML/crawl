@@ -170,5 +170,7 @@ crwSimulator = function(
               coord=object.crwFit$coord, prior=object.crwFit$prior)
   class(out) <- 'crwSimulator'
   if(parIS>1 & object.crwFit$need.hess==TRUE) out <- crwSamplePar(out, method=method, size=parIS, df=df, grid.eps=grid.eps, crit=crit, scale=scale, force.quad = force.quad)
+  attr(out,"epsg") <- attr(object.crwFit,"epsg")
+  attr(out,"proj4") <- attr(object.crwFit,"proj4")
   return(out)
 }

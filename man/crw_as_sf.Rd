@@ -6,18 +6,16 @@
 \alias{crw_as_sf.crwPredict}
 \title{Coerce to sf/sfc object}
 \usage{
-crw_as_sf(crw_object, epsg, ftype, loctype, group)
+crw_as_sf(crw_object, ftype, loctype, group)
 
-\method{crw_as_sf}{crwIS}(crw_object, epsg, ftype, loctype = c("p", "o"),
+\method{crw_as_sf}{crwIS}(crw_object, ftype, loctype = c("p", "o"),
   group = NULL)
 
-\method{crw_as_sf}{crwPredict}(crw_object, epsg, ftype, loctype = c("p", "o"),
+\method{crw_as_sf}{crwPredict}(crw_object, ftype, loctype = c("p", "o"),
   group = NULL)
 }
 \arguments{
 \item{crw_object}{an object of class \code{"crwIS"} or \code{"crwPredict"}}
-
-\item{epsg}{integer epsg code specifying the coordinate projection}
 
 \item{ftype}{character of either "POINT" or "LINESTRING" specifying the feature type}
 

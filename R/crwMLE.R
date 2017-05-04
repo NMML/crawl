@@ -72,8 +72,10 @@
 #' @param data data.frame object containg telemetry and covariate data. A 
 #'   'SpatialPointsDataFrame' object from the package 'sp' or an 'sf' object
 #'   from the 'sf' package with a geometry column of type \code{sfc_POINT}.
-#'   'spacetime' will also be accepted. Values for coords will be taken from 
-#'   the spatial data set and ignored in the arguments.
+#'   'spacetime' objects were previously accepted but no longer valid. 
+#'   Values for coords will be taken from 
+#'   the spatial data set and ignored in the arguments. Spatial data must have a
+#'   valid proj4string or epsg and must NOT be in longlat.
 #' @param coord A 2-vector of character values giving the names of the "X" and
 #' "Y" coordinates in \code{data}.
 #' @param Time.name character indicating name of the location time column
@@ -171,27 +173,28 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
 {
   #if(drift) stop("At this time drift models are not supported with this function. Use 'crwMLE' for now.\n")
   st <- Sys.time()
-#  if (missing(Time.name) & !inherits(data,"STIDF")) stop("Argument 'Time.name' missing and NOT a spacetime STIDF object. Please specify")
-  
-#   ### Transform 'spacetime' object
-#   if(inherits(data,"STIDF")){
-#     polar.coord <- "+proj=longlat" %in% strsplit(proj4string(data), " ")[[1]]
-#     data <- as(data,"data.frame")
-#     Time.name <- "time"
-#     coord <- c("coords.x1","coords.x2")
-#   }
   
   ### Transform 'sp' package SpatialPointsDataFrame
   if(inherits(data, "trip")){
     Time.name <- data@TOR.columns[1]
   }
+  p4 <- list(epsg = NULL, proj4string = NULL)
   if(inherits(data, "SpatialPoints")) {	
-    if("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) stop("Location data must be projected.")	
+    if(!is.projected(data)) {
+      stop("proj4string for data of sp class is not specified.")
+    }
+    if("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) stop("Location data is provided in longlat; must be projected.")	
+    p4$proj4string <- sp::proj4string(data)
     coordVals <- as.data.frame(sp::coordinates(data))	
     coord <- names(coordVals)	
     data <- cbind(slot(data,"data"), coordVals)    
   }
   if(inherits(data,"sf") && inherits(sf::st_geometry(data),"sfc_POINT")) {
+    if (sf::st_is_longlat(data)) {
+      stop("Location data is provided in longlat; must be projected.")
+    }
+    p4$epsg <- sf::st_crs(data)$epsg
+    p4$proj4string <- sf::st_crs(data)$proj4string
     if(!any(names(data) %in% c("x","y"))) {
       warning("no 'x' and 'y' columns detected in 'sf' object so will create")
       coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
@@ -210,11 +213,6 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     data$TimeNum <- as.numeric(data[,Time.name])#/3600
     Time.name <- "TimeNum"
   }
-  
-  
-  ### Check for duplicate time records ###
-  #if(any(diff(data[,Time.name])==0)) stop("There are duplicate time records for some data entries! Please remove before proceeding.")
-  
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
   errMod <- !is.null(err.model)
@@ -333,7 +331,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     ci.u <- par + 1.96 * se
     out <- list(par=par, estPar=mle$par, se=se, ci=cbind(L=ci.l, U=ci.u), Cmat=Cmat,
                 loglik=-mle$value / 2, aic=mle$value + 2 * sum(is.na(fixPar)),
-                initial.state=initial.state, coord=coord, fixPar=fixPar,
+                initial.state=initial.state, coord=coord,fixPar=fixPar,
                 convergence=mle$convergence, message=mle$message,
                 activity=activity, random.drift=drift,
                 mov.model=mov.model, err.model=err.model, n.par=n.par, nms=nms,
@@ -342,6 +340,8 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                 Time.name=Time.name, init=init, data=data,
                 lower=constr$lower, upper=constr$upper, prior=prior, need.hess=need.hess,
                 runTime=difftime(Sys.time(), st))
+    attr(out,"epsg") <- p4$epsg
+    attr(out,"proj4") <- p4$proj4string
     class(out) <- c("crwFit")
     return(out)
   }

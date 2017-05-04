@@ -87,6 +87,7 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   n.errY <- object.crwFit$n.errY
   n.mov <- object.crwFit$n.mov
   tn <- object.crwFit$Time.name
+
   if(inherits(predTime, "POSIXct")) predTime <- as.numeric(predTime)#/3600
   
   ## Data setup ##
@@ -190,6 +191,8 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "Time.name") <- tn
+    attr(out,"epsg") <- attr(object.crwFit,"epsg")
+    attr(out,"proj4") <- attr(object.crwFit,"proj4")
   } else {
     out <- append(out, list(fit.test=obsFit))
     attr(out, "flat") <- FALSE
@@ -197,6 +200,8 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "Time.name") <- tn
+    attr(out,"epsg") <- attr(object.crwFit,"epsg")
+    attr(out,"proj4") <- attr(object.crwFit,"proj4")
   }
   class(out) <- c(class(out),"crwPredict")
   return(out)

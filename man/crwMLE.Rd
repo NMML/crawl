@@ -27,8 +27,10 @@ using a drift model.}
 \item{data}{data.frame object containg telemetry and covariate data. A 
 'SpatialPointsDataFrame' object from the package 'sp' or an 'sf' object
 from the 'sf' package with a geometry column of type \code{sfc_POINT}.
-'spacetime' will also be accepted. Values for coords will be taken from 
-the spatial data set and ignored in the arguments.}
+'spacetime' objects were previously accepted but no longer valid. 
+Values for coords will be taken from 
+the spatial data set and ignored in the arguments. Spatial data must have a
+valid proj4string or epsg and must NOT be in longlat.}
 
 \item{coord}{A 2-vector of character values giving the names of the "X" and
 "Y" coordinates in \code{data}.}
