@@ -23,7 +23,7 @@ crw_as_tibble.crwIS <- function(crw_object) {
 #' @export
 crw_as_tibble.crwPredict <- function(crw_object) {
   tibble::as_tibble(crw_object) %>% 
-    dplyr::mutate(num_time = lubridate::as_datetime(Time)) %>% 
+    dplyr::mutate(num_time = lubridate::as_datetime(crw_object$Time)) %>% 
     dplyr::rename(pred_dt = num_time) %>% 
     dplyr::arrange(pred_dt)
 }

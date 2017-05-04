@@ -6,73 +6,78 @@
 #' are created. Coersion of \code{"crwPredict"} objects to \code{"sfc_LINESTRING"}
 #' has an option \code{"group"} argument when the \code{"crwPredict"} object
 #' includes predictions from multiple deployments. The grouping column will be 
-#' used and a tibble of multiple \code{"sfc_LINESTRING"} objects will be returned
+#' used and a tibble of multiple \code{"sf_LINESTRING"} objects will be returned
 #' 
 #' @param crw_object an object of class \code{"crwIS"} or \code{"crwPredict"}
 #' @param epsg integer epsg code specifying the coordinate projection
 #' @param ftype character of either "POINT" or "LINESTRING" specifying the feature type
+#' @param loctype character vector of location points to include ("p","o")
 #' @param group (optional) character specifying the column to group by for mulitple LINESTRING features
 #' @export
 
-crw_as_sf <- function(crw_object,epsg,ftype,group) {
+crw_as_sf <- function(crw_object,epsg,ftype,loctype,group) {
   UseMethod("crw_as_sf",crw_object)
 }
 
-#' @describeIn crw_as_sf coerce crwIS object to sf (POINT geometry) or sfc_LINESTRING
+#' @describeIn crw_as_sf coerce crwIS object to sf (POINT or 
+#' LINESTRING geometry)
 #' @export 
-crw_as_sf.crwIS <- function(crw_object,epsg,ftype,group) {
-  if(!missing(group)) {
+crw_as_sf.crwIS <- function(crw_object, epsg, ftype,
+                            loctype = c("p","o"), 
+                            group = NULL) {
+  if(!is.null(group)) {
     warning("group argument not applicable to crwIS objects. ignorning")
   }
-  stopifnot(!missing(epsg))
-  stopifnot(!missing(ftype))
-  stopifnot(ftype %in% c("POINT","LINESTRING"))
+  stopifnot(!missing(epsg), !missing(ftype), ftype %in% c("POINT","LINESTRING"))
   if(ftype == "POINT") {
   crw_object <- crw_as_tibble(crw_object) %>% 
+    dplyr::filter(locType %in% loctype) %>% 
     sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
-    sf::st_set_crs(epsg) 
+    sf::st_set_crs(epsg)
   }
   if(ftype == "LINESTRING") {
     crw_object <- crw_as_tibble(crw_object) %>% 
+      dplyr::filter(locType %in% loctype) %>%
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
       sf::st_set_crs(epsg) %>% 
       sf::st_coordinates() %>% 
-      sf::st_linestring() %>% 
-      sf::st_sfc()
+      sf::st_linestring() 
   }
   return(crw_object)
 }
 
-#' @describeIn crw_as_sf coerce crwPredict object to sf (POINT geometry) or sfc_LINESTRING
+#' @describeIn crw_as_sf coerce crwPredict object to sf (POINT or 
+#' LINESTRING geometry) 
 #' @export
-crw_as_sf.crwPredict <- function(crw_object,epsg,ftype,group) {
-  stopifnot(!missing(epsg))
-  stopifnot(!missing(ftype))
-  stopifnot(ftype %in% c("POINT","LINESTRING"))
-  if(ftype == "POINT" && missing(group)) {
+crw_as_sf.crwPredict <- function(crw_object,epsg,ftype,
+                                 loctype = c("p","o"), 
+                                 group = NULL) {
+  stopifnot(!missing(epsg), !missing(ftype), ftype %in% c("POINT","LINESTRING"))
+  if(ftype == "POINT" && is.null(group)) {
   crw_object <- crw_as_tibble(crw_object) %>% 
+    dplyr::filter(locType %in% loctype) %>% 
     sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
     sf::st_set_crs(epsg) 
   }
-  if(ftype == "POINT" && !missing(group)) {
+  if(ftype == "POINT" && !is.null(group)) {
    warning("group argument not applicable for 'POINT' type. ignoring")
   }
-  if(ftype == "LINESTRING" && missing(group)) {
+  if(ftype == "LINESTRING" && is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
+      dplyr::filter(locType %in% loctype) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
       sf::st_set_crs(epsg) %>% 
       sf::st_coordinates() %>% 
-      sf::st_linestring() %>% 
-      sf::st_sfc()
+      sf::st_linestring() 
   }
-  if(ftype == "LINESTRING" && !missing(group)) {
+  if(ftype == "LINESTRING" && !is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
+      dplyr::filter(locType %in% loctype) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
       sf::st_set_crs(epsg) %>% 
       dplyr::group_by(group) %>% 
       dplyr::summarize() %>% 
-      sf::st_cast("LINESTRING") %>% 
-      sf::st_sfc()
+      sf::st_cast("LINESTRING")
   }
   return(crw_object)
 }

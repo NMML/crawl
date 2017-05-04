@@ -6,11 +6,13 @@
 \alias{crw_as_sf.crwPredict}
 \title{Coerce to sf/sfc object}
 \usage{
-crw_as_sf(crw_object, epsg, ftype, group)
+crw_as_sf(crw_object, epsg, ftype, loctype, group)
 
-\method{crw_as_sf}{crwIS}(crw_object, epsg, ftype, group)
+\method{crw_as_sf}{crwIS}(crw_object, epsg, ftype, loctype = c("p", "o"),
+  group = NULL)
 
-\method{crw_as_sf}{crwPredict}(crw_object, epsg, ftype, group)
+\method{crw_as_sf}{crwPredict}(crw_object, epsg, ftype, loctype = c("p", "o"),
+  group = NULL)
 }
 \arguments{
 \item{crw_object}{an object of class \code{"crwIS"} or \code{"crwPredict"}}
@@ -18,6 +20,8 @@ crw_as_sf(crw_object, epsg, ftype, group)
 \item{epsg}{integer epsg code specifying the coordinate projection}
 
 \item{ftype}{character of either "POINT" or "LINESTRING" specifying the feature type}
+
+\item{loctype}{character vector of location points to include ("p","o")}
 
 \item{group}{(optional) character specifying the column to group by for mulitple LINESTRING features}
 }
@@ -28,12 +32,14 @@ into simple features objects supported in the \code{"sf"} package. Both
 are created. Coersion of \code{"crwPredict"} objects to \code{"sfc_LINESTRING"}
 has an option \code{"group"} argument when the \code{"crwPredict"} object
 includes predictions from multiple deployments. The grouping column will be 
-used and a tibble of multiple \code{"sfc_LINESTRING"} objects will be returned
+used and a tibble of multiple \code{"sf_LINESTRING"} objects will be returned
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{crwIS}: coerce crwIS object to sf (POINT geometry) or sfc_LINESTRING
+\item \code{crwIS}: coerce crwIS object to sf (POINT or 
+LINESTRING geometry)
 
-\item \code{crwPredict}: coerce crwPredict object to sf (POINT geometry) or sfc_LINESTRING
+\item \code{crwPredict}: coerce crwPredict object to sf (POINT or 
+LINESTRING geometry)
 }}
 
