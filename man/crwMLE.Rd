@@ -173,11 +173,7 @@ for parameters which are to be estimated.
 The data set specified by \code{data} must contain a numeric or POSIXct column which is
 used as the time index for analysis. The column name is specified by the
 \code{Time.name} argument. If a POSIXct column is used it is internally converted to a
-numeric vector with units of hours. The \code{spacetime} package supports an
-\code{STIDF} object that contains slots for both spatial and time series data types. If
-\code{data} is of class \code{STIDF} then the spatial and temporal information are
-automatically extracted and \code{polar.coord}, \code{Time.name} and \code{coord} are
-not required. If your data are not compatible with these data structures, it is better
+numeric vector with units of hours. If your data are not compatible with these data structures, it is better
 to convert it yourself prior to analysis with crawl. Also, for stopping models, the
 stopping covariate must be between 0 and 1 inclusive, with 1 representing complete stop
 of the animal (no true movement, however, location error can still occur) and 0 
