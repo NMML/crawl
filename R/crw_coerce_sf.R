@@ -41,8 +41,8 @@ crw_as_sf.crwIS <- function(crw_object, ftype,
       dplyr::filter(locType %in% loctype) %>%
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
       sf::st_set_crs(crw_crs) %>% 
-      sf::st_coordinates() %>% 
-      sf::st_linestring() 
+      summarise(id=1) %>% 
+      sf::st_cast("LINESTRING")
   }
   return(crw_object)
 }
@@ -70,8 +70,8 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
       dplyr::filter(locType %in% loctype) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
       sf::st_set_crs(crw_crs) %>% 
-      sf::st_coordinates() %>% 
-      sf::st_linestring() 
+      summarise(id=1) %>% 
+      sf::st_cast("LINESTRING")
   }
   if(ftype == "LINESTRING" && !is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
