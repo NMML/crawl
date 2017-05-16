@@ -41,7 +41,7 @@ crw_as_sf.crwIS <- function(crw_object, ftype,
       dplyr::filter(locType %in% loctype) %>%
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
       sf::st_set_crs(crw_crs) %>% 
-      summarise(id=1) %>% 
+      summarise(id=1, do_union = FALSE) %>% 
       sf::st_cast("LINESTRING")
   }
   return(crw_object)
@@ -59,6 +59,7 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
   if(ftype == "POINT" && is.null(group)) {
   crw_object <- crw_as_tibble(crw_object) %>% 
     dplyr::filter(locType %in% loctype) %>% 
+    dplyr::arrange(TimeNum) %>% 
     sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
     sf::st_set_crs(crw_crs) 
   }
@@ -68,18 +69,20 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
   if(ftype == "LINESTRING" && is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
       dplyr::filter(locType %in% loctype) %>% 
+      dplyr::arrange(TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
       sf::st_set_crs(crw_crs) %>% 
-      summarise(id=1) %>% 
+      summarise(id=1,do_union = FALSE) %>% 
       sf::st_cast("LINESTRING")
   }
   if(ftype == "LINESTRING" && !is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
       dplyr::filter(locType %in% loctype) %>% 
+      dplyr::arrange(TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
       sf::st_set_crs(crw_crs) %>% 
       dplyr::group_by(group) %>% 
-      dplyr::summarize() %>% 
+      dplyr::summarise(do_union = FALSE) %>% 
       sf::st_cast("LINESTRING")
   }
   return(crw_object)
