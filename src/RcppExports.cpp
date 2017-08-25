@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // CTCRWNLL_DRIFT
 Rcpp::List CTCRWNLL_DRIFT(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& beta_drift, const arma::vec& sig2, const arma::vec& sig2_drift, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP crawl_CTCRWNLL_DRIFT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP beta_driftSEXP, SEXP sig2SEXP, SEXP sig2_driftSEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
+RcppExport SEXP _crawl_CTCRWNLL_DRIFT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP beta_driftSEXP, SEXP sig2SEXP, SEXP sig2_driftSEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -29,7 +29,7 @@ END_RCPP
 }
 // CTCRWNLL
 Rcpp::List CTCRWNLL(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP crawl_CTCRWNLL(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
+RcppExport SEXP _crawl_CTCRWNLL(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -48,7 +48,7 @@ END_RCPP
 }
 // CTCRWPREDICT_DRIFT
 Rcpp::List CTCRWPREDICT_DRIFT(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& beta_drift, const arma::vec& sig2, const arma::vec& sig2_drift, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP crawl_CTCRWPREDICT_DRIFT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP beta_driftSEXP, SEXP sig2SEXP, SEXP sig2_driftSEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
+RcppExport SEXP _crawl_CTCRWPREDICT_DRIFT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP beta_driftSEXP, SEXP sig2SEXP, SEXP sig2_driftSEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -69,7 +69,7 @@ END_RCPP
 }
 // CTCRWPREDICT
 Rcpp::List CTCRWPREDICT(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP crawl_CTCRWPREDICT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
+RcppExport SEXP _crawl_CTCRWPREDICT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -88,7 +88,7 @@ END_RCPP
 }
 // CTCRWSAMPLE_DRIFT
 Rcpp::List CTCRWSAMPLE_DRIFT(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& beta_drift, const arma::vec& sig2, const arma::vec& sig2_drift, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP crawl_CTCRWSAMPLE_DRIFT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP beta_driftSEXP, SEXP sig2SEXP, SEXP sig2_driftSEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
+RcppExport SEXP _crawl_CTCRWSAMPLE_DRIFT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP beta_driftSEXP, SEXP sig2SEXP, SEXP sig2_driftSEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -109,7 +109,7 @@ END_RCPP
 }
 // CTCRWSAMPLE
 Rcpp::List CTCRWSAMPLE(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP crawl_CTCRWSAMPLE(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
+RcppExport SEXP _crawl_CTCRWSAMPLE(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -128,7 +128,7 @@ END_RCPP
 }
 // makeT
 arma::mat makeT(const double& b, const double& delta, const double& active);
-RcppExport SEXP crawl_makeT(SEXP bSEXP, SEXP deltaSEXP, SEXP activeSEXP) {
+RcppExport SEXP _crawl_makeT(SEXP bSEXP, SEXP deltaSEXP, SEXP activeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -141,7 +141,7 @@ END_RCPP
 }
 // makeQ
 arma::mat makeQ(const double& b, const double& sig2, const double& delta, const double& active);
-RcppExport SEXP crawl_makeQ(SEXP bSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP activeSEXP) {
+RcppExport SEXP _crawl_makeQ(SEXP bSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP activeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -155,7 +155,7 @@ END_RCPP
 }
 // makeT_drift
 arma::mat makeT_drift(const double& b, const double& b_drift, const double& delta, const double& active);
-RcppExport SEXP crawl_makeT_drift(SEXP bSEXP, SEXP b_driftSEXP, SEXP deltaSEXP, SEXP activeSEXP) {
+RcppExport SEXP _crawl_makeT_drift(SEXP bSEXP, SEXP b_driftSEXP, SEXP deltaSEXP, SEXP activeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -169,7 +169,7 @@ END_RCPP
 }
 // makeQ_drift
 arma::mat makeQ_drift(const double& b, const double& b_drift, const double& sig2, const double& sig2_drift, const double& delta, const double& active);
-RcppExport SEXP crawl_makeQ_drift(SEXP bSEXP, SEXP b_driftSEXP, SEXP sig2SEXP, SEXP sig2_driftSEXP, SEXP deltaSEXP, SEXP activeSEXP) {
+RcppExport SEXP _crawl_makeQ_drift(SEXP bSEXP, SEXP b_driftSEXP, SEXP sig2SEXP, SEXP sig2_driftSEXP, SEXP deltaSEXP, SEXP activeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
