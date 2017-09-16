@@ -16,7 +16,11 @@ version of the continuous-time staochistic movement process.
 Package: \tab crawl\cr 
 Type: \tab Package\cr 
 Version: \tab 2.1.2\cr 
+<<<<<<< HEAD
 Date: \tab April 26, 2017\cr 
+=======
+Date: \tab April 27, 2017\cr 
+>>>>>>> b21a708c208529add8fd13a03913c54c8e0d1bf5
 License: \tab CC0 \cr 
 LazyLoad: \tab yes\cr 
 }
