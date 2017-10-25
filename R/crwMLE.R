@@ -218,6 +218,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
   errMod <- !is.null(err.model)
+  if(!errMod) stop("Error model must be specified! (argument 'err.model' is currently set to NULL)")
   activeMod <- !is.null(activity)
   driftMod <- drift
   if (
