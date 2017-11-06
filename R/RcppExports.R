@@ -2,42 +2,42 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 CTCRWNLL_DRIFT <- function(y, Hmat, beta, beta_drift, sig2, sig2_drift, delta, noObs, active, a, P) {
-    .Call('crawl_CTCRWNLL_DRIFT', PACKAGE = 'crawl', y, Hmat, beta, beta_drift, sig2, sig2_drift, delta, noObs, active, a, P)
+    .Call(`_crawl_CTCRWNLL_DRIFT`, y, Hmat, beta, beta_drift, sig2, sig2_drift, delta, noObs, active, a, P)
 }
 
 CTCRWNLL <- function(y, Hmat, beta, sig2, delta, noObs, active, a, P) {
-    .Call('crawl_CTCRWNLL', PACKAGE = 'crawl', y, Hmat, beta, sig2, delta, noObs, active, a, P)
+    .Call(`_crawl_CTCRWNLL`, y, Hmat, beta, sig2, delta, noObs, active, a, P)
 }
 
 CTCRWPREDICT_DRIFT <- function(y, Hmat, beta, beta_drift, sig2, sig2_drift, delta, noObs, active, a, P) {
-    .Call('crawl_CTCRWPREDICT_DRIFT', PACKAGE = 'crawl', y, Hmat, beta, beta_drift, sig2, sig2_drift, delta, noObs, active, a, P)
+    .Call(`_crawl_CTCRWPREDICT_DRIFT`, y, Hmat, beta, beta_drift, sig2, sig2_drift, delta, noObs, active, a, P)
 }
 
 CTCRWPREDICT <- function(y, Hmat, beta, sig2, delta, noObs, active, a, P) {
-    .Call('crawl_CTCRWPREDICT', PACKAGE = 'crawl', y, Hmat, beta, sig2, delta, noObs, active, a, P)
+    .Call(`_crawl_CTCRWPREDICT`, y, Hmat, beta, sig2, delta, noObs, active, a, P)
 }
 
 CTCRWSAMPLE_DRIFT <- function(y, Hmat, beta, beta_drift, sig2, sig2_drift, delta, noObs, active, a, P) {
-    .Call('crawl_CTCRWSAMPLE_DRIFT', PACKAGE = 'crawl', y, Hmat, beta, beta_drift, sig2, sig2_drift, delta, noObs, active, a, P)
+    .Call(`_crawl_CTCRWSAMPLE_DRIFT`, y, Hmat, beta, beta_drift, sig2, sig2_drift, delta, noObs, active, a, P)
 }
 
 CTCRWSAMPLE <- function(y, Hmat, beta, sig2, delta, noObs, active, a, P) {
-    .Call('crawl_CTCRWSAMPLE', PACKAGE = 'crawl', y, Hmat, beta, sig2, delta, noObs, active, a, P)
+    .Call(`_crawl_CTCRWSAMPLE`, y, Hmat, beta, sig2, delta, noObs, active, a, P)
 }
 
 makeT <- function(b, delta, active) {
-    .Call('crawl_makeT', PACKAGE = 'crawl', b, delta, active)
+    .Call(`_crawl_makeT`, b, delta, active)
 }
 
 makeQ <- function(b, sig2, delta, active) {
-    .Call('crawl_makeQ', PACKAGE = 'crawl', b, sig2, delta, active)
+    .Call(`_crawl_makeQ`, b, sig2, delta, active)
 }
 
 makeT_drift <- function(b, b_drift, delta, active) {
-    .Call('crawl_makeT_drift', PACKAGE = 'crawl', b, b_drift, delta, active)
+    .Call(`_crawl_makeT_drift`, b, b_drift, delta, active)
 }
 
 makeQ_drift <- function(b, b_drift, sig2, sig2_drift, delta, active) {
-    .Call('crawl_makeQ_drift', PACKAGE = 'crawl', b, b_drift, sig2, sig2_drift, delta, active)
+    .Call(`_crawl_makeQ_drift`, b, b_drift, sig2, sig2_drift, delta, active)
 }
 
