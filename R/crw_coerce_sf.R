@@ -21,27 +21,58 @@ crw_as_sf <- function(crw_object,ftype,loctype,group) {
 #' @describeIn crw_as_sf coerce crwIS object to sf (POINT or 
 #' LINESTRING geometry)
 #' @export 
-crw_as_sf.crwIS <- function(crw_object, ftype,
-                            loctype = c("p","o"), 
+crw_as_sf.crwIS <- function(crw_object,
+                            ftype,
+                            loctype = c("p", "o"),
                             group = NULL) {
-  if(!is.null(group)) {
+  if (!is.null(group)) {
     warning("group argument not applicable to crwIS objects. ignorning")
   }
-  stopifnot(!missing(ftype), ftype %in% c("POINT","LINESTRING"))
-  crw_crs <- ifelse(is.null(attr(crw_object,"epsg")),attr(crw_object,"proj4"),
-                    attr(crw_object,"epsg"))
-  if(ftype == "POINT") {
-  crw_object <- crw_as_tibble(crw_object) %>% 
-    dplyr::filter(locType %in% loctype) %>% 
-    sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
-    sf::st_set_crs(crw_crs)
+  
+  stopifnot(!missing(ftype), ftype %in% c("POINT", "LINESTRING"))
+  
+  if (inherits(crw_object, 'list')) {
+    if (ftype == "LINESTRING") {
+      stop("crw_object is a list of crwIS objects. LINESTRING is not applicable")
+    }
+    crw_objects <- crw_object
+    sf_pts_list <-
+      vector(mode = "list", length = length(crw_objects))
+    i = 0
+    for (crw_object in crw_objects) {
+      i = i + 1
+      crw_crs <-
+        ifelse(is.null(attr(crw_object, "epsg")),
+               attr(crw_object, "proj4"),
+               attr(crw_object, "epsg"))
+      
+      crw_object <- crw_as_tibble(crw_object) %>%
+        dplyr::filter(locType %in% loctype) %>%
+        sf::st_as_sf(coords = c("mu.x", "mu.y")) %>%
+        sf::st_set_crs(crw_crs)
+      
+      sf_pts_list[[i]] <- crw_object
+    }
+    sf_pts_union <- do.call(rbind,sf_pts_list)
+    return(sf_pts_union)
   }
-  if(ftype == "LINESTRING") {
-    crw_object <- crw_as_tibble(crw_object) %>% 
+  
+  crw_crs <-
+    ifelse(is.null(attr(crw_object, "epsg")),
+           attr(crw_object, "proj4"),
+           attr(crw_object, "epsg"))
+  if (ftype == "POINT") {
+    crw_object <- crw_as_tibble(crw_object) %>%
       dplyr::filter(locType %in% loctype) %>%
-      sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
-      sf::st_set_crs(crw_crs) %>% 
-      summarise(id=1, do_union = FALSE) %>% 
+      sf::st_as_sf(coords = c("mu.x", "mu.y")) %>%
+      sf::st_set_crs(crw_crs)
+  }
+  if (ftype == "LINESTRING") {
+    crw_object <- crw_as_tibble(crw_object) %>%
+      dplyr::filter(locType %in% loctype) %>%
+      sf::st_as_sf(coords = c("mu.x", "mu.y")) %>%
+      sf::st_set_crs(crw_crs) %>%
+      summarise(id = 1, do_union = FALSE) %>%
       sf::st_cast("LINESTRING")
   }
   return(crw_object)
