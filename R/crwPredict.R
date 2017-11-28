@@ -61,11 +61,16 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
     flat <- FALSE
   }
   
+  data <- object.crwFit$data
+  tn <- object.crwFit$Time.name
+  
   if(inherits(predTime,"character")) {
     t_int <- unlist(strsplit(predTime, " "))
     if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
-      min_dt <- crawl::intToPOSIX(min(object.crwFit$data$TimeNum,na.rm=TRUE))
-      max_dt <- crawl::intToPOSIX(max(object.crwFit$data$TimeNum,na.rm=TRUE))
+      if(!inherits(data[tn],"POSIXct")) {
+      min_dt <- lubridate::as_datetime(min(data[tn],na.rm=TRUE))
+      max_dt <- lubridate::as_datetime(max(data[tn],na.rm=TRUE))
+      }
       min_dt <- round(min_dt,t_int[2])
       max_dt <- trunc(max_dt,t_int[2])
       predTime <- seq(min_dt, max_dt, by = predTime)
@@ -75,7 +80,7 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   }
   
   ## Model definition/parameters ##
-  data <- object.crwFit$data
+  
   driftMod <- object.crwFit$random.drift
   mov.mf <- object.crwFit$mov.mf
   activity <- object.crwFit$activity
@@ -86,7 +91,6 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   n.errX <- object.crwFit$n.errX
   n.errY <- object.crwFit$n.errY
   n.mov <- object.crwFit$n.mov
-  tn <- object.crwFit$Time.name
   if(inherits(predTime, "POSIXct")) predTime <- as.numeric(predTime)#/3600
   
   ## Data setup ##
