@@ -17,22 +17,31 @@
 #' in \code{\link{crwMLE}}.
 #' 
 #' @param object.crwFit A model object from \code{\link{crwMLE}}.
-#' @param predTime vector of additional prediction times (numeric or POSIXct). Alternatively, a character vector specifying a time interval (see Details).
-#' @param flat logical. Should the result be returned as a flat data.frame.
+#' @param predTime vector of desired prediction times (numeric or POSIXct). Alternatively, a character vector specifying a time interval (see Details).
+#' @param return.type character. Should be one of \code{"minimal","flat","list"} (see Details).
 #' @param ... Additional arguments for testing new features
 #' 
 #' @details 
 #' \itemize{
 #' \item("predTime"){
-#' \code{predTime} can be either passed as a separate vector of POSIXct or numeric values for additional prediction times beyond the observed times. If the original data were provided as a POSIXct type, then \code{crwPredict} can derive a sequence of regularly spaced prediction times from the original data. This is specified by providing a character string that corresponds to the \code{by} argument of the \code{seq.POSIXt} function (e.g. '1 hour', '30 mins'). \code{crwPredict} will round the first observed time up to the nearest unit (e.g. '1 hour' will round up to the nearest hour, '30 mins' will round up to the nearest minute) and start the sequence from there. The last observation time is truncated down to the nearest unit to specify the end time.
+#' \code{predTime} can be either passed as a separate vector of POSIXct or numeric values for all prediction times expected in the returned object. Note, previous versions of \code{crwPredict} would return both times specified via \code{predTime} as well as each original observed time. This is no longer the default (see \item{return.type}). If the original data were provided as a POSIXct type, then \code{crwPredict} can derive a sequence of regularly spaced prediction times from the original data. This is specified by providing a character string that corresponds to the \code{by} argument of the \code{seq.POSIXt} function (e.g. '1 hour', '30 mins'). \code{crwPredict} will round the first observed time up to the nearest unit (e.g. '1 hour' will round up to the nearest hour, '30 mins' will round up to the nearest minute) and start the sequence from there. The last observation time is truncated down to the nearest unit to specify the end time.
 #' }
 #' }
 #' 
 #' @return
 #' 
-#' List with the following elements:
+#' There are three possible return types specified with \code{return.type}:
 #' 
-#' \item{originalData}{A data.frame with is \code{data} merged with
+#' \item{minimal}{a data.frame with a minimal set of columns: 
+#' \code{date_time,mu.x,mu.y,se.mu.x,se.mu.y}}
+#' 
+#' \item{flat}{a data set is returned with the
+#' columns of the original data plus the state estimates, standard errors (se),
+#' and speed estimates}
+#' 
+#' \item{list}{List with the following elements:}
+#' 
+#' \item{originalData}{A data.frame with \code{data} merged with
 #' \code{predTime}.}
 #' 
 #' \item{alpha.hat}{Predicted state}
@@ -40,36 +49,51 @@
 #' \item{Var.hat}{array where \code{Var.hat[,,i]} is the prediction
 #' covariance matrix for \code{alpha.hat[,i]}.}
 #' 
-#' \item{fit.test}{A data.frame of chi-square fit (df=2) statistics and naive
-#' (pointwise) p-values.}
-#' 
-#' If \code{flat} is set to \code{TRUE} then a data set is returned with the
-#' columns of the original data plus the state estimates, standard errors (se),
-#' speed estimates, and the fit statistics and naive p-values.
-#' 
 #' 
 #' @author Devin S. Johnson
 #' @references de Jong, P. and Penzer, J. (1998) Diagnosing shocks in time
 #' series. Journal of the American Statistical Association 93:796-806.
 #' @export
 
-crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
+crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
 {
-  if(!exists("getUseAvail")) getUseAvail=FALSE
-  if(flat & getUseAvail){
-    warning("The 'flat=TRUE' argument cannot be used in conjunction with 'getUseAvail=TRUE' argument.")
-    flat <- FALSE
-  }
-  
   data <- object.crwFit$data
   tn <- object.crwFit$Time.name
   
+  ## the typical expectation is for tn to be POSIXct. But, some users may decide
+  ## to pass a numeric time vector. Here, we'll confirm numeric or POSIXct and
+  ## set return_posix to TRUE unless the submitted values are numeric. In the
+  ## case where the data values are one and the predTime values are another, we
+  ## will convert to POSIXct and return POSIXct
+  ## 
+  return_posix <- ifelse(inherits(predTime,"POSIXct") && 
+                           inherits(data[,tn],"POSIXct"), 
+                         TRUE, FALSE)
+  if(!return_posix) {
+    if(inherits(predTime,"numeric") && inherits(data[, tn],"numeric")) {
+      message("numeric time values detected. numeric values will be returned.")
+    } 
+    if(inherits(predTime,"numeric") && inherits(data[, tn], "POSIXct")) {
+      message("predTime provided as numeric. converting to POSIXct.")
+      predTime <- lubridate::as_datetime(predTime)
+    }
+    if(inherits(predTime,"POSIXct") && inherits(data[, data], "numeric")) {
+      message("input data time column provided as numeric. converting to POSIXct")
+      data[, tn] <- lubridate::as_datetime(data[, tn])
+    }
+  }
+
+  
   if(inherits(predTime,"character")) {
+    if(inherits(data[, tn], "numeric")) {
+      warning("predTime specified as character string and data time column as numeric. converting data time column to POSIXct.")
+      data[, tn] <- lubridate::as_datetime(data[, tn])
+    }
     t_int <- unlist(strsplit(predTime, " "))
     if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
       if(!inherits(data[tn],"POSIXct")) {
-      min_dt <- lubridate::as_datetime(min(data[tn],na.rm=TRUE))
-      max_dt <- lubridate::as_datetime(max(data[tn],na.rm=TRUE))
+      min_dt <- min(data[tn],na.rm=TRUE)
+      max_dt <- max(data[tn],na.rm=TRUE)
       }
       min_dt <- round(min_dt,t_int[2])
       max_dt <- trunc(max_dt,t_int[2])
@@ -91,7 +115,6 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   n.errX <- object.crwFit$n.errX
   n.errY <- object.crwFit$n.errY
   n.mov <- object.crwFit$n.mov
-  if(inherits(predTime, "POSIXct")) predTime <- as.numeric(predTime)#/3600
   
   ## Data setup ##
   if (!is.null(predTime)) {
@@ -99,8 +122,11 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
       warning("Predictions times given before first observation!\nOnly those after first observation will be used.")
       predTime <- predTime[predTime>=data[1,tn]]
     }
-    origTime <- data[, tn]
-    if (is.null(data$locType)) data$locType <- "o"
+    origTime <- as.numeric(data[, tn])
+    predTime <- as.numeric(predTime)
+    if (is.null(data$locType)) {
+      data$locType <- "o"
+    }
     predData <- data.frame(predTime, "p")
     names(predData) <- c(tn, "locType")
     data <- merge(data, predData,
@@ -121,8 +147,6 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
   noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))
   y[noObs==1,] = 0
   N = nrow(y)
-  
-  
   
   ###
   ### Process parameters for C++
@@ -163,44 +187,32 @@ crwPredict=function(object.crwFit, predTime=NULL, flat=TRUE, ...)
     names(pred) <- c("mu.x", "theta.x", "gamma.x","mu.y", "theta.y", "gamma.y")
   } else names(pred) <- c("mu.x", "nu.x", "mu.y","nu.y")
   var <- zapsmall(out$predVar)
-  obsFit <- data.frame(predObs.x=out$predObs[1,],
-                       predObs.y=out$predObs[2,])
-  obsFit$outlier.chisq <- as.vector(out$chisq)
-  obsFit$naive.p.val <- 1 - pchisq(obsFit$outlier.chisq, 2)
-  if(getUseAvail){
-    warning("'getUseAvail' not implemented yet in this version of 'crawl' contact maintainer to fix this! ")
-    #     idx <- data$locType=="p"
-    #     movMatsPred <- getQT(sig2[idx], b[idx], sig2.drift[idx], b.drift[idx], delta=c(diff(data[idx,tn]),1), driftMod)
-    #     TmatP <- movMatsPred$Tmat
-    #     QmatP <- movMatsPred$Qmat
-    #     avail <- t(sapply(1:(nrow(TmatP)-1), makeAvail, Tmat=TmatP, Qmat=QmatP, predx=predx[idx,], predy=predy[idx,], 
-    #                       vary=vary[,,idx], varx=varx[,,idx], driftMod=driftMod, lonadj=lonAdjVals[idx]))
-    #     avail <- cbind(data[idx,tn][-1], avail)
-    #     colnames(avail) <- c(tn, "meanAvail.x", "meanAvail.y", "varAvail.x", "varAvail.y")
-    #     use <- cbind(data[idx,tn], predx[idx,1], predy[idx,1], varx[1,1,idx], vary[1,1,idx])[-1,]
-    #     colnames(use) <- c(tn, "meanUse.x", "meanUse.y", "varUse.x", "varUse.y")
-    #     UseAvail.lst <- list(use=use, avail=avail)
-    UseAvail.lst=NULL
-  }
-  else UseAvail.lst=NULL
+  
   speed = sqrt(apply(as.matrix(pred[,2:(2+driftMod)]), 1, sum)^2 + 
                  apply(as.matrix(pred[,(4+driftMod):(4+2*driftMod)]), 1, sum)^2)
   out <- list(originalData=fillCols(data), alpha.hat=pred, 
-              V.hat=var, speed=speed, loglik=out$ll, useAvail=UseAvail.lst)
-  if (flat) {
-    out <- cbind(fillCols(crawl::flatten(out)), obsFit)
+              V.hat=var, speed=speed, loglik=out$ll)
+  if (return.type == "flat") {
+    out <- fillCols(crawl::flatten(out))
     attr(out, "flat") <- TRUE
     attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "Time.name") <- tn
-  } else {
-    out <- append(out, list(fit.test=obsFit))
+  } else if (return.type == "list") {
     attr(out, "flat") <- FALSE
     attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "Time.name") <- tn
+  } else if (return.type == "minimal") {
+    out <- fillCols(data)[,c(tn,"locType")]
+    #out <- cbind(var[1,1,], var[1,3,])
+    
+    #out <- out[,c(tn,"mu.x","mu.y","se.mu.x","se.mu.y")]
+  }
+  if (return_posix) {
+    out$tn <- lubridate::as_datetime(out$tn)
   }
   class(out) <- c(class(out),"crwPredict")
   return(out)
