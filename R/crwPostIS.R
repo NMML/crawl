@@ -146,6 +146,8 @@
   attr(samp,"coord") <- object.sim$coord
   attr(samp,"random.drift") <- object.sim$driftMod
   attr(samp,"activity.model") <- !is.null(object.sim$activity)
+  attr(samp,"epsg") <- attr(object.sim,"epsg")
+  attr(samp,"proj4") <- attr(object.sim,"proj4")
   return(samp)
 }
 

@@ -199,20 +199,17 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "Time.name") <- tn
-  } else if (return.type == "list") {
+    attr(out,"epsg") <- attr(object.crwFit,"epsg")
+    attr(out,"proj4") <- attr(object.crwFit,"proj4")
+  } else {
+    out <- append(out, list(fit.test=obsFit))
     attr(out, "flat") <- FALSE
     attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "Time.name") <- tn
-  } else if (return.type == "minimal") {
-    out <- fillCols(data)[,c(tn,"locType")]
-    #out <- cbind(var[1,1,], var[1,3,])
-    
-    #out <- out[,c(tn,"mu.x","mu.y","se.mu.x","se.mu.y")]
-  }
-  if (return_posix) {
-    out$tn <- lubridate::as_datetime(out$tn)
+    attr(out,"epsg") <- attr(object.crwFit,"epsg")
+    attr(out,"proj4") <- attr(object.crwFit,"proj4")
   }
   class(out) <- c(class(out),"crwPredict")
   return(out)

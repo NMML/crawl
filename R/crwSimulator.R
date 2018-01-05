@@ -125,8 +125,8 @@ crwSimulator = function(
     if(inherits(predTime,"character")) {
       t_int <- unlist(strsplit(predTime, " "))
       if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
-        min_dt <- crawl::intToPOSIX(min(object.crwFit$data$TimeNum,na.rm=TRUE))
-        max_dt <- crawl::intToPOSIX(max(object.crwFit$data$TimeNum,na.rm=TRUE))
+        min_dt <- crawl::intToPOSIX(min(object.crwFit$data$Time,na.rm=TRUE))
+        max_dt <- crawl::intToPOSIX(max(object.crwFit$data$Time,na.rm=TRUE))
         min_dt <- round(min_dt,t_int[2])
         max_dt <- trunc(max_dt,t_int[2])
         predTime <- seq(min_dt, max_dt, by = predTime)
@@ -170,5 +170,7 @@ crwSimulator = function(
               coord=object.crwFit$coord, prior=object.crwFit$prior)
   class(out) <- 'crwSimulator'
   if(parIS>1 & object.crwFit$need.hess==TRUE) out <- crwSamplePar(out, method=method, size=parIS, df=df, grid.eps=grid.eps, crit=crit, scale=scale, force.quad = force.quad)
+  attr(out,"epsg") <- attr(object.crwFit,"epsg")
+  attr(out,"proj4") <- attr(object.crwFit,"proj4")
   return(out)
 }
