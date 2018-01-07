@@ -201,8 +201,18 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     attr(out, "Time.name") <- tn
     attr(out,"epsg") <- attr(object.crwFit,"epsg")
     attr(out,"proj4") <- attr(object.crwFit,"proj4")
-  } else {
+  } else if (return.type == "list") {
     out <- append(out, list(fit.test=obsFit))
+    attr(out, "flat") <- FALSE
+    attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
+    attr(out, "random.drift") <- driftMod
+    attr(out, "activity.model") <- !is.null(object.crwFit$activity)
+    attr(out, "Time.name") <- tn
+    attr(out,"epsg") <- attr(object.crwFit,"epsg")
+    attr(out,"proj4") <- attr(object.crwFit,"proj4")
+  } else if (return.type == "minimal") {
+    out <- fillCols(data)
+    out <- cbind(out, pred)
     attr(out, "flat") <- FALSE
     attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
     attr(out, "random.drift") <- driftMod
