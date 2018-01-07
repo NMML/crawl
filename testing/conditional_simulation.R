@@ -47,22 +47,23 @@ fit1 <- crwMLE(
 
 predTimes <- seq(min(harborSeal$Time), max(harborSeal$Time), by = 0.5)
 
-hs_pred <- crawl::crwPredict(fit1, predTime=predTimes, flat=FALSE)
-state = hs_pred$alpha.hat %>% bind_cols(hs_pred$originalData) %>% filter(locType=='p')
+hs_pred <- crawl::crwPredict(fit1, predTime=predTimes)
+state = hs_pred %>% filter(locType=='p')
 path_sf = state %>% select(starts_with("mu")) %>% 
   st_as_sf(coords=c('mu.x','mu.y')) %>% sf::st_set_crs(3338)
 
-state %>% mutate(
-  on_land=sf::st_intersects(path_sf, ak_base) %>% purrr::map_lgl(~ length(.x) > 0)
-  ) -> state
+state <- state %>% mutate(
+  on_land=sf::st_intersects(path_sf, ak_base) %>% 
+    purrr::map_lgl(~ length(.x) > 0)
+  )
 
 b <- sf::st_bbox(path_sf)
-# ggplot() +
-#   geom_sf(data = ak_base,
-#           fill = "grey60", size = 0.2) +
-#   geom_sf(data = path_sf[state$on_land,],
-#           alpha = 0.1, color = 'blue') +
-#   coord_sf(xlim = c(b["xmin"], b["xmax"]), ylim = c(b["ymin"], b["ymax"]))
+ggplot() +
+  geom_sf(data = ak_base,
+          fill = "grey60", size = 0.2) +
+  geom_sf(data = path_sf[state$on_land,],
+          alpha = 0.1, color = 'blue') +
+  coord_sf(xlim = c(b["xmin"], b["xmax"]), ylim = c(b["ymin"], b["ymax"]))
 
 test_state = state[1239:1274,]
 par = tail(fit1$estPar, 2)
