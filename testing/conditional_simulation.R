@@ -78,8 +78,36 @@ active=1
 
 #### Function
 
-cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1){
-  beta=exp(par[2])
+# cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1){
+#   beta=exp(par[2])
+#   sigma2=exp(2*par[1])
+#   delta=diff(c(t0, t1, t2))
+#   T0 = crawl:::makeT(b=beta, delta=delta[1], active=active)
+#   T1 = crawl:::makeT(b=beta, delta=delta[2], active=active)
+#   Q0 = crawl:::makeQ(b=beta, sig2=sigma2, delta=delta[1], active=active)
+#   Q1 = crawl:::makeQ(b=beta, sig2=sigma2, delta=delta[2], active=active)
+#   V_inv = solve(Q0) + t(T1)%*%solve(Q1,T1)
+#   v = solve(Q0, T0)%*%alpha0 + t(T1)%*%solve(Q1, alpha2)
+#   mu_cond = solve(V_inv, v)
+#   V_cond = solve(V_inv)
+#   smp = mvtnorm::rmvnorm(n, mu_cond, inf_fac*V_cond)
+# }
+
+cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1, bm=0){
+  if (inherits(t0,"POSIXct")) {
+    t0 <- as.numeric(t0)
+  }
+  if (inherits(t1,"POSIXct")) {
+    t1 <- as.numeric(t1)
+  }
+  if (inherits(t2, "POSIXct")) {
+    t2 <- as.numeric(t2)
+  }
+  if(bm){
+    beta=exp(4)
+  } else{
+    beta=exp(par[2])
+  }
   sigma2=exp(2*par[1])
   delta=diff(c(t0, t1, t2))
   T0 = crawl:::makeT(b=beta, delta=delta[1], active=active)
@@ -92,6 +120,7 @@ cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1)
   V_cond = solve(V_inv)
   smp = mvtnorm::rmvnorm(n, mu_cond, inf_fac*V_cond)
 }
+
 
 plot(c(alpha0[1], alpha2[1]), c(alpha0[3], alpha2[3]), col=c('red','blue'), asp=1)
 points(smp[,c(1,3)])
