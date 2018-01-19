@@ -7,7 +7,7 @@ Author: Devin S. Johnson
 Maintainer: Devin S. Johnson <devin.johnson@noaa.gov>
 Depends:
     R (>= 2.10)
-Imports:
+Imports: 
     mvtnorm,
     Rcpp (>= 0.11.1),
     methods,
@@ -15,7 +15,10 @@ Imports:
     dplyr,
     raster,
     gdistance,
-    sp
+    rmapshaper,
+    sp,
+    sf,
+    magrittr
 LinkingTo: 
     Rcpp,
     RcppArmadillo
@@ -27,7 +30,6 @@ Suggests:
     lubridate,
     xts,
     broom,
-    sf,
     doParallel
 Description: Fit continuous-time
     correlated random walk models with time indexed
