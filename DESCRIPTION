@@ -3,12 +3,12 @@ Type: Package
 Title: Fit Continuous-Time Correlated Random Walk Models to Animal Movement Data
 Version: 2.1.2
 Date: 2017-04-27
-Authors@R: person("Devin", "Johnson", email = "devin.johnson@noaa.gov",
+Authors@R: c( person("Devin", "Johnson", email = "devin.johnson@noaa.gov",
                   role = c("aut", "cre")),
            person("Josh", "London", email = "josh.london@noaa.gov",
-                  role = c("aut", "cre")),
+                  role = c("aut")),
            person("Kenady", "Wilson", email = "kenady@wildlifecomputers.com",
-                  role = c("ctb"))
+                  role = c("ctb")) )
 Depends:
     R (>= 2.10)
 Imports: 

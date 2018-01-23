@@ -1,6 +1,6 @@
 citHeader("To cite crawl in publications include both references:")
 
-citEntry(entry = "Article",
+citEntry(entry = "article",
   title        = "Continuous-time correlated random walk model for animal telemetry data",
   author       = personList(as.person("Devin S. Johnson"),
                    as.person("Josh M. London"),
@@ -11,23 +11,23 @@ citEntry(entry = "Article",
   volume       = "89",
   number       = "5",
   pages        = "1208-1215",
-  doi          = {10.1890/07-1032.1}
+  doi          = "10.1890/07-1032.1",
   url          = "https://doi.org/10.1890/07-1032.1",
 
   textVersion  =
-  paste("Johnson, D. S., London, J. M., Lea, M.-A. and Durban, J. W. (2008),
+  paste("Johnson, D. S., London, J. M., Lea, M.-A. and Durban, J. W. (2008)",
   "CONTINUOUS-TIME CORRELATED RANDOM WALK MODEL FOR ANIMAL TELEMETRY DATA.",
-  "Ecology, 89: 1208–1215. doi:10.1890/07-1032.1")
+  "Ecology, 89: 1208-1215. doi:10.1890/07-1032.1")
 )
 
-citEntry(entry = "Misc",
+citEntry(entry = "misc",
   title        = "crawl: an R package for fitting continuous-cime correlated 
                   random walk models to animal movement data",
   author       = personList(as.person("Devin S. Johnson"),
                   as.person("Josh M. London")),
   year         = "2018",
-  doi          = {10.5281/zenodo.596464},
-  url          = {https://doi.org/10.5281/zenodo.596464},
+  doi          = "10.5281/zenodo.596464",
+  url          = "https://doi.org/10.5281/zenodo.596464",
   
   textVersion  =
   paste("Devin S. Johnson and Josh M. London (2018).",
