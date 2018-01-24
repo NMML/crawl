@@ -5,34 +5,36 @@
 \title{Predict animal locations and velocities using a fitted CTCRW model and
 calculate measurement error fit statistics}
 \usage{
-crwPredict(object.crwFit, predTime = NULL, flat = TRUE, ...)
+crwPredict(object.crwFit, predTime = NULL, return.type = "minimal", ...)
 }
 \arguments{
 \item{object.crwFit}{A model object from \code{\link{crwMLE}}.}
 
-\item{predTime}{vector of additional prediction times (numeric or POSIXct). Alternatively, a character vector specifying a time interval (see Details).}
+\item{predTime}{vector of desired prediction times (numeric or POSIXct). Alternatively, a character vector specifying a time interval (see Details).}
 
-\item{flat}{logical. Should the result be returned as a flat data.frame.}
+\item{return.type}{character. Should be one of \code{"minimal","flat","list"} (see Details).}
 
 \item{...}{Additional arguments for testing new features}
 }
 \value{
-List with the following elements:
+There are three possible return types specified with \code{return.type}:
 
-\item{originalData}{A data.frame with is \code{data} merged with
+\item{minimal}{a data.frame with a minimal set of columns: 
+\code{date_time,mu.x,mu.y,se.mu.x,se.mu.y}}
+
+\item{flat}{a data set is returned with the
+columns of the original data plus the state estimates, standard errors (se),
+and speed estimates}
+
+\item{list}{List with the following elements:}
+
+\item{originalData}{A data.frame with \code{data} merged with
 \code{predTime}.}
 
 \item{alpha.hat}{Predicted state}
 
 \item{Var.hat}{array where \code{Var.hat[,,i]} is the prediction
 covariance matrix for \code{alpha.hat[,i]}.}
-
-\item{fit.test}{A data.frame of chi-square fit (df=2) statistics and naive
-(pointwise) p-values.}
-
-If \code{flat} is set to \code{TRUE} then a data set is returned with the
-columns of the original data plus the state estimates, standard errors (se),
-speed estimates, and the fit statistics and naive p-values.
 }
 \description{
 The \code{crwMEfilter} function uses a fitted model object from
@@ -50,7 +52,7 @@ in \code{\link{crwMLE}}.
 
 \itemize{
 \item("predTime"){
-\code{predTime} can be either passed as a separate vector of POSIXct or numeric values for additional prediction times beyond the observed times. If the original data were provided as a POSIXct type, then \code{crwPredict} can derive a sequence of regularly spaced prediction times from the original data. This is specified by providing a character string that corresponds to the \code{by} argument of the \code{seq.POSIXt} function (e.g. '1 hour', '30 mins'). \code{crwPredict} will round the first observed time up to the nearest unit (e.g. '1 hour' will round up to the nearest hour, '30 mins' will round up to the nearest minute) and start the sequence from there. The last observation time is truncated down to the nearest unit to specify the end time.
+\code{predTime} can be either passed as a separate vector of POSIXct or numeric values for all prediction times expected in the returned object. Note, previous versions of \code{crwPredict} would return both times specified via \code{predTime} as well as each original observed time. This is no longer the default (see \item{return.type}). If the original data were provided as a POSIXct type, then \code{crwPredict} can derive a sequence of regularly spaced prediction times from the original data. This is specified by providing a character string that corresponds to the \code{by} argument of the \code{seq.POSIXt} function (e.g. '1 hour', '30 mins'). \code{crwPredict} will round the first observed time up to the nearest unit (e.g. '1 hour' will round up to the nearest hour, '30 mins' will round up to the nearest minute) and start the sequence from there. The last observation time is truncated down to the nearest unit to specify the end time.
 }
 }
 }

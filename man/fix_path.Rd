@@ -4,25 +4,18 @@
 \alias{fix_path}
 \title{Project path away from restricted areas}
 \usage{
-fix_path(xy, time, res_raster, trans)
+fix_path(crw_object, vector_mask, crwFit)
 }
 \arguments{
-\item{xy}{Coordinate locations for the path. Can be one of the following classes: 
-(1) a two column matrix, 
-(2) 'SpatialPoints' or 'SpatialPointsDataFrame' object from the sp package,
-(3) 'crwPredict' object from the \code{crwPredict} function
-(4) 'crwIS' object from the \code{crwPostIS} function}
+\item{crw_object}{Coordinate locations for the path. Can be one of the following classes: 
+(1) 'crwIS' object from the \code{crwPostIS} function}
 
-\item{time}{A vector of times associated with xy locations}
+\item{vector_mask}{an 'sf' polygon object that defines the restricted area}
 
-\item{res_raster}{An indicator raster object with cells = 1 if it is 'off-limits'
-and 0 elsewise.}
-
-\item{trans}{A transition matrix object from the gdistance package.}
+\item{crwFit}{crwFit object that was used to generate the crw_object}
 }
 \value{
-Either matrix or 'SpatialPoints' object with path projected around
-restricted areas
+a new crw_object (of type crwIS)
 }
 \description{
 Corrects a path so that it does not travel through a restricted area.

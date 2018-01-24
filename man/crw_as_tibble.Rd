@@ -4,13 +4,16 @@
 \alias{crw_as_tibble}
 \alias{crw_as_tibble.crwIS}
 \alias{crw_as_tibble.crwPredict}
+\alias{crw_as_tibble.tibble}
 \title{Coerce crawl objects (crwIS and crwPredict) to tibbles}
 \usage{
-crw_as_tibble(crw_object)
+crw_as_tibble(crw_object, ...)
 
-\method{crw_as_tibble}{crwIS}(crw_object)
+\method{crw_as_tibble}{crwIS}(crw_object, ...)
 
-\method{crw_as_tibble}{crwPredict}(crw_object)
+\method{crw_as_tibble}{crwPredict}(crw_object, ...)
+
+\method{crw_as_tibble}{tibble}(crw_object, ...)
 }
 \arguments{
 \item{crw_object}{an object of class \code{"crwIS"} or \code{"crwPredict"},}
@@ -23,6 +26,8 @@ Coerce crawl objects (crwIS and crwPredict) to tibbles
 \item \code{crwIS}: coerce crwIS object to tibble
 
 \item \code{crwPredict}: coerce crwPredict object to tibble
+
+\item \code{tibble}: 
 }}
 
 \author{
