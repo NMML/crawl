@@ -41,6 +41,7 @@ fit1 <- crwMLE(
 
 predTimes <- seq(min(harborSeal_sf$Time), max(harborSeal_sf$Time), by = 0.5)
 
+
 hs_pred <- crawl::crwPredict(fit1, predTime=predTimes)
 hs_sim <- crawl::crwSimulator(fit1, predTime = predTimes)
 hs_crwIS <- crwPostIS(hs_sim)
