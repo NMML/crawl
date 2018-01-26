@@ -104,26 +104,34 @@ cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1,
     t2 <- as.numeric(t2)
   }
   if(bm){
-    beta=exp(4)
+    mu_cond = c(alpha0 + ((t1-t0)/(t2-t0))*(alpha2-alpha0))[c(1,3)]
+    sigma2=exp(2*par[1])
+    V_cond = sigma2*diag(rep((t1-t0)*((t2-t0)-(t1-t0))/(t2-t0), 2))
+    sim=mvtnorm::rmvnorm(n, mu_cond, inf_fac*V_cond)
+    smp = cbind(sim[,1], NA, sim[,2],NA)
+    smp[,2]=(smp[,1]-alpha0[1])/(t1-t0)
+    smp[,4]=(smp[,3]-alpha0[3])/(t1-t0)
   } else{
     beta=exp(par[2])
+    sigma2=exp(2*par[1])
+    delta=diff(c(t0, t1, t2))
+    T0 = crawl:::makeT(b=beta, delta=delta[1], active=active)
+    T1 = crawl:::makeT(b=beta, delta=delta[2], active=active)
+    Q0 = crawl:::makeQ(b=beta, sig2=sigma2, delta=delta[1], active=active)
+    Q1 = crawl:::makeQ(b=beta, sig2=sigma2, delta=delta[2], active=active)
+    V_inv = solve(Q0) + t(T1)%*%solve(Q1)%*%T1 
+    v = solve(Q0)%*%T0%*%alpha0 + t(T1)%*%solve(Q1)%*%alpha2
+    mu_cond = solve(V_inv, v)
+    V_cond = zapsmall(solve(V_inv))
+    smp = mvtnorm::rmvnorm(n, mu_cond, inf_fac*V_cond)
   }
-  sigma2=exp(2*par[1])
-  delta=diff(c(t0, t1, t2))
-  T0 = crawl:::makeT(b=beta, delta=delta[1], active=active)
-  T1 = crawl:::makeT(b=beta, delta=delta[2], active=active)
-  Q0 = crawl:::makeQ(b=beta, sig2=sigma2, delta=delta[1], active=active)
-  Q1 = crawl:::makeQ(b=beta, sig2=sigma2, delta=delta[2], active=active)
-  V_inv = solve(Q0) + t(T1)%*%solve(Q1,T1)
-  v = solve(Q0, T0)%*%alpha0 + t(T1)%*%solve(Q1, alpha2)
-  mu_cond = solve(V_inv, v)
-  V_cond = solve(V_inv)
-  smp = mvtnorm::rmvnorm(n, mu_cond, inf_fac*V_cond)
+  return(smp)
 }
 
 
+
 plot(c(alpha0[1], alpha2[1]), c(alpha0[3], alpha2[3]), col=c('red','blue'), asp=1)
-points(smp[,c(1,3)])
+points(smp[,c(1,3)], col='green')
 
 
 
