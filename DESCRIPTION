@@ -3,11 +3,15 @@ Type: Package
 Title: Fit Continuous-Time Correlated Random Walk Models to Animal Movement Data
 Version: 2.1.2
 Date: 2017-04-27
-Author: Devin S. Johnson
-Maintainer: Devin S. Johnson <devin.johnson@noaa.gov>
+Authors@R: c( person("Devin", "Johnson", email = "devin.johnson@noaa.gov",
+                  role = c("aut", "cre")),
+           person("Josh", "London", email = "josh.london@noaa.gov",
+                  role = c("aut")),
+           person("Kenady", "Wilson", email = "kenady@wildlifecomputers.com",
+                  role = c("ctb")) )
 Depends:
     R (>= 2.10)
-Imports:
+Imports: 
     mvtnorm,
     Rcpp (>= 0.11.1),
     methods,
@@ -15,7 +19,10 @@ Imports:
     dplyr,
     raster,
     gdistance,
-    sp
+    rmapshaper,
+    sp,
+    sf,
+    magrittr
 LinkingTo: 
     Rcpp,
     RcppArmadillo
@@ -27,13 +34,10 @@ Suggests:
     lubridate,
     xts,
     broom,
-    sf,
     doParallel
-Description: Fit continuous-time
-    correlated random walk models with time indexed
+Description: Fit continuous-time correlated random walk models with time indexed
     covariates to animal telemetry data. The model is fit using the Kalman-filter on
-    a state space version of the continuous-time stochastic
-    movement process.
+    a state space version of the continuous-time stochastic movement process.
 License: CC0
 LazyLoad: yes
 ByteCompile: TRUE

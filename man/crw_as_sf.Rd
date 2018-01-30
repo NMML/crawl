@@ -9,10 +9,10 @@
 crw_as_sf(crw_object, ftype, loctype, group)
 
 \method{crw_as_sf}{crwIS}(crw_object, ftype, loctype = c("p", "o"),
-  group = NULL)
+  group = NULL, ...)
 
 \method{crw_as_sf}{crwPredict}(crw_object, ftype, loctype = c("p", "o"),
-  group = NULL)
+  group = NULL, ...)
 }
 \arguments{
 \item{crw_object}{an object of class \code{"crwIS"} or \code{"crwPredict"}}
