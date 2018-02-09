@@ -77,7 +77,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
       message("predTime provided as numeric. converting to POSIXct.")
       predTime <- lubridate::as_datetime(predTime)
     }
-    if(inherits(predTime,"POSIXct") && inherits(data[, data], "numeric")) {
+    if(inherits(predTime,"POSIXct") && inherits(data[, tn], "numeric")) {
       message("input data time column provided as numeric. converting to POSIXct")
       data[, tn] <- lubridate::as_datetime(data[, tn])
     }
