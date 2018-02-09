@@ -190,6 +190,12 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
   
   speed = sqrt(apply(as.matrix(pred[,2:(2+driftMod)]), 1, sum)^2 + 
                  apply(as.matrix(pred[,(4+driftMod):(4+2*driftMod)]), 1, sum)^2)
+  
+  obsFit <- data.frame(predObs.x=out$predObs[1,],
+                     predObs.y=out$predObs[2,])
+  obsFit$outlier.chisq <- as.vector(out$chisq)
+  obsFit$naive.p.val <- 1 - pchisq(obsFit$outlier.chisq, 2)
+  
   out <- list(originalData=fillCols(data), alpha.hat=pred, 
               V.hat=var, speed=speed, loglik=out$ll)
   if (return.type == "flat") {
