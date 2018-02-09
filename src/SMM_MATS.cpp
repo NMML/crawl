@@ -11,7 +11,7 @@ arma::vec armaNorm(int n){
   return out;
 }
 arma::vec mvn(const arma::vec& mu, const arma::mat& V){
-  if(all(vectorise(V))) return mu;
+  if(!all(V.diag())) return mu;
   else{
     arma::mat out = mu + chol(V).t()*armaNorm(mu.n_elem);
     return out; 
