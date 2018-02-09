@@ -123,12 +123,12 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
       predTime <- predTime[predTime>=data[1,tn]]
     }
     origTime <- as.numeric(data[, tn])
-    predTime <- as.numeric(predTime)
     if (is.null(data$locType)) {
       data$locType <- "o"
     }
     predData <- data.frame(predTime, "p")
     names(predData) <- c(tn, "locType")
+    predTime <- as.numeric(predTime)
     data <- merge(data, predData,
                   by=c(tn, "locType"), all=TRUE)
     dups <- duplicated(data[, tn]) #& data[,"locType"]==1
