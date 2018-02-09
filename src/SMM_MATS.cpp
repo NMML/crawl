@@ -10,11 +10,12 @@ arma::vec armaNorm(int n){
   arma::vec out(x.begin(), x.size(), false);
   return out;
 }
+
 arma::vec mvn(const arma::vec& mu, const arma::mat& Sig){
   arma::mat U;
   arma::vec s;
   arma::mat V;
-  svd(U, s, V, Sig)
+  svd(U, s, V, Sig);
   arma::mat out = mu + U*diagmat(sqrt(s))*armaNorm(mu.n_elem);
   return out; 
 }
