@@ -77,7 +77,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
       message("predTime provided as numeric. converting to POSIXct.")
       predTime <- lubridate::as_datetime(predTime)
     }
-    if(inherits(predTime,"POSIXct") && inherits(data[, data], "numeric")) {
+    if(inherits(predTime,"POSIXct") && inherits(data[, tn], "numeric")) {
       message("input data time column provided as numeric. converting to POSIXct")
       data[, tn] <- lubridate::as_datetime(data[, tn])
     }
@@ -123,12 +123,12 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
       predTime <- predTime[predTime>=data[1,tn]]
     }
     origTime <- as.numeric(data[, tn])
-    predTime <- as.numeric(predTime)
     if (is.null(data$locType)) {
       data$locType <- "o"
     }
     predData <- data.frame(predTime, "p")
     names(predData) <- c(tn, "locType")
+    predTime <- as.numeric(predTime)
     data <- merge(data, predData,
                   by=c(tn, "locType"), all=TRUE)
     dups <- duplicated(data[, tn]) #& data[,"locType"]==1
@@ -190,6 +190,12 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
   
   speed = sqrt(apply(as.matrix(pred[,2:(2+driftMod)]), 1, sum)^2 + 
                  apply(as.matrix(pred[,(4+driftMod):(4+2*driftMod)]), 1, sum)^2)
+  
+  obsFit <- data.frame(predObs.x=out$predObs[1,],
+                     predObs.y=out$predObs[2,])
+  obsFit$outlier.chisq <- as.vector(out$chisq)
+  obsFit$naive.p.val <- 1 - pchisq(obsFit$outlier.chisq, 2)
+  
   out <- list(originalData=fillCols(data), alpha.hat=pred, 
               V.hat=var, speed=speed, loglik=out$ll)
   if (return.type == "flat") {
