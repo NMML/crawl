@@ -132,6 +132,7 @@ cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1,
 #' @param vector_mask an 'sf' polygon object that defines the restricted area
 #' @param crwFit crwFit object that was used to generate the crw_object
 #' @return a tibble with each record identifying the segments and pertinant values
+#' @importFrom rlang .data
 #' @export
 
 fix_segments <- function(crw_object, vector_mask, crwFit) {
@@ -230,7 +231,7 @@ fix_segments <- function(crw_object, vector_mask, crwFit) {
           
           cross_mask_length <- sf::st_intersection(l_sfc, vector_mask) %>%
             mutate(len = sf::st_length(.)) %>% 
-            group_by(id) %>% summarise(total_len = sum(len))
+            group_by(id) %>% summarise(total_len = sum(.data$len))
           
           idx <- which.min(cross_mask_length$total_len)
           alpha0 <- p_draw[idx[1],] %>% as.numeric()
