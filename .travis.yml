@@ -21,8 +21,3 @@ before_install:
   - sudo apt-get install --yes libudunits2-dev libproj-dev libgeos-dev libgdal-dev
  
 warnings_are_errors: true
-
-r_packages:
-  - rgdal
-  - roxygen2
-  - rmarkdown
