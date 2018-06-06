@@ -75,8 +75,6 @@
 #' @param coord A 2-vector of character values giving the names of the "X" and
 #' "Y" coordinates in \code{data}.
 #' @param Time.name character indicating name of the location time column
-#' @param initial.state list object containg the inital state of the Kalman
-#' filter.
 #' @param theta starting values for parameter optimization.
 #' @param fixPar Values of parameters which are held fixed to the given value.
 #' @param method Optimization method that is passed to \code{\link{optim}}.
@@ -111,9 +109,6 @@
 #' \item{loglik}{Maximized log-likelihood value}
 #' 
 #' \item{aic}{Model AIC value}
-#' 
-#' \item{initial.state}{Intial state provided to \code{crwMLE} for model
-#' fitting}
 #' 
 #' \item{coord}{Coordinate names provided for fitting}
 #' 
@@ -163,9 +158,9 @@
 #' @export
 
 crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
-                     data, coord=c("x", "y"), Time.name,
-                     initial.state, theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
-                     prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1)
+                  data, coord=c("x", "y"), Time.name, #initial.state, 
+                  theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
+                  prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1)
 {
   #if(drift) stop("At this time drift models are not supported with this function. Use 'crwMLE' for now.\n")
   st <- Sys.time()
@@ -176,7 +171,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   }
   p4 <- list(epsg = NULL, proj4string = NULL)
   if(inherits(data, "SpatialPoints")) {	
-    if(!is.projected(data)) {
+    if(!sp::is.projected(data)) {
       stop("proj4string for data of sp class is not specified.")
     }
     if("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) stop("Location data is provided in longlat; must be projected.")	
@@ -215,9 +210,9 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   #if(!errMod) stop("Error model must be specified! (argument 'err.model' is currently set to NULL)")
   activeMod <- !is.null(activity)
   driftMod <- drift
-  if (
-    length(initial.state$a) != 2*(driftMod+2) | all(dim(initial.state$P) != c(2*(driftMod+2), 2*(driftMod+2))) 
-  ) stop("Dimentions of 'initial.state' argument are not correct for the specified model")
+  # if (
+  #   length(initial.state$a) != 2*(driftMod+2) | all(dim(initial.state$P) != c(2*(driftMod+2), 2*(driftMod+2))) 
+  # ) stop("Dimentions of 'initial.state' argument are not correct for the specified model")
   mov.mf <- model.matrix(mov.model, model.frame(mov.model, data, na.action=na.pass))
   if (any(is.na(mov.mf))) stop("Missing values are not allowed in movement covariates!")
   n.mov <- ncol(mov.mf)
@@ -295,7 +290,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
       message("Beginning SANN initialization ...")
       init <- optim(thetaAttempt, crwN2ll, method='SANN', control=initialSANN,
                     fixPar=fixPar, y=y, noObs=noObs,
-                    delta=c(diff(data[, Time.name]), 1), a=initial.state$a, P=initial.state$P,
+                    delta=c(diff(data[, Time.name]), 1), #a=initial.state$a, P=initial.state$P,
                     mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, rho=rho, activity=activity,
                     n.mov=n.mov, n.errX=n.errX, n.errY=n.errY,
                     driftMod=driftMod, prior=prior, need.hess=FALSE, constr=constr)
@@ -307,7 +302,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     mle <- try(optim(init$par, crwN2ll, method=method, hessian=need.hess,
                      lower=constr$lower, upper=constr$upper, control=control,					  
                      fixPar=fixPar, y=y, noObs=noObs,
-                     delta=c(diff(data[, Time.name]), 1), a=initial.state$a, P=initial.state$P,
+                     delta=c(diff(data[, Time.name]), 1), #a=initial.state$a, P=initial.state$P,
                      mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, activity=activity,
                      n.mov=n.mov, n.errX=n.errX, n.errY=n.errY, rho=rho,
                      driftMod=driftMod, prior=prior, need.hess=need.hess, constr=constr), silent=TRUE)
@@ -326,9 +321,10 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     se <- sqrt(diag(Cmat))
     ci.l <- par - 1.96 * se
     ci.u <- par + 1.96 * se
+    
     out <- list(par=par, estPar=mle$par, se=se, ci=cbind(L=ci.l, U=ci.u), Cmat=Cmat,
                 loglik=-mle$value / 2, aic=mle$value + 2 * sum(is.na(fixPar)),
-                initial.state=initial.state, coord=coord,fixPar=fixPar,
+                coord=coord,fixPar=fixPar,
                 convergence=mle$convergence, message=mle$message,
                 activity=activity, random.drift=drift,
                 mov.model=mov.model, err.model=err.model, n.par=n.par, nms=nms,

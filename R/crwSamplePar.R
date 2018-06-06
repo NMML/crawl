@@ -128,8 +128,8 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
       if(df==Inf) dens <- dmvnorm(eps, sigma=scale*Cmat, log=TRUE) - dmvnorm(0.0*eps, sigma=scale*Cmat, log=TRUE)
       else dens <- dmvt(eps, sigma=scale*Cmat, df=df, log=TRUE) - dmvt(0.0*eps, sigma=scale*Cmat, df=df, log=TRUE)
       ln.prior = ifelse(!is.null(prior), prior(par[eInd]), 0)
-      n2ll.val <- crwN2ll(par[eInd], fixPar, y, noObs, delta, a,
-                          P, mov.mf, err.mfX, err.mfY, rho=rho, activity=activity,
+      n2ll.val <- crwN2ll(par[eInd], fixPar, y, noObs, delta,
+                          mov.mf, err.mfX, err.mfY, rho=rho, activity=activity,
                           n.errX, n.errY, n.mov, driftMod, prior, need.hess=FALSE, 
                           constr=list(lower=lower, upper=upper)) + ln.prior
       thetaMat[i,] <- c(-n2ll.val/2 - dens, -n2ll.val/2, dens, par)
@@ -161,8 +161,8 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
         par[eInd] <- parMLE[eInd] + V%*%D%*%z
         if(any(par[eInd]>upper) | any(par[eInd]<lower)) stop.grid <- FALSE
         else{
-          n2ll.val <- crwN2ll(par[eInd], fixPar, y, noObs, delta, a,
-                              P, mov.mf, err.mfX, err.mfY, rho=rho, activity=activity,
+          n2ll.val <- crwN2ll(par[eInd], fixPar, y, noObs, delta,
+                              mov.mf, err.mfX, err.mfY, rho=rho, activity=activity,
                               n.errX, n.errY, n.mov, driftMod, prior, need.hess=FALSE, 
                               constr=list(lower=lower, upper=upper))
           if(-(n2ll.mode - n2ll.val)/2 > crit) stop.grid <- FALSE
@@ -180,8 +180,8 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
         par[eInd] <- parMLE[eInd] + V%*%D%*%z
         if(any(par[eInd]>upper) | any(par[eInd]<lower)) stop.grid <- FALSE
         else{
-          n2ll.val <- crwN2ll(par[eInd], fixPar, y, noObs, delta, a,
-                              P, mov.mf, err.mfX, err.mfY, rho=rho, activity=activity,
+          n2ll.val <- crwN2ll(par[eInd], fixPar, y, noObs, delta,
+                              mov.mf, err.mfX, err.mfY, rho=rho, activity=activity,
                               n.errX, n.errY, n.mov, driftMod, prior, need.hess=FALSE, 
                               constr=list(lower=lower, upper=upper))
           if(-(n2ll.mode - n2ll.val)/2 > crit) stop.grid <- FALSE
@@ -203,8 +203,8 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
       par[eInd] <- parMLE[eInd] + V%*%D%*%z
       if(any(par[eInd]>upper) | any(par[eInd]<lower)) next
       else{
-        n2ll.val <- crwN2ll(par[eInd], fixPar, y, noObs, delta, a,
-                            P, mov.mf, err.mfX, err.mfY, rho=rho, activity=activity,
+        n2ll.val <- crwN2ll(par[eInd], fixPar, y, noObs, delta,
+                            mov.mf, err.mfX, err.mfY, rho=rho, activity=activity,
                             n.errX, n.errY, n.mov, driftMod, prior, need.hess=FALSE, 
                             constr=list(lower=lower, upper=upper))
         if(-(n2ll.mode - n2ll.val)/2 > crit) next

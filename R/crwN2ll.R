@@ -16,8 +16,6 @@
 #' @param y N by 2 matrix of coordinates with the longitude coordinate in the first column.
 #' @param noObs vector with 1 for unobserved locations, and 0 for observed locations.
 #' @param delta time difference to next location.
-#' @param a initial state mean.
-#' @param P intial state covariance matrix
 #' @param mov.mf Movement covariate data.
 #' @param err.mfX longitude error covariate data.
 #' @param err.mfY latitude error covariate data.
@@ -38,8 +36,8 @@
 #' Continuous-time model for animal telemetry data. Ecology 89:1208-1215.
 #' @export
 
-crwN2ll = function(theta, fixPar, y, noObs, delta, a,
-                   P, mov.mf, err.mfX, err.mfY, rho=NULL, activity=NULL,
+crwN2ll = function(theta, fixPar, y, noObs, delta, #a, P, 
+                   mov.mf, err.mfX, err.mfY, rho=NULL, activity=NULL,
                    n.errX, n.errY, n.mov, driftMod, prior, need.hess, 
                    constr=list(lower=-Inf, upper=Inf))
 {
@@ -47,43 +45,22 @@ crwN2ll = function(theta, fixPar, y, noObs, delta, a,
   N <- nrow(y)
   par <- fixPar
   par[is.na(fixPar)] <- theta
-  ###
-  ### Process parameters for Fortran
-  ###
-  if (!is.null(err.mfX)) {
-    theta.errX <- par[1:n.errX]
-    Hmat <- exp(2 * err.mfX %*% theta.errX)
-  } else Hmat <- rep(0.0, N)
-  if (!is.null(err.mfY)) {
-    theta.errY <- par[(n.errX + 1):(n.errX + n.errY)]
-    Hmat <- cbind(Hmat,exp(2 * err.mfY %*% theta.errY))
-  } else Hmat <- cbind(Hmat, Hmat)
-  if(!is.null(rho)){
-    # Hmat = cbind(Hmat, sqrt(Hmat[,1])*sqrt(Hmat[,2])*rho)
-    Hmat = cbind(Hmat, exp(log(Hmat[,1])/2 + log(Hmat[,2])/2)*rho)
-  } else {Hmat = cbind(Hmat, rep(0,N))}
-  Hmat[noObs==1,] = 0
-  theta.mov <- par[(n.errX + n.errY + 1):(n.errX + n.errY + 2 * n.mov)]
-  sig2 <- exp(2 * (mov.mf %*% theta.mov[1:n.mov]))
-  b <- exp(mov.mf %*% theta.mov[(n.mov + 1):(2 * n.mov)])
-  if (!is.null(activity)) {
-    theta.stop <- par[(n.errX + n.errY + 2 * n.mov + 1)]
-    b <- b / ((activity) ^ exp(theta.stop))
-    sig2 = sig2 * ((activity) ^ exp(theta.stop))
-    active <- ifelse(b==Inf, 0, 1)
-    b <- ifelse(b==Inf, 0, b) 
-  } else {active=rep(1,N)}
+  
+  argslist = par2arglist(theta, fixPar, y, noObs, delta,
+                          mov.mf, err.mfX, err.mfY, rho=NULL, activity=NULL,
+                          n.errX, n.errY, n.mov, driftMod)
+  
   if (driftMod) {
-    theta.drift <- par[(n.errX + n.errY + 2 * n.mov + 1):
-                         (n.errX + n.errY + 2 * n.mov + 2)]
-    b.drift <- exp(log(b) - log(1+exp(theta.drift[2])))
-    sig2.drift <- exp(log(sig2) + 2 * theta.drift[1]) 
-    ll <- CTCRWNLL_DRIFT( y=as.matrix(y), Hmat, b, b.drift, sig2, sig2.drift, delta, noObs, active, a,  P)$ll
+    ll <- CTCRWNLL_DRIFT(as.matrix(y), argslist$Hmat, argslist$b, argslist$b.drift, 
+                          argslist$sig2, argslist$sig2.drift, delta, noObs, argslist$active, argslist$a,  argslist$P)$ll
   } else {
-    ll <- CTCRWNLL( y=as.matrix(y), Hmat, b, sig2, delta, noObs, active, a,  P)$ll
+    ll <- CTCRWNLL(as.matrix(y), argslist$Hmat, argslist$b, argslist$sig2, delta, noObs, argslist$active, argslist$a,  argslist$P)$ll
   }
-  #movMats <- getQT(sig2, b, sig2.drift, b.drift, delta, driftMod=FALSE)
 
-  if(is.null(prior)) return(-2 * ll)
-  else return(-2 * (ll + prior(theta)))
+  if(is.null(prior)){
+    ll = -2 * ll
+  } else {
+    ll = -2 * (ll + prior(theta))
+  }
+  return(ll)
 }

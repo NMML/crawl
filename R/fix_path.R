@@ -23,7 +23,7 @@ get_mask_segments = function(crw_object, vector_mask) {
   times.sim <- crw_object$Time[crw_object$locType == "p"]
   
   # convert crwIS to a POINT sf object
-  xy <- crawl::crw_as_sf(crw_object,"POINT","p")
+  xy <- crw_as_sf(crw_object,"POINT","p")
   
   # intersect xy with vector mask
   on_mask <- sf::st_intersects(xy, vector_mask) %>% 
@@ -108,10 +108,10 @@ cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1,
     beta = exp(par[2])
     sigma2 = exp(2*par[1])
     delta = diff(c(t0, t1, t2))
-    T0 = crawl:::makeT(b = beta, delta = delta[1], active = active)
-    T1 = crawl:::makeT(b = beta, delta = delta[2], active = active)
-    Q0 = crawl:::makeQ(b = beta, sig2 = sigma2, delta = delta[1], active = active)
-    Q1 = crawl:::makeQ(b = beta, sig2 = sigma2, delta = delta[2], active = active)
+    T0 = makeT(b = beta, delta = delta[1], active = active)
+    T1 = makeT(b = beta, delta = delta[2], active = active)
+    Q0 = makeQ(b = beta, sig2 = sigma2, delta = delta[1], active = active)
+    Q1 = makeQ(b = beta, sig2 = sigma2, delta = delta[2], active = active)
     V_inv = solve(Q0) + t(T1) %*% solve(Q1) %*% T1 
     v = solve(Q0) %*% T0 %*% alpha0 + t(T1) %*% solve(Q1) %*% alpha2
     mu_cond = solve(V_inv, v)

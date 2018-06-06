@@ -115,6 +115,8 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
   n.errX <- object.crwFit$n.errX
   n.errY <- object.crwFit$n.errY
   n.mov <- object.crwFit$n.mov
+  fixPar = object.crwFit$fixPar
+  theta = object.crwFit$par[is.na(fixPar)]
   
   ## Data setup ##
   if (!is.null(predTime)) {
@@ -141,8 +143,6 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
   }
   data$locType[data[,tn]%in%predTime] <- 'p'
   delta <- c(diff(data[, tn]), 1)
-  a = object.crwFit$initial.state$a
-  P = object.crwFit$initial.state$P
   y = as.matrix(data[,object.crwFit$coord])
   noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))
   y[noObs==1,] = 0
@@ -151,35 +151,14 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
   ###
   ### Process parameters for C++
   ###
-  if (!is.null(err.mfX)) {
-    theta.errX <- par[1:n.errX]
-    Hmat <- exp(2 * err.mfX %*% theta.errX)
-  } else Hmat <- rep(0.0, N)
-  if (!is.null(err.mfY)) {
-    theta.errY <- par[(n.errX + 1):(n.errX + n.errY)]
-    Hmat <- cbind(Hmat,exp(2 * err.mfY %*% theta.errY))
-  } else Hmat <- cbind(Hmat, Hmat)
-  if(!is.null(rho)){
-    Hmat = cbind(Hmat, sqrt(Hmat[,1])*sqrt(Hmat[,2])*rho)
-  } else {Hmat = cbind(Hmat, rep(0,N))}
-  Hmat[noObs==1,] = 0
-  theta.mov <- par[(n.errX + n.errY + 1):(n.errX + n.errY + 2 * n.mov)]
-  sig2 <- exp(2 * (mov.mf %*% theta.mov[1:n.mov]))
-  b <- exp(mov.mf %*% theta.mov[(n.mov + 1):(2 * n.mov)])
-  if (!is.null(activity)) {
-    theta.activ <- par[(n.errX + n.errY + 2 * n.mov + 1)]
-    b <- b / ((activity) ^ exp(theta.activ))
-    active <- ifelse(b==Inf, 0, 1)
-    b <- ifelse(b==Inf, 0, b) 
-  } else active = rep(1,N)
+  argslist = par2arglist(theta, fixPar, y, noObs, delta,
+                         mov.mf, err.mfX, err.mfY, rho, activity,
+                         n.errX, n.errY, n.mov, driftMod)
   if (driftMod) {
-    theta.drift <- par[(n.errX + n.errY + 2 * n.mov + 1):
-                         (n.errX + n.errY + 2 * n.mov + 2)]
-    b.drift <- exp(log(b) - log(1+exp(theta.drift[2])))
-    sig2.drift <- exp(log(sig2) + 2 * theta.drift[1])
-    out = CTCRWPREDICT_DRIFT(y, Hmat, b, b.drift, sig2, sig2.drift, delta, noObs, active, a, P)
+    out = CTCRWPREDICT_DRIFT(y, argslist$Hmat, argslist$b, argslist$b.drift, argslist$sig2, 
+                             argslist$sig2.drift, delta, noObs, argslist$active, argslist$a, argslist$P)
   } else {
-    out=CTCRWPREDICT(y, Hmat, b, sig2, delta, noObs, active, a, P)
+    out=CTCRWPREDICT(y, argslist$Hmat, argslist$b, argslist$sig2, delta, noObs, argslist$active, argslist$a, argslist$P)
   }
   
   pred <- data.frame(t(out$pred))

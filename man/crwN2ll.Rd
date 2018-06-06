@@ -4,9 +4,9 @@
 \alias{crwN2ll}
 \title{-2 * log-likelihood for CTCRW models}
 \usage{
-crwN2ll(theta, fixPar, y, noObs, delta, a, P, mov.mf, err.mfX, err.mfY,
-  rho = NULL, activity = NULL, n.errX, n.errY, n.mov, driftMod, prior,
-  need.hess, constr = list(lower = -Inf, upper = Inf))
+crwN2ll(theta, fixPar, y, noObs, delta, mov.mf, err.mfX, err.mfY, rho = NULL,
+  activity = NULL, n.errX, n.errY, n.mov, driftMod, prior, need.hess,
+  constr = list(lower = -Inf, upper = Inf))
 }
 \arguments{
 \item{theta}{parameter values.}
@@ -19,10 +19,6 @@ crwN2ll(theta, fixPar, y, noObs, delta, a, P, mov.mf, err.mfX, err.mfY,
 \item{noObs}{vector with 1 for unobserved locations, and 0 for observed locations.}
 
 \item{delta}{time difference to next location.}
-
-\item{a}{initial state mean.}
-
-\item{P}{intial state covariance matrix}
 
 \item{mov.mf}{Movement covariate data.}
 

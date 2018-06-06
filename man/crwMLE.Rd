@@ -5,7 +5,7 @@
 \title{Fit Continuous-Time Correlated Random Walk Models to Animal Telemetry Data}
 \usage{
 crwMLE(mov.model = ~1, err.model = NULL, activity = NULL, drift = FALSE,
-  data, coord = c("x", "y"), Time.name, initial.state, theta, fixPar,
+  data, coord = c("x", "y"), Time.name, theta, fixPar,
   method = "Nelder-Mead", control = NULL, constr = list(lower = -Inf,
   upper = Inf), prior = NULL, need.hess = TRUE, initialSANN = list(maxit =
   200), attempts = 1)
@@ -36,9 +36,6 @@ valid proj4string or epsg and must NOT be in longlat.}
 "Y" coordinates in \code{data}.}
 
 \item{Time.name}{character indicating name of the location time column}
-
-\item{initial.state}{list object containg the inital state of the Kalman
-filter.}
 
 \item{theta}{starting values for parameter optimization.}
 
@@ -82,9 +79,6 @@ parameters)}
 \item{loglik}{Maximized log-likelihood value}
 
 \item{aic}{Model AIC value}
-
-\item{initial.state}{Intial state provided to \code{crwMLE} for model
-fitting}
 
 \item{coord}{Coordinate names provided for fitting}
 
