@@ -35,17 +35,17 @@ crw_as_sf.crwIS <- function(crw_object,
   
   if (ftype == "POINT") {
     crw_object <- crw_as_tibble(crw_object) %>%
-      dplyr::filter(locType %in% loctype,
-                    !is.na(mu.x),
-                    !is.na(mu.y)) %>%
+      dplyr::filter(.data$locType %in% loctype,
+                    !is.na(.data$mu.x),
+                    !is.na(.data$mu.y)) %>%
       sf::st_as_sf(coords = c("mu.x", "mu.y")) %>%
       sf::st_set_crs(crw_crs)
   }
   if (ftype == "LINESTRING") {
     crw_object <- crw_as_tibble(crw_object) %>%
-      dplyr::filter(locType %in% loctype,
-                    !is.na(mu.x),
-                    !is.na(mu.y)) %>%
+      dplyr::filter(.data$locType %in% loctype,
+                    !is.na(.data$mu.x),
+                    !is.na(.data$mu.y)) %>%
       sf::st_as_sf(coords = c("mu.x", "mu.y")) %>%
       sf::st_set_crs(crw_crs) %>%
       summarise(id = 1, do_union = FALSE) %>%
@@ -64,8 +64,8 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
   crw_crs <- attr(crw_object,"epsg")
   if(ftype == "POINT" && is.null(group)) {
   crw_object <- crw_as_tibble(crw_object) %>% 
-    dplyr::filter(locType %in% loctype) %>% 
-    dplyr::arrange(TimeNum) %>% 
+    dplyr::filter(.data$locType %in% loctype) %>% 
+    dplyr::arrange(.data$TimeNum) %>% 
     sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
     sf::st_set_crs(crw_crs) 
   }
@@ -74,8 +74,8 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
   }
   if(ftype == "LINESTRING" && is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
-      dplyr::filter(locType %in% loctype) %>% 
-      dplyr::arrange(TimeNum) %>% 
+      dplyr::filter(.data$locType %in% loctype) %>% 
+      dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
       sf::st_set_crs(crw_crs) %>% 
       summarise(id=1,do_union = FALSE) %>% 
@@ -83,8 +83,8 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
   }
   if(ftype == "LINESTRING" && !is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
-      dplyr::filter(locType %in% loctype) %>% 
-      dplyr::arrange(TimeNum) %>% 
+      dplyr::filter(.data$locType %in% loctype) %>% 
+      dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) %>% 
       sf::st_set_crs(crw_crs) %>% 
       dplyr::group_by(group) %>% 
