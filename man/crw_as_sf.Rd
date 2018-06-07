@@ -22,6 +22,8 @@ crw_as_sf(crw_object, ftype, loctype, group)
 \item{loctype}{character vector of location points to include ("p","o")}
 
 \item{group}{(optional) character specifying the column to group by for mulitple LINESTRING features}
+
+\item{...}{Additional arguments that are ignored}
 }
 \description{
 Provides reliable conversion of \code{"crwIS"} and \code{"crwPredict"} objects

@@ -1,7 +1,8 @@
 #' Coerce crawl objects (crwIS and crwPredict) to tibbles
 #'
 #' @author Josh M. London
-#' @param crw_object an object of class \code{"crwIS"} or \code{"crwPredict"},
+#' @param crw_object an object of class \code{"crwIS"} or \code{"crwPredict"}
+#' @param ... Additional arguments that are ignored
 #' @export
 
 crw_as_tibble <- function(crw_object, ...) {
@@ -11,23 +12,20 @@ crw_as_tibble <- function(crw_object, ...) {
 #' @describeIn crw_as_tibble coerce crwIS object to tibble
 #' @export
 crw_as_tibble.crwIS <- function(crw_object, ...) {
-  tibble::tibble(mu.x = crw_object$alpha.sim[,'mu.x'],
-                 nu.x = crw_object$alpha.sim[,'nu.x'],
-                 mu.y = crw_object$alpha.sim[,'mu.y'],
-                 nu.y = crw_object$alpha.sim[,'nu.y'],
-                 pred_dt = lubridate::as_datetime(crw_object$Time),
-                 locType = crw_object$locType
-  ) %>% 
-    dplyr::arrange(pred_dt)
+  tn = attr(crw_object, "Time.name")
+  out = data.frame(TimeNum=crw_object$TimeNum, locType =crw_object$locType, crw_object$alpha.sim)
+  out[,tn] = crw_object[[tn]]
+  out=tibble::as_tibble(out) %>% dplyr::arrange(.data$TimeNum)
+  out
 }
 
 #' @describeIn crw_as_tibble coerce crwPredict object to tibble
 #' @export
 crw_as_tibble.crwPredict <- function(crw_object, ...) {
-  tibble::as_tibble(crw_object) %>% 
-    dplyr::mutate(num_time = lubridate::as_datetime(crw_object$Time)) %>% 
-    dplyr::rename(pred_dt = num_time) %>% 
-    dplyr::arrange(pred_dt)
+  if(inherits(crw_object,"list")){
+    crw_object = fillCols(crawl::flatten(crw_object))
+  }
+  tibble::as_tibble(crw_object) 
 }
 
 #' @describeIn crw_as_tibble 

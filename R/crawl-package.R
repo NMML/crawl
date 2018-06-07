@@ -43,6 +43,8 @@
 
 NULL
 
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 #' Northern fur seal pup relocation data set used in Johnson et al. (2008)
 #' 
 #' 

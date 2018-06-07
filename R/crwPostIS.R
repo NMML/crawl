@@ -118,9 +118,12 @@
   ln.prior = ifelse(!is.null(object.sim$prior), object.sim$prior(par[eInd]), 0)
   isw <- ifelse(is.null(object.sim$thetaSampList) & fullPost==TRUE, out$ll - object.sim$loglik - dens, 0) + ln.prior
   samp <- list(alpha.sim=out$sim,
-               locType=object.sim$locType, Time=object.sim$Time,
+               locType=object.sim$locType, TimeNum=object.sim$TimeNum, 
                loglik=out$lly+out$llx, par=par, log.isw = isw)
+  samp[[object.sim$Time.name]] = object.sim$TimeNum
+  if(object.sim$return_posix) samp[[object.sim$Time.name]] = lubridate::as_datetime(samp[[object.sim$Time.name]])
   class(samp) <- c("crwIS","list")
+  attr(samp, "Time.name") = object.sim$Time.name
   attr(samp,"coord") <- object.sim$coord
   attr(samp,"random.drift") <- object.sim$driftMod
   attr(samp,"activity.model") <- !is.null(object.sim$activity)

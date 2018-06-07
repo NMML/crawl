@@ -12,6 +12,7 @@
 #' @param ftype character of either "POINT" or "LINESTRING" specifying the feature type
 #' @param loctype character vector of location points to include ("p","o")
 #' @param group (optional) character specifying the column to group by for mulitple LINESTRING features
+#' @param ... Additional arguments that are ignored
 #' @export
 
 crw_as_sf <- function(crw_object,ftype,loctype,group) {

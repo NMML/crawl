@@ -22,7 +22,10 @@ Imports:
     rmapshaper,
     sp,
     sf,
-    magrittr
+    magrittr,
+    lubridate,
+    tibble,
+    purrr
 LinkingTo: 
     Rcpp,
     RcppArmadillo
@@ -31,7 +34,6 @@ Suggests:
     rgdal,
     argosfilter,
     tidyr,
-    lubridate,
     xts,
     broom,
     doParallel

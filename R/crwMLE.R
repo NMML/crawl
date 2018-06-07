@@ -91,6 +91,7 @@
 #' annealing is used for obtaining start values. See details
 #' @param attempts The number of times likelihood optimization will be
 #' attempted
+#' @param ... Additional arguments that are ignored.
 #' @return
 #' 
 #' A list with the following elements:
@@ -160,7 +161,7 @@
 crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                   data, coord=c("x", "y"), Time.name, #initial.state, 
                   theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
-                  prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1)
+                  prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1, ...)
 {
   #if(drift) stop("At this time drift models are not supported with this function. Use 'crwMLE' for now.\n")
   st <- Sys.time()
@@ -200,10 +201,10 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   if(inherits(data,"tbl_df")) {
     data <- as.data.frame(data)
   }
-  if(inherits(data[,Time.name],"POSIXct")){
+  # if(inherits(data[,Time.name],"POSIXct")){
     data$TimeNum <- as.numeric(data[,Time.name])#/3600
-    Time.name <- "TimeNum"
-  }
+    # Time.name <- "TimeNum"
+  # }
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
   errMod <- !is.null(err.model)

@@ -106,8 +106,6 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
   y <- object.sim$y
   noObs <- object.sim$noObs
   delta <- object.sim$delta
-  a <- object.sim$a
-  P <- object.sim$P
   n.errX <- object.sim$n.errX
   n.errY <- object.sim$n.errY
   rho = object.sim$rho

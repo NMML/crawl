@@ -8,7 +8,7 @@ crwMLE(mov.model = ~1, err.model = NULL, activity = NULL, drift = FALSE,
   data, coord = c("x", "y"), Time.name, theta, fixPar,
   method = "Nelder-Mead", control = NULL, constr = list(lower = -Inf,
   upper = Inf), prior = NULL, need.hess = TRUE, initialSANN = list(maxit =
-  200), attempts = 1)
+  200), attempts = 1, ...)
 }
 \arguments{
 \item{mov.model}{formula object specifying the time indexed covariates for
@@ -61,6 +61,8 @@ annealing is used for obtaining start values. See details}
 
 \item{attempts}{The number of times likelihood optimization will be
 attempted}
+
+\item{...}{Additional arguments that are ignored.}
 }
 \value{
 A list with the following elements:

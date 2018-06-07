@@ -80,6 +80,8 @@ get_mask_segments = function(crw_object, vector_mask) {
 #' @param alpha0 coordinate and velocity values for t0
 #' @param alpha2 coordinate and velocity values for t2
 #' @param par par values from the crwFit object
+#' @param active numeric 1 or 0 whether the animal is moving or not (should almost always = 1)
+#' @param inf_fac Variance inflation factor to increase simulation area
 #' @param bm boolean whether to draw from a Brownian process
 #' @return matrix of coordinate and velocity values drawn
 #' @export

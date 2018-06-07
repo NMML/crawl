@@ -16,7 +16,9 @@ crw_as_tibble(crw_object, ...)
 \method{crw_as_tibble}{tibble}(crw_object, ...)
 }
 \arguments{
-\item{crw_object}{an object of class \code{"crwIS"} or \code{"crwPredict"},}
+\item{crw_object}{an object of class \code{"crwIS"} or \code{"crwPredict"}}
+
+\item{...}{Additional arguments that are ignored}
 }
 \description{
 Coerce crawl objects (crwIS and crwPredict) to tibbles

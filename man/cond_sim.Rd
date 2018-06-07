@@ -22,6 +22,10 @@ cond_sim(n = 500, t0, alpha0, t2, alpha2, t1, par, active = 1,
 
 \item{par}{par values from the crwFit object}
 
+\item{active}{numeric 1 or 0 whether the animal is moving or not (should almost always = 1)}
+
+\item{inf_fac}{Variance inflation factor to increase simulation area}
+
 \item{bm}{boolean whether to draw from a Brownian process}
 }
 \value{

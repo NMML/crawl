@@ -66,29 +66,31 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
   ## case where the data values are one and the predTime values are another, we
   ## will convert to POSIXct and return POSIXct
   ## 
-  return_posix <- ifelse(inherits(predTime,"POSIXct") && 
+  return_posix <- ifelse((inherits(predTime,"POSIXct") | inherits(predTime, "character")) & 
                            inherits(data[,tn],"POSIXct"), 
                          TRUE, FALSE)
   if(!return_posix) {
-    if(inherits(predTime,"numeric") && inherits(data[, tn],"numeric")) {
-      message("numeric time values detected. numeric values will be returned.")
-    } 
+    # if(inherits(predTime,"numeric") && inherits(data[, tn],"numeric")) {
+    #   warning("numeric time values detected. numeric values will be returned.")
+    # } 
     if(inherits(predTime,"numeric") && inherits(data[, tn], "POSIXct")) {
-      message("predTime provided as numeric. converting to POSIXct.")
-      predTime <- lubridate::as_datetime(predTime)
+      # warning("predTime provided as numeric. converting it to POSIXct.")
+      warning("predTime provided as numeric and original data was POSIX! Make sure they are compatible")
+      # predTime <- lubridate::as_datetime(predTime)
     }
     if(inherits(predTime,"POSIXct") && inherits(data[, tn], "numeric")) {
-      message("input data time column provided as numeric. converting to POSIXct")
-      data[, tn] <- lubridate::as_datetime(data[, tn])
+      # warning("input data time column provided as numeric. converting to POSIXct")
+      warning("predTime provided as POSIX and original data was numeric! Make sure they are compatible")
+      # data[, tn] <- lubridate::as_datetime(data[, tn])
     }
   }
 
   
   if(inherits(predTime,"character")) {
-    if(inherits(data[, tn], "numeric")) {
-      warning("predTime specified as character string and data time column as numeric. converting data time column to POSIXct.")
-      data[, tn] <- lubridate::as_datetime(data[, tn])
-    }
+    # if(inherits(data[, tn], "numeric")) {
+    #   warning("predTime specified as character string and data time column as numeric. converting data time column to POSIXct.")
+    #   data[, tn] <- lubridate::as_datetime(data[, tn])
+    # }
     t_int <- unlist(strsplit(predTime, " "))
     if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
       if(!inherits(data[tn],"POSIXct")) {
@@ -102,6 +104,8 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
       stop("predTime not specified correctly. see documentation for seq.POSIXt")
     }
   }
+  
+  predTime = as.numeric(predTime)
   
   ## Model definition/parameters ##
   
@@ -120,20 +124,20 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
   
   ## Data setup ##
   if (!is.null(predTime)) {
-    if(min(predTime) <  data[1, tn]) {
+    if(min(predTime) <  min(data$TimeNum)) {
       warning("Predictions times given before first observation!\nOnly those after first observation will be used.")
-      predTime <- predTime[predTime>=data[1,tn]]
+      predTime <- predTime[predTime>=data$TimeNum]
     }
-    origTime <- as.numeric(data[, tn])
+    origTime <- data$TimeNum
     if (is.null(data$locType)) {
       data$locType <- "o"
     }
     predData <- data.frame(predTime, "p")
-    names(predData) <- c(tn, "locType")
-    predTime <- as.numeric(predTime)
+    names(predData) <- c("TimeNum", "locType")
+    # predTime <- as.numeric(predTime)
     data <- merge(data, predData,
-                  by=c(tn, "locType"), all=TRUE)
-    dups <- duplicated(data[, tn]) #& data[,"locType"]==1
+                  by=c("TimeNum", "locType"), all=TRUE)
+    dups <- duplicated(data$TimeNum) #& data[,"locType"]==1
     data <- data[!dups, ]
     mov.mf <- as.matrix(expandPred(x=mov.mf, Time=origTime, predTime=predTime))
     if (!is.null(activity)) activity <- as.matrix(expandPred(x=activity, Time=origTime, predTime=predTime))
@@ -141,8 +145,8 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     if (!is.null(err.mfY)) err.mfY <- as.matrix(expandPred(x=err.mfY, Time=origTime, predTime=predTime))
     if (!is.null(rho)) rho <- as.matrix(expandPred(x=rho, Time=origTime, predTime=predTime))
   }
-  data$locType[data[,tn]%in%predTime] <- 'p'
-  delta <- c(diff(data[, tn]), 1)
+  data$locType[data$TimeNum%in%predTime] <- 'p'
+  delta <- c(diff(data$TimeNum), 1)
   y = as.matrix(data[,object.crwFit$coord])
   noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))
   y[noObs==1,] = 0
@@ -177,6 +181,10 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
   
   out <- list(originalData=fillCols(data), alpha.hat=pred, 
               V.hat=var, speed=speed, loglik=out$ll)
+  if(return_posix){
+    out$originalData[,tn] = lubridate::as_datetime(out$originalData$TimeNum)
+  } else out$originalData[,tn] = out$originalData$TimeNum
+  
   if (return.type == "flat") {
     out <- fillCols(crawl::flatten(out))
     attr(out, "flat") <- TRUE
@@ -196,9 +204,9 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     attr(out,"epsg") <- attr(object.crwFit,"epsg")
     attr(out,"proj4") <- attr(object.crwFit,"proj4")
   } else if (return.type == "minimal") {
-    out <- fillCols(data)
+    out <- fillCols(out$originalData)
     out <- cbind(out, pred)
-    attr(out, "flat") <- FALSE
+    attr(out, "flat") <- TRUE
     attr(out, "coord") <- c(x=object.crwFit$coord[1], y=object.crwFit$coord[2])
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
