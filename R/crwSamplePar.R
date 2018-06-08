@@ -28,6 +28,8 @@
 #' (difference in log-likelihood)
 #' @param scale Scale multiplier for the covariance matrix of the t
 #' approximation
+#' @param quad.ask Logical, for method='quadrature'. Whether or not the sampler should ask if quadrature sampling should take place.
+#' It is used to stop the sampling if the number of likelihood evaluations would be extreme.
 #' @param force.quad A logical indicating whether or not to force the execution 
 #' of the quadrature method for large parameter vectors.
 #' @return
@@ -89,7 +91,7 @@
 #' @seealso See \code{demo(northernFurSealDemo)} for example.
 #' @export
 #' @import mvtnorm
-crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1, crit=2.5, scale=1, force.quad)
+crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1, crit=2.5, scale=1, quad.ask = T, force.quad)
 {
   if(!inherits(object.sim, 'crwSimulator'))
     stop("Argument needs to be of class 'crwSimulator'\nUse 'crwSimulator( )' to create")
@@ -115,7 +117,7 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
   upper <- object.sim$upper 
   prior <- object.sim$prior
   if(missing(force.quad)) force.quad=FALSE
-  message("\nComputing importance weights ...\n")
+  message("Computing importance weights ...")
   if(method=="IS"){
     thetaMat <- matrix(NA, size, length(fixPar)+3)
     for(i in 1:(size-1)){
@@ -193,7 +195,14 @@ crwSamplePar <- function(object.sim, method="IS", size=1000, df=Inf, grid.eps=1,
     grid.pts <- as.matrix(expand.grid(grid.list))
     grid.pts <- grid.pts[apply(grid.pts==0, 1, sum) < np-1, ]
     numEvals <- nrow(grid.pts)+nrow(thetaMat)
-    message("\nEvaluating ", nrow(grid.pts)+nrow(thetaMat), " quadrature points ...\n")
+    message("Evaluating ", nrow(grid.pts)+nrow(thetaMat), " quadrature points ...")
+    if(quad.ask){
+      ans = toupper(readline(prompt="Proceed? [y/n]: "))
+      if(ans!="Y"){
+        message("Parameter sampling stopped")
+        return(NULL)
+      }
+    }
     parFix <- ifelse(!eInd, parMLE, 0)
     for(i in 1:nrow(grid.pts)){
       z <- grid.pts[i,]

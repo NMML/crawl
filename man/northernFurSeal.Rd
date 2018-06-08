@@ -6,14 +6,14 @@
 \title{Northern fur seal pup relocation data set used in Johnson et al. (2008)}
 \format{A data frame with 795 observations on the following 4 variables:
 
-\describe{ \item{Time}{a numeric vector.}
+\describe{ \item{GMT}{A POSIX time vector}
 
-\item{Argos_loc_class}{a factor with levels \code{0} \code{1}
-\code{2} \code{3} \code{A}.}
+\item{loc_class}{a factor with levels \code{3} \code{2}
+\code{1} \code{0} \code{A}.}
 
-\item{latitude}{a numeric vector.}
+\item{lat}{a numeric vector. Latitude for the locations}
 
-\item{longitude}{a numeric vector.}
+\item{long}{a numeric vector. Longitude for the locations}
 
 }}
 \source{

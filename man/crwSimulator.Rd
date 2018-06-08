@@ -5,7 +5,8 @@
 \title{Construct a posterior simulation object for the CTCRW state vectors}
 \usage{
 crwSimulator(object.crwFit, predTime = NULL, method = "IS", parIS = 1000,
-  df = Inf, grid.eps = 1, crit = 2.5, scale = 1, force.quad)
+  df = Inf, grid.eps = 1, crit = 2.5, scale = 1, quad.ask = TRUE,
+  force.quad)
 }
 \arguments{
 \item{object.crwFit}{A model object from \code{\link{crwMLE}}.}
@@ -26,6 +27,9 @@ posterior}
 
 \item{scale}{Scale multiplier for the covariance matrix of the t
 approximation}
+
+\item{quad.ask}{Logical, for method='quadrature'. Whether or not the sampler should ask if quadrature sampling should take place.
+It is used to stop the sampling if the number of likelihood evaluations would be extreme.}
 
 \item{force.quad}{A logical indicating whether or not to force the execution 
 of the quadrature method for large parameter vectors.}

@@ -36,6 +36,8 @@
 #' (difference in log-likelihood)
 #' @param scale Scale multiplier for the covariance matrix of the t
 #' approximation
+#' @param quad.ask Logical, for method='quadrature'. Whether or not the sampler should ask if quadrature sampling should take place.
+#' It is used to stop the sampling if the number of likelihood evaluations would be extreme.
 #' @param force.quad A logical indicating whether or not to force the execution 
 #' of the quadrature method for large parameter vectors.
 
@@ -105,7 +107,7 @@ crwSimulator = function(
   df=Inf, 
   grid.eps=1, 
   crit=2.5, 
-  scale=1, force.quad) {
+  scale=1, quad.ask=TRUE, force.quad) {
   ## Model definition/parameters ##
   data <- object.crwFit$data
   driftMod <- object.crwFit$random.drift
@@ -142,11 +144,10 @@ crwSimulator = function(
   ## Data setup ##
   if (!is.null(predTime)) {
     if(inherits(predTime,"character")) {
-      if(!inherits(data[,tn], "POSIX")) warning("Original data times not POSIX! Make sure everything is ok with output times.")
       t_int <- unlist(strsplit(predTime, " "))
       if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
-        min_dt <- crawl::intToPOSIX(min(object.crwFit$data$Time,na.rm=TRUE))
-        max_dt <- crawl::intToPOSIX(max(object.crwFit$data$Time,na.rm=TRUE))
+        min_dt <- min(data[,tn],na.rm=TRUE)
+        max_dt <- max(data[,tn],na.rm=TRUE)
         min_dt <- round(min_dt,t_int[2])
         max_dt <- trunc(max_dt,t_int[2])
         predTime <- seq(min_dt, max_dt, by = predTime)
@@ -154,7 +155,10 @@ crwSimulator = function(
         stop("predTime not specified correctly. see documentation for seq.POSIXt")
       }
     }
-    predTime = as.numeric(predTime)
+    
+    ts = attr(object.crwFit, "time.scale")
+    predTime = as.numeric(predTime)/ts
+    
     if(min(predTime) <  data[1, "TimeNum"]) {
       warning("Predictions times given before first observation!\nOnly those after first observation will be used.")
       predTime <- predTime[predTime>=data[1,"TimeNum"]]
@@ -188,8 +192,10 @@ crwSimulator = function(
               loglik=object.crwFit$loglik, TimeNum=data$TimeNum, Time.name=tn, return_posix=return_posix,
               coord=object.crwFit$coord, prior=object.crwFit$prior)
   class(out) <- 'crwSimulator'
-  if(parIS>1 & object.crwFit$need.hess==TRUE) out <- crwSamplePar(out, method=method, size=parIS, df=df, grid.eps=grid.eps, crit=crit, scale=scale, force.quad = force.quad)
-  attr(out,"epsg") <- attr(object.crwFit,"epsg")
-  attr(out,"proj4") <- attr(object.crwFit,"proj4")
+  if(parIS>1 & object.crwFit$need.hess==TRUE) out <- crwSamplePar(out, method=method, size=parIS, df=df, grid.eps=grid.eps, crit=crit, scale=scale, quad.ask=quad.ask, force.quad = force.quad)
+  if(!is.null(out)){
+    attr(out,"epsg") <- attr(object.crwFit,"epsg")
+    attr(out,"proj4") <- attr(object.crwFit,"proj4")
+  }
   return(out)
 }

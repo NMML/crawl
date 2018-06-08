@@ -59,6 +59,19 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
 {
   data <- object.crwFit$data
   tn <- object.crwFit$Time.name
+  driftMod <- object.crwFit$random.drift
+  mov.mf <- object.crwFit$mov.mf
+  activity <- object.crwFit$activity
+  err.mfX <- object.crwFit$err.mfX
+  err.mfY <- object.crwFit$err.mfY
+  rho = object.crwFit$rho
+  par <- object.crwFit$par
+  n.errX <- object.crwFit$n.errX
+  n.errY <- object.crwFit$n.errY
+  n.mov <- object.crwFit$n.mov
+  fixPar = object.crwFit$fixPar
+  theta = object.crwFit$par[is.na(fixPar)]
+  
   
   ## the typical expectation is for tn to be POSIXct. But, some users may decide
   ## to pass a numeric time vector. Here, we'll confirm numeric or POSIXct and
@@ -84,46 +97,28 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
       # data[, tn] <- lubridate::as_datetime(data[, tn])
     }
   }
-
   
-  if(inherits(predTime,"character")) {
-    # if(inherits(data[, tn], "numeric")) {
-    #   warning("predTime specified as character string and data time column as numeric. converting data time column to POSIXct.")
-    #   data[, tn] <- lubridate::as_datetime(data[, tn])
-    # }
-    t_int <- unlist(strsplit(predTime, " "))
-    if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
-      if(!inherits(data[tn],"POSIXct")) {
-      min_dt <- min(data[tn],na.rm=TRUE)
-      max_dt <- max(data[tn],na.rm=TRUE)
+  if(!is.null(predTime)){
+    
+    if(inherits(predTime,"character")) {
+      if(!inherits(data[,tn],"POSIXct")) stop("Character specification of predTime can only be used with POSIX times in the original data!")
+      t_int <- unlist(strsplit(predTime, " "))
+      if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
+        min_dt <- min(data[,tn],na.rm=TRUE)
+        max_dt <- max(data[,tn],na.rm=TRUE)
+        min_dt <- round(min_dt,t_int[2])
+        max_dt <- trunc(max_dt,t_int[2])
+        predTime <- seq(min_dt, max_dt, by = predTime)
+      } else {
+        stop("predTime not specified correctly. see documentation for seq.POSIXt")
       }
-      min_dt <- round(min_dt,t_int[2])
-      max_dt <- trunc(max_dt,t_int[2])
-      predTime <- seq(min_dt, max_dt, by = predTime)
-    } else {
-      stop("predTime not specified correctly. see documentation for seq.POSIXt")
     }
-  }
-  
-  predTime = as.numeric(predTime)
-  
-  ## Model definition/parameters ##
-  
-  driftMod <- object.crwFit$random.drift
-  mov.mf <- object.crwFit$mov.mf
-  activity <- object.crwFit$activity
-  err.mfX <- object.crwFit$err.mfX
-  err.mfY <- object.crwFit$err.mfY
-  rho = object.crwFit$rho
-  par <- object.crwFit$par
-  n.errX <- object.crwFit$n.errX
-  n.errY <- object.crwFit$n.errY
-  n.mov <- object.crwFit$n.mov
-  fixPar = object.crwFit$fixPar
-  theta = object.crwFit$par[is.na(fixPar)]
-  
-  ## Data setup ##
-  if (!is.null(predTime)) {
+    
+    ts = attr(object.crwFit, "time.scale")
+    predTime = as.numeric(predTime)/ts
+    
+    
+    ## Data setup ##
     if(min(predTime) <  min(data$TimeNum)) {
       warning("Predictions times given before first observation!\nOnly those after first observation will be used.")
       predTime <- predTime[predTime>=data$TimeNum]
@@ -175,14 +170,14 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
                  apply(as.matrix(pred[,(4+driftMod):(4+2*driftMod)]), 1, sum)^2)
   
   obsFit <- data.frame(predObs.x=out$predObs[1,],
-                     predObs.y=out$predObs[2,])
+                       predObs.y=out$predObs[2,])
   obsFit$outlier.chisq <- as.vector(out$chisq)
   obsFit$naive.p.val <- 1 - pchisq(obsFit$outlier.chisq, 2)
   
   out <- list(originalData=fillCols(data), alpha.hat=pred, 
               V.hat=var, speed=speed, loglik=out$ll)
   if(return_posix){
-    out$originalData[,tn] = lubridate::as_datetime(out$originalData$TimeNum)
+    out$originalData[,tn] = lubridate::as_datetime(out$originalData$TimeNum*ts)
   } else out$originalData[,tn] = out$originalData$TimeNum
   
   if (return.type == "flat") {
@@ -192,6 +187,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "Time.name") <- tn
+    attr(out, "time.scale") = ts
     attr(out,"epsg") <- attr(object.crwFit,"epsg")
     attr(out,"proj4") <- attr(object.crwFit,"proj4")
   } else if (return.type == "list") {
@@ -201,6 +197,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "Time.name") <- tn
+    attr(out, "time.scale") = ts
     attr(out,"epsg") <- attr(object.crwFit,"epsg")
     attr(out,"proj4") <- attr(object.crwFit,"proj4")
   } else if (return.type == "minimal") {
@@ -211,6 +208,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     attr(out, "random.drift") <- driftMod
     attr(out, "activity.model") <- !is.null(object.crwFit$activity)
     attr(out, "Time.name") <- tn
+    attr(out, "time.scale") = ts
     attr(out,"epsg") <- attr(object.crwFit,"epsg")
     attr(out,"proj4") <- attr(object.crwFit,"proj4")
   }

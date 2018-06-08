@@ -33,7 +33,7 @@ crw_as_sf.crwIS <- function(crw_object,
   stopifnot(!missing(ftype), ftype %in% c("POINT", "LINESTRING"))
   
   crw_crs <- attr(crw_object, "epsg")
-  if(is.null(crw_crs)) crw_crs <- attr(crw_object, "proj4")
+  if(is.null(crw_crs) | is.na(crw_crs)) crw_crs <- attr(crw_object, "proj4")
   
   if (ftype == "POINT") {
     crw_object <- crw_as_tibble(crw_object) %>%
@@ -41,7 +41,7 @@ crw_as_sf.crwIS <- function(crw_object,
                     !is.na(.data$mu.x),
                     !is.na(.data$mu.y)) %>%
       sf::st_as_sf(coords = c("mu.x", "mu.y"))
-    if(!is.null(crw_crs)) crw_object = crw_object %>% sf::st_set_crs(crw_crs)
+    crw_object = crw_object %>% sf::st_set_crs(crw_crs)
   }
   if (ftype == "LINESTRING") {
     crw_object <- crw_as_tibble(crw_object) %>%
@@ -49,7 +49,7 @@ crw_as_sf.crwIS <- function(crw_object,
                     !is.na(.data$mu.x),
                     !is.na(.data$mu.y)) %>%
       sf::st_as_sf(coords = c("mu.x", "mu.y"))
-    if(!is.null(crw_crs)) crw_object = crw_object %>% sf::st_set_crs(crw_crs)
+    crw_object = crw_object %>% sf::st_set_crs(crw_crs)
     crw_object = crw_object %>%
       summarise(id = 1, do_union = FALSE) %>%
       sf::st_cast("LINESTRING")
@@ -65,13 +65,13 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
                                  group = NULL, ...) {
   stopifnot(!missing(ftype), ftype %in% c("POINT","LINESTRING"))
   crw_crs <- attr(crw_object, "epsg")
-  if(is.null(crw_crs)) crw_crs <- attr(crw_object, "proj4")
+  if(is.null(crw_crs) | is.na(crw_crs)) crw_crs <- attr(crw_object, "proj4")
   if(ftype == "POINT" && is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
       dplyr::filter(.data$locType %in% locType) %>% 
       dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) 
-    if(!is.null(crw_crs)) crw_object = crw_object %>% sf::st_set_crs(crw_crs)
+    crw_object = crw_object %>% sf::st_set_crs(crw_crs)
   }
   if(ftype == "POINT" && !is.null(group)) {
     warning("group argument not applicable for 'POINT' type. ignoring")
@@ -81,7 +81,7 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
       dplyr::filter(.data$locType %in% locType) %>% 
       dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y"))
-    if(!is.null(crw_crs)) crw_object = crw_object %>% sf::st_set_crs(crw_crs)
+    crw_object = crw_object %>% sf::st_set_crs(crw_crs)
     crw_object = crw_object %>% summarise(id=1,do_union = FALSE) %>% sf::st_cast("LINESTRING")
   }
   if(ftype == "LINESTRING" && !is.null(group)) {
@@ -89,7 +89,7 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
       dplyr::filter(.data$locType %in% locType) %>% 
       dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) 
-    if(!is.null(crw_crs)) crw_object = crw_object %>% sf::st_set_crs(crw_crs)
+    crw_object = crw_object %>% sf::st_set_crs(crw_crs)
     crw_object = crw_object %>% dplyr::group_by(group) %>% 
       dplyr::summarise(do_union = FALSE) %>% 
       sf::st_cast("LINESTRING")

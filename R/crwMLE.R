@@ -75,6 +75,7 @@
 #' @param coord A 2-vector of character values giving the names of the "X" and
 #' "Y" coordinates in \code{data}.
 #' @param Time.name character indicating name of the location time column
+#' @param time.scale character. Scale for conversion of POSIX time to numeric for modeling. Defaults to "hours".
 #' @param theta starting values for parameter optimization.
 #' @param fixPar Values of parameters which are held fixed to the given value.
 #' @param method Optimization method that is passed to \code{\link{optim}}.
@@ -159,7 +160,7 @@
 #' @export
 
 crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
-                  data, coord=c("x", "y"), Time.name, #initial.state, 
+                  data, coord=c("x", "y"), Time.name, time.scale="hours", #initial.state, 
                   theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
                   prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1, ...)
 {
@@ -188,7 +189,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     p4$epsg <- sf::st_crs(data)$epsg
     p4$proj4string <- sf::st_crs(data)$proj4string
     if(!any(names(data) %in% c("x","y"))) {
-      warning("no 'x' and 'y' columns detected in 'sf' object so will create")
+      # warning("no 'x' and 'y' columns detected in 'sf' object so will create")
       coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
       coordVals <- stats::setNames(coordVals, c("x","y"))
       sf::st_geometry(data) <- NULL
@@ -201,10 +202,20 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   if(inherits(data,"tbl_df")) {
     data <- as.data.frame(data)
   }
-  # if(inherits(data[,Time.name],"POSIXct")){
-    data$TimeNum <- as.numeric(data[,Time.name])#/3600
-    # Time.name <- "TimeNum"
-  # }
+  if(inherits(data[,Time.name],"POSIXct")){
+    if(time.scale %in% c("hours", "hour")){
+      ts = 60*60
+    } else if(time.scale %in% c("days", "day")){
+      ts = 60*60*24
+    } else if(time.scale %in% c("sec","secs","second","seconds")){
+      ts = 1
+    } else if(time.scale %in% c("min","mins","minute","minutes")){
+      ts = 60
+    } else stop("'time.scale' not specified correctly!")
+    data$TimeNum <- as.numeric(data[,Time.name])/ts
+  } else{
+    data$TimeNum <- as.numeric(data[,Time.name])
+  }
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
   errMod <- !is.null(err.model)
@@ -274,7 +285,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   if (missing(theta)) theta = rep(0,n.theta)
   theta[theta<constr$lower] = constr$lower[theta<constr$lower] + 0.01
   theta[theta>constr$upper] = constr$upper[theta>constr$upper] - 0.01
-  if(driftMod & is.na(fixPar[n.par])) theta[sum(is.na(fixPar))] <- log(diff(range(data[,Time.name]))/9)
+  if(driftMod & is.na(fixPar[n.par])) theta[sum(is.na(fixPar))] <- log(diff(range(data$TimeNum))/9)
   if (length(theta) != n.theta) {
     stop("\nWrong number of parameters specified in start value.\n")
   }
@@ -291,7 +302,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
       message("Beginning SANN initialization ...")
       init <- optim(thetaAttempt, crwN2ll, method='SANN', control=initialSANN,
                     fixPar=fixPar, y=y, noObs=noObs,
-                    delta=c(diff(data[, Time.name]), 1), #a=initial.state$a, P=initial.state$P,
+                    delta=c(diff(data$TimeNum), 1), #a=initial.state$a, P=initial.state$P,
                     mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, rho=rho, activity=activity,
                     n.mov=n.mov, n.errX=n.errX, n.errY=n.errY,
                     driftMod=driftMod, prior=prior, need.hess=FALSE, constr=constr)
@@ -303,7 +314,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     mle <- try(optim(init$par, crwN2ll, method=method, hessian=need.hess,
                      lower=constr$lower, upper=constr$upper, control=control,					  
                      fixPar=fixPar, y=y, noObs=noObs,
-                     delta=c(diff(data[, Time.name]), 1), #a=initial.state$a, P=initial.state$P,
+                     delta=c(diff(data$TimeNum), 1), #a=initial.state$a, P=initial.state$P,
                      mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, activity=activity,
                      n.mov=n.mov, n.errX=n.errX, n.errY=n.errY, rho=rho,
                      driftMod=driftMod, prior=prior, need.hess=need.hess, constr=constr), silent=TRUE)
@@ -336,6 +347,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                 runTime=difftime(Sys.time(), st))
     attr(out,"epsg") <- p4$epsg
     attr(out,"proj4") <- p4$proj4string
+    attr(out, "time.scale") = ts
     class(out) <- c("crwFit")
     return(out)
   }

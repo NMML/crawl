@@ -5,7 +5,7 @@
 \title{Fit Continuous-Time Correlated Random Walk Models to Animal Telemetry Data}
 \usage{
 crwMLE(mov.model = ~1, err.model = NULL, activity = NULL, drift = FALSE,
-  data, coord = c("x", "y"), Time.name, theta, fixPar,
+  data, coord = c("x", "y"), Time.name, time.scale = "hours", theta, fixPar,
   method = "Nelder-Mead", control = NULL, constr = list(lower = -Inf,
   upper = Inf), prior = NULL, need.hess = TRUE, initialSANN = list(maxit =
   200), attempts = 1, ...)
@@ -36,6 +36,8 @@ valid proj4string or epsg and must NOT be in longlat.}
 "Y" coordinates in \code{data}.}
 
 \item{Time.name}{character indicating name of the location time column}
+
+\item{time.scale}{character. Scale for conversion of POSIX time to numeric for modeling. Defaults to "hours".}
 
 \item{theta}{starting values for parameter optimization.}
 

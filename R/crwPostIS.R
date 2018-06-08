@@ -51,8 +51,7 @@
 #' @seealso See \code{demo(northernFurSealDemo)} for example.
 #' @export
 
-`crwPostIS` <-
-  function(object.sim, fullPost=TRUE, df=Inf, scale=1, thetaSamp=NULL)
+crwPostIS = function(object.sim, fullPost=TRUE, df=Inf, scale=1, thetaSamp=NULL)
     ################################################################################
 ################################################################################
 {
@@ -107,7 +106,7 @@
     out=CTCRWSAMPLE_DRIFT(y, argslist$Hmat,  argslist$b,  argslist$b.drift,  argslist$sig2, 
                           argslist$sig2.drift, delta, noObs,  argslist$active,  argslist$a,  argslist$P)
   } else {
-    out=CTCRWSAMPLE(y,  argslist$Hmat,  argslist$b,  argslist$sig2,  argslist$delta, noObs,  argslist$active,  argslist$a,  argslist$P)
+    out=CTCRWSAMPLE(y,  argslist$Hmat,  argslist$b,  argslist$sig2,  delta, noObs,  argslist$active,  argslist$a,  argslist$P)
   }
   
   if(driftMod){
