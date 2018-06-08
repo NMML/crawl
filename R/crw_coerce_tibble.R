@@ -30,6 +30,6 @@ crw_as_tibble.crwPredict <- function(crw_object, ...) {
 
 #' @describeIn crw_as_tibble 
 #' @export
-crw_as_tibble.tibble <- function(crw_object, ...) {
+crw_as_tibble.tbl <- function(crw_object, ...) {
   crw_object
 }

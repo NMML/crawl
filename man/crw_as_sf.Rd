@@ -6,12 +6,12 @@
 \alias{crw_as_sf.crwPredict}
 \title{Coerce to sf/sfc object}
 \usage{
-crw_as_sf(crw_object, ftype, loctype, group)
+crw_as_sf(crw_object, ftype, locType, group)
 
-\method{crw_as_sf}{crwIS}(crw_object, ftype, loctype = c("p", "o"),
+\method{crw_as_sf}{crwIS}(crw_object, ftype, locType = c("p", "o"),
   group = NULL, ...)
 
-\method{crw_as_sf}{crwPredict}(crw_object, ftype, loctype = c("p", "o"),
+\method{crw_as_sf}{crwPredict}(crw_object, ftype, locType = c("p", "o"),
   group = NULL, ...)
 }
 \arguments{
@@ -19,7 +19,7 @@ crw_as_sf(crw_object, ftype, loctype, group)
 
 \item{ftype}{character of either "POINT" or "LINESTRING" specifying the feature type}
 
-\item{loctype}{character vector of location points to include ("p","o")}
+\item{locType}{character vector of location points to include ("p","o")}
 
 \item{group}{(optional) character specifying the column to group by for mulitple LINESTRING features}
 
