@@ -106,17 +106,18 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
       if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
         min_dt <- min(data[,tn],na.rm=TRUE)
         max_dt <- max(data[,tn],na.rm=TRUE)
-        min_dt <- round(min_dt,t_int[2])
-        max_dt <- trunc(max_dt,t_int[2])
+        min_dt <- lubridate::ceiling_date(min_dt,t_int[2])
+        max_dt <- lubridate::floor_date(max_dt,t_int[2])
         predTime <- seq(min_dt, max_dt, by = predTime)
       } else {
         stop("predTime not specified correctly. see documentation for seq.POSIXt")
       }
     }
     
-    ts = attr(object.crwFit, "time.scale")
-    predTime = as.numeric(predTime)/ts
-    
+    if(inherits(predTime, "POSIXct")){
+      ts = attr(object.crwFit, "time.scale")
+      predTime = as.numeric(predTime)/ts
+    }
     
     ## Data setup ##
     if(min(predTime) <  min(data$TimeNum)) {
@@ -179,6 +180,21 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
   if(return_posix){
     out$originalData[,tn] = lubridate::as_datetime(out$originalData$TimeNum*ts)
   } else out$originalData[,tn] = out$originalData$TimeNum
+  
+  # if(getUseAvail){
+  #   idx <- data$locType=="p"
+  #   movMatsPred <- getQT(sig2[idx], b[idx], sig2.drift[idx], b.drift[idx], delta=c(diff(data[idx,tn]),1), driftMod)
+  #   TmatP <- movMatsPred$Tmat
+  #   QmatP <- movMatsPred$Qmat
+  #   avail <- t(sapply(1:(nrow(TmatP)-1), makeAvail, Tmat=TmatP, Qmat=QmatP, predx=predx[idx,], predy=predy[idx,], 
+  #                     vary=vary[,,idx], varx=varx[,,idx], driftMod=driftMod, lonadj=lonAdjVals[idx]))
+  #   avail <- cbind(data[idx,tn][-1], avail)
+  #   colnames(avail) <- c(tn, "meanAvail.x", "meanAvail.y", "varAvail.x", "varAvail.y")
+  #   use <- cbind(data[idx,tn], predx[idx,1], predy[idx,1], varx[1,1,idx], vary[1,1,idx])[-1,]
+  #   colnames(use) <- c(tn, "meanUse.x", "meanUse.y", "varUse.x", "varUse.y")
+  #   UseAvail.lst <- list(use=use, avail=avail)
+  # }
+  # else UseAvail.lst=NULL
   
   if (return.type == "flat") {
     out <- fillCols(crawl::flatten(out))
