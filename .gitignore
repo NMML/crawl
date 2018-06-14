@@ -15,3 +15,4 @@ crawl.Rproj
 *.zip
 *.tgz
 inst/doc
+/testing
