@@ -42,11 +42,7 @@
 #' The data set specified by \code{data} must contain a numeric or POSIXct column which is
 #' used as the time index for analysis. The column name is specified by the
 #' \code{Time.name} argument. If a POSIXct column is used it is internally converted to a
-#' numeric vector with units of hours. The \code{spacetime} package supports an
-#' \code{STIDF} object that contains slots for both spatial and time series data types. If
-#' \code{data} is of class \code{STIDF} then the spatial and temporal information are
-#' automatically extracted and \code{polar.coord}, \code{Time.name} and \code{coord} are
-#' not required. If your data are not compatible with these data structures, it is better
+#' numeric vector with units of hours. If your data are not compatible with these data structures, it is better
 #' to convert it yourself prior to analysis with crawl. Also, for stopping models, the
 #' stopping covariate must be between 0 and 1 inclusive, with 1 representing complete stop
 #' of the animal (no true movement, however, location error can still occur) and 0 
@@ -72,13 +68,14 @@
 #' @param data data.frame object containg telemetry and covariate data. A 
 #'   'SpatialPointsDataFrame' object from the package 'sp' or an 'sf' object
 #'   from the 'sf' package with a geometry column of type \code{sfc_POINT}.
-#'   'spacetime' will also be accepted. Values for coords will be taken from 
-#'   the spatial data set and ignored in the arguments.
+#'   'spacetime' objects were previously accepted but no longer valid. 
+#'   Values for coords will be taken from 
+#'   the spatial data set and ignored in the arguments. Spatial data must have a
+#'   valid proj4string or epsg and must NOT be in longlat.
 #' @param coord A 2-vector of character values giving the names of the "X" and
 #' "Y" coordinates in \code{data}.
 #' @param Time.name character indicating name of the location time column
-#' @param initial.state list object containg the inital state of the Kalman
-#' filter.
+#' @param time.scale character. Scale for conversion of POSIX time to numeric for modeling. Defaults to "hours".
 #' @param theta starting values for parameter optimization.
 #' @param fixPar Values of parameters which are held fixed to the given value.
 #' @param method Optimization method that is passed to \code{\link{optim}}.
@@ -95,6 +92,7 @@
 #' annealing is used for obtaining start values. See details
 #' @param attempts The number of times likelihood optimization will be
 #' attempted
+#' @param ... Additional arguments that are ignored.
 #' @return
 #' 
 #' A list with the following elements:
@@ -113,9 +111,6 @@
 #' \item{loglik}{Maximized log-likelihood value}
 #' 
 #' \item{aic}{Model AIC value}
-#' 
-#' \item{initial.state}{Intial state provided to \code{crwMLE} for model
-#' fitting}
 #' 
 #' \item{coord}{Coordinate names provided for fitting}
 #' 
@@ -165,35 +160,36 @@
 #' @export
 
 crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
-                     data, coord=c("x", "y"), Time.name,
-                     initial.state, theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
-                     prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1)
+                  data, coord=c("x", "y"), Time.name, time.scale="hours", #initial.state, 
+                  theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
+                  prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1, ...)
 {
   #if(drift) stop("At this time drift models are not supported with this function. Use 'crwMLE' for now.\n")
   st <- Sys.time()
-#  if (missing(Time.name) & !inherits(data,"STIDF")) stop("Argument 'Time.name' missing and NOT a spacetime STIDF object. Please specify")
-  
-#   ### Transform 'spacetime' object
-#   if(inherits(data,"STIDF")){
-#     polar.coord <- "+proj=longlat" %in% strsplit(proj4string(data), " ")[[1]]
-#     data <- as(data,"data.frame")
-#     Time.name <- "time"
-#     coord <- c("coords.x1","coords.x2")
-#   }
   
   ### Transform 'sp' package SpatialPointsDataFrame
   if(inherits(data, "trip")){
     Time.name <- data@TOR.columns[1]
   }
+  p4 <- list(epsg = NULL, proj4string = NULL)
   if(inherits(data, "SpatialPoints")) {	
-    if("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) stop("Location data must be projected.")	
+    if(!sp::is.projected(data)) {
+      stop("proj4string for data of sp class is not specified.")
+    }
+    if("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) stop("Location data is provided in longlat; must be projected.")	
+    p4$proj4string <- sp::proj4string(data)
     coordVals <- as.data.frame(sp::coordinates(data))	
     coord <- names(coordVals)	
     data <- cbind(slot(data,"data"), coordVals)    
   }
   if(inherits(data,"sf") && inherits(sf::st_geometry(data),"sfc_POINT")) {
+    if (sf::st_is_longlat(data)) {
+      stop("Location data is provided in longlat; must be projected.")
+    }
+    p4$epsg <- sf::st_crs(data)$epsg
+    p4$proj4string <- sf::st_crs(data)$proj4string
     if(!any(names(data) %in% c("x","y"))) {
-      warning("no 'x' and 'y' columns detected in 'sf' object so will create")
+      # warning("no 'x' and 'y' columns detected in 'sf' object so will create")
       coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
       coordVals <- stats::setNames(coordVals, c("x","y"))
       sf::st_geometry(data) <- NULL
@@ -207,23 +203,28 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     data <- as.data.frame(data)
   }
   if(inherits(data[,Time.name],"POSIXct")){
-    data$TimeNum <- as.numeric(data[,Time.name])#/3600
-    Time.name <- "TimeNum"
+    if(time.scale %in% c("hours", "hour")){
+      ts = 60*60
+    } else if(time.scale %in% c("days", "day")){
+      ts = 60*60*24
+    } else if(time.scale %in% c("sec","secs","second","seconds")){
+      ts = 1
+    } else if(time.scale %in% c("min","mins","minute","minutes")){
+      ts = 60
+    } else stop("'time.scale' not specified correctly!")
+    data$TimeNum <- as.numeric(data[,Time.name])/ts
+  } else{
+    data$TimeNum <- as.numeric(data[,Time.name])
   }
-  
-  
-  ### Check for duplicate time records ###
-  #if(any(diff(data[,Time.name])==0)) stop("There are duplicate time records for some data entries! Please remove before proceeding.")
-  
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
   errMod <- !is.null(err.model)
-  if(!errMod) stop("Error model must be specified! (argument 'err.model' is currently set to NULL)")
+  #if(!errMod) stop("Error model must be specified! (argument 'err.model' is currently set to NULL)")
   activeMod <- !is.null(activity)
   driftMod <- drift
-  if (
-    length(initial.state$a) != 2*(driftMod+2) | all(dim(initial.state$P) != c(2*(driftMod+2), 2*(driftMod+2))) 
-  ) stop("Dimentions of 'initial.state' argument are not correct for the specified model")
+  # if (
+  #   length(initial.state$a) != 2*(driftMod+2) | all(dim(initial.state$P) != c(2*(driftMod+2), 2*(driftMod+2))) 
+  # ) stop("Dimentions of 'initial.state' argument are not correct for the specified model")
   mov.mf <- model.matrix(mov.model, model.frame(mov.model, data, na.action=na.pass))
   if (any(is.na(mov.mf))) stop("Missing values are not allowed in movement covariates!")
   n.mov <- ncol(mov.mf)
@@ -284,7 +285,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   if (missing(theta)) theta = rep(0,n.theta)
   theta[theta<constr$lower] = constr$lower[theta<constr$lower] + 0.01
   theta[theta>constr$upper] = constr$upper[theta>constr$upper] - 0.01
-  if(driftMod & is.na(fixPar[n.par])) theta[sum(is.na(fixPar))] <- log(diff(range(data[,Time.name]))/9)
+  if(driftMod & is.na(fixPar[n.par])) theta[sum(is.na(fixPar))] <- log(diff(range(data$TimeNum))/9)
   if (length(theta) != n.theta) {
     stop("\nWrong number of parameters specified in start value.\n")
   }
@@ -301,7 +302,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
       message("Beginning SANN initialization ...")
       init <- optim(thetaAttempt, crwN2ll, method='SANN', control=initialSANN,
                     fixPar=fixPar, y=y, noObs=noObs,
-                    delta=c(diff(data[, Time.name]), 1), a=initial.state$a, P=initial.state$P,
+                    delta=c(diff(data$TimeNum), 1), #a=initial.state$a, P=initial.state$P,
                     mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, rho=rho, activity=activity,
                     n.mov=n.mov, n.errX=n.errX, n.errY=n.errY,
                     driftMod=driftMod, prior=prior, need.hess=FALSE, constr=constr)
@@ -313,7 +314,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     mle <- try(optim(init$par, crwN2ll, method=method, hessian=need.hess,
                      lower=constr$lower, upper=constr$upper, control=control,					  
                      fixPar=fixPar, y=y, noObs=noObs,
-                     delta=c(diff(data[, Time.name]), 1), a=initial.state$a, P=initial.state$P,
+                     delta=c(diff(data$TimeNum), 1), #a=initial.state$a, P=initial.state$P,
                      mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, activity=activity,
                      n.mov=n.mov, n.errX=n.errX, n.errY=n.errY, rho=rho,
                      driftMod=driftMod, prior=prior, need.hess=need.hess, constr=constr), silent=TRUE)
@@ -332,9 +333,10 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     se <- sqrt(diag(Cmat))
     ci.l <- par - 1.96 * se
     ci.u <- par + 1.96 * se
+    
     out <- list(par=par, estPar=mle$par, se=se, ci=cbind(L=ci.l, U=ci.u), Cmat=Cmat,
                 loglik=-mle$value / 2, aic=mle$value + 2 * sum(is.na(fixPar)),
-                initial.state=initial.state, coord=coord, fixPar=fixPar,
+                coord=coord,fixPar=fixPar,
                 convergence=mle$convergence, message=mle$message,
                 activity=activity, random.drift=drift,
                 mov.model=mov.model, err.model=err.model, n.par=n.par, nms=nms,
@@ -343,6 +345,9 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                 Time.name=Time.name, init=init, data=data,
                 lower=constr$lower, upper=constr$upper, prior=prior, need.hess=need.hess,
                 runTime=difftime(Sys.time(), st))
+    attr(out,"epsg") <- p4$epsg
+    attr(out,"proj4") <- p4$proj4string
+    attr(out, "time.scale") = ts
     class(out) <- c("crwFit")
     return(out)
   }

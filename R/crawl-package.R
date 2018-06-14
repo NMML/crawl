@@ -9,8 +9,8 @@
 #' \tabular{ll}{ 
 #' Package: \tab crawl\cr 
 #' Type: \tab Package\cr 
-#' Version: \tab 2.1.2\cr 
-#' Date: \tab April 27, 2017\cr 
+#' Version: \tab 2.2.0\cr 
+#' Date: \tab June 6, 2018\cr 
 #' License: \tab CC0 \cr 
 #' LazyLoad: \tab yes\cr 
 #' }
@@ -43,6 +43,8 @@
 
 NULL
 
+if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
+
 #' Northern fur seal pup relocation data set used in Johnson et al. (2008)
 #' 
 #' 
@@ -50,14 +52,14 @@ NULL
 #' @docType data
 #' @format A data frame with 795 observations on the following 4 variables:
 #' 
-#' \describe{ \item{Time}{a numeric vector.}
+#' \describe{ \item{GMT}{A POSIX time vector}
 #' 
-#' \item{Argos_loc_class}{a factor with levels \code{0} \code{1}
-#' \code{2} \code{3} \code{A}.}
+#' \item{loc_class}{a factor with levels \code{3} \code{2}
+#' \code{1} \code{0} \code{A}.}
 #' 
-#' \item{latitude}{a numeric vector.}
+#' \item{lat}{a numeric vector. Latitude for the locations}
 #' 
-#' \item{longitude}{a numeric vector.}
+#' \item{long}{a numeric vector. Longitude for the locations}
 #' 
 #' }
 #' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008) Continuous-time

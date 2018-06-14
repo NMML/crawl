@@ -1,5 +1,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![Travis-CI Build Status](https://travis-ci.org/NMML/crawl.svg?branch=devel)](https://travis-ci.org/NMML/crawl)
+Master branch check: [![Travis-CI Build Status](https://travis-ci.org/NMML/crawl.svg?branch=master)](https://travis-ci.org/NMML/crawl)
+
+Devel branch check: [![Travis-CI Build Status](https://travis-ci.org/NMML/crawl.svg?branch=devel)](https://travis-ci.org/NMML/crawl)
 
 Correlated RAndom Walk Library of R functions
 ---------------------------------------------

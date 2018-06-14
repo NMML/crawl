@@ -36,6 +36,8 @@
 #' (difference in log-likelihood)
 #' @param scale Scale multiplier for the covariance matrix of the t
 #' approximation
+#' @param quad.ask Logical, for method='quadrature'. Whether or not the sampler should ask if quadrature sampling should take place.
+#' It is used to stop the sampling if the number of likelihood evaluations would be extreme.
 #' @param force.quad A logical indicating whether or not to force the execution 
 #' of the quadrature method for large parameter vectors.
 
@@ -105,7 +107,7 @@ crwSimulator = function(
   df=Inf, 
   grid.eps=1, 
   crit=2.5, 
-  scale=1, force.quad) {
+  scale=1, quad.ask=TRUE, force.quad) {
   ## Model definition/parameters ##
   data <- object.crwFit$data
   driftMod <- object.crwFit$random.drift
@@ -120,13 +122,32 @@ crwSimulator = function(
   n.mov <- object.crwFit$n.mov
   tn <- object.crwFit$Time.name
   
+  return_posix <- ifelse((inherits(predTime,"POSIXct") | inherits(predTime, "character")) & 
+                           inherits(data[,tn],"POSIXct"), 
+                         TRUE, FALSE)
+  if(!return_posix) {
+    # if(inherits(predTime,"numeric") && inherits(data[, tn],"numeric")) {
+    #   warning("numeric time values detected. numeric values will be returned.")
+    # } 
+    if(inherits(predTime,"numeric") && inherits(data[, tn], "POSIXct")) {
+      # warning("predTime provided as numeric. converting it to POSIXct.")
+      warning("predTime provided as numeric and original data was POSIX! Make sure they are compatible")
+      # predTime <- lubridate::as_datetime(predTime)
+    }
+    if(inherits(predTime,"POSIXct") && inherits(data[, tn], "numeric")) {
+      # warning("input data time column provided as numeric. converting to POSIXct")
+      warning("predTime provided as POSIX and original data was numeric! Make sure they are compatible")
+      # data[, tn] <- lubridate::as_datetime(data[, tn])
+    }
+  }
+  
   ## Data setup ##
   if (!is.null(predTime)) {
     if(inherits(predTime,"character")) {
       t_int <- unlist(strsplit(predTime, " "))
       if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
-        min_dt <- crawl::intToPOSIX(min(object.crwFit$data$TimeNum,na.rm=TRUE))
-        max_dt <- crawl::intToPOSIX(max(object.crwFit$data$TimeNum,na.rm=TRUE))
+        min_dt <- min(data[,tn],na.rm=TRUE)
+        max_dt <- max(data[,tn],na.rm=TRUE)
         min_dt <- round(min_dt,t_int[2])
         max_dt <- trunc(max_dt,t_int[2])
         predTime <- seq(min_dt, max_dt, by = predTime)
@@ -134,17 +155,21 @@ crwSimulator = function(
         stop("predTime not specified correctly. see documentation for seq.POSIXt")
       }
     }
-    if(min(predTime) <  data[1, tn]) {
+    
+    ts = attr(object.crwFit, "time.scale")
+    predTime = as.numeric(predTime)/ts
+    
+    if(min(predTime) <  data[1, "TimeNum"]) {
       warning("Predictions times given before first observation!\nOnly those after first observation will be used.")
-      predTime <- predTime[predTime>=data[1,tn]]
+      predTime <- predTime[predTime>=data[1,"TimeNum"]]
     }
-    origTime <- data[, tn]
+    origTime <- data$TimeNum
     if (is.null(data$locType)) data$locType <- "o"
     predData <- data.frame(predTime, "p")
-    names(predData) <- c(tn, "locType")
+    names(predData) <- c("TimeNum", "locType")
     data <- merge(data, predData,
-                  by=c(tn, "locType"), all=TRUE)
-    dups <- duplicated(data[, tn]) #& data[,"locType"]==1
+                  by=c("TimeNum", "locType"), all=TRUE)
+    dups <- duplicated(data$TimeNum) #& data[,"locType"]==1
     data <- data[!dups, ]
     mov.mf <- as.matrix(expandPred(x=mov.mf, Time=origTime, predTime=predTime))
     if (!is.null(activity)) activity <- as.matrix(expandPred(x=activity, Time=origTime, predTime=predTime))
@@ -153,22 +178,24 @@ crwSimulator = function(
     if (!is.null(rho)) rho <- as.matrix(expandPred(x=rho, Time=origTime, predTime=predTime))
   }
   data$locType[data[,tn]%in%predTime] <- 'p'
-  delta <- c(diff(data[, tn]), 1)
-  a = object.crwFit$initial.state$a
-  P = object.crwFit$initial.state$P
+  delta <- c(diff(data$TimeNum), 1)
   y = as.matrix(data[,object.crwFit$coord])
   noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))
   y[noObs==1,] = 0
   N = nrow(y)
-  out <- list(y=y, noObs=noObs, P=P, a=a, n.errX=n.errX, n.errY=n.errY, n.mov=n.mov,
+  out <- list(y=y, noObs=noObs, n.errX=n.errX, n.errY=n.errY, n.mov=n.mov,
               delta=delta, driftMod=driftMod, activity=activity, err.mfX=err.mfX,
               err.mfY=err.mfY, mov.mf=mov.mf, rho=rho, fixPar=object.crwFit$fixPar,
               Cmat=object.crwFit$Cmat, locType=data$locType,
               par=object.crwFit$par, nms=object.crwFit$nms, N=nrow(data), lower=object.crwFit$lower, 
               upper=object.crwFit$upper,
-              loglik=object.crwFit$loglik, Time=data[,tn], Time.name=tn, 
+              loglik=object.crwFit$loglik, TimeNum=data$TimeNum, Time.name=tn, return_posix=return_posix,
               coord=object.crwFit$coord, prior=object.crwFit$prior)
   class(out) <- 'crwSimulator'
-  if(parIS>1 & object.crwFit$need.hess==TRUE) out <- crwSamplePar(out, method=method, size=parIS, df=df, grid.eps=grid.eps, crit=crit, scale=scale, force.quad = force.quad)
+  if(parIS>1 & object.crwFit$need.hess==TRUE) out <- crwSamplePar(out, method=method, size=parIS, df=df, grid.eps=grid.eps, crit=crit, scale=scale, quad.ask=quad.ask, force.quad = force.quad)
+  if(!is.null(out)){
+    attr(out,"epsg") <- attr(object.crwFit,"epsg")
+    attr(out,"proj4") <- attr(object.crwFit,"proj4")
+  }
   return(out)
 }

@@ -51,8 +51,7 @@
 #' @seealso See \code{demo(northernFurSealDemo)} for example.
 #' @export
 
-`crwPostIS` <-
-  function(object.sim, fullPost=TRUE, df=Inf, scale=1, thetaSamp=NULL)
+crwPostIS = function(object.sim, fullPost=TRUE, df=Inf, scale=1, thetaSamp=NULL)
     ################################################################################
 ################################################################################
 {
@@ -70,8 +69,6 @@
   y <- object.sim$y
   noObs = object.sim$noObs
   delta <- object.sim$delta
-  a <- object.sim$a
-  P <- object.sim$P
   n.errX <- object.sim$n.errX
   n.errY <- object.sim$n.errY
   rho = object.sim$rho
@@ -100,36 +97,16 @@
   ###
   ### Process parameters for C++
   ###
-  if (!is.null(err.mfX)) {
-    theta.errX <- par[1:n.errX]
-    Hmat <- exp(2 * err.mfX %*% theta.errX)
-  } else Hmat <- rep(0.0, N)
-  if (!is.null(err.mfY)) {
-    theta.errY <- par[(n.errX + 1):(n.errX + n.errY)]
-    Hmat <- cbind(Hmat,exp(2 * err.mfY %*% theta.errY))
-  } else Hmat <- cbind(Hmat, Hmat)
-  if(!is.null(rho)){
-    Hmat = cbind(Hmat, sqrt(Hmat[,1])*sqrt(Hmat[,2])*rho)
-  } else {Hmat = cbind(Hmat, rep(0,N))}
-  Hmat[noObs==1,] = 0
-  theta.mov <- par[(n.errX + n.errY + 1):(n.errX + n.errY + 2 * n.mov)]
-  sig2 <- exp(2 * (mov.mf %*% theta.mov[1:n.mov]))
-  b <- exp(mov.mf %*% theta.mov[(n.mov + 1):(2 * n.mov)])
-  #activity <- rep(1, N)
-  if (!is.null(activity)) {
-    theta.activ <- par[(n.errX + n.errY + 2 * n.mov + 1)]
-    b <- b / ((activity) ^ exp(theta.activ))
-    active <- ifelse(b==Inf, 0, 1)
-    b <- ifelse(b==Inf, 0, b) 
-  } else active = rep(1,N)
+  theta = object.sim$par[is.na(object.sim$fixPar)]
+  argslist = par2arglist(theta, fixPar, y, noObs, delta,
+                         mov.mf, err.mfX, err.mfY, rho, activity,
+                         n.errX, n.errY, n.mov, driftMod)
+  
   if (driftMod) {
-    theta.drift <- par[(n.errX + n.errY + 2 * n.mov + 1):
-                         (n.errX + n.errY + 2 * n.mov + 2)]
-    b.drift <- exp(log(b) - log(1+exp(theta.drift[2])))
-    sig2.drift <- exp(log(sig2) + 2 * theta.drift[1]) 
-    out=CTCRWSAMPLE_DRIFT(y, Hmat, b, b.drift, sig2, sig2.drift, delta, noObs, active, a, P)
+    out=CTCRWSAMPLE_DRIFT(y, argslist$Hmat,  argslist$b,  argslist$b.drift,  argslist$sig2, 
+                          argslist$sig2.drift, delta, noObs,  argslist$active,  argslist$a,  argslist$P)
   } else {
-    out=CTCRWSAMPLE(y, Hmat, b, sig2, delta, noObs, active, a, P)
+    out=CTCRWSAMPLE(y,  argslist$Hmat,  argslist$b,  argslist$sig2,  delta, noObs,  argslist$active,  argslist$a,  argslist$P)
   }
   
   if(driftMod){
@@ -140,12 +117,17 @@
   ln.prior = ifelse(!is.null(object.sim$prior), object.sim$prior(par[eInd]), 0)
   isw <- ifelse(is.null(object.sim$thetaSampList) & fullPost==TRUE, out$ll - object.sim$loglik - dens, 0) + ln.prior
   samp <- list(alpha.sim=out$sim,
-               locType=object.sim$locType, Time=object.sim$Time,
+               locType=object.sim$locType, TimeNum=object.sim$TimeNum, 
                loglik=out$lly+out$llx, par=par, log.isw = isw)
+  samp[[object.sim$Time.name]] = object.sim$TimeNum
+  if(object.sim$return_posix) samp[[object.sim$Time.name]] = lubridate::as_datetime(samp[[object.sim$Time.name]])
   class(samp) <- c("crwIS","list")
+  attr(samp, "Time.name") = object.sim$Time.name
   attr(samp,"coord") <- object.sim$coord
   attr(samp,"random.drift") <- object.sim$driftMod
   attr(samp,"activity.model") <- !is.null(object.sim$activity)
+  attr(samp,"epsg") <- attr(object.sim,"epsg")
+  attr(samp,"proj4") <- attr(object.sim,"proj4")
   return(samp)
 }
 

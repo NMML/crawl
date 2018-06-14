@@ -5,10 +5,10 @@
 \title{Fit Continuous-Time Correlated Random Walk Models to Animal Telemetry Data}
 \usage{
 crwMLE(mov.model = ~1, err.model = NULL, activity = NULL, drift = FALSE,
-  data, coord = c("x", "y"), Time.name, initial.state, theta, fixPar,
+  data, coord = c("x", "y"), Time.name, time.scale = "hours", theta, fixPar,
   method = "Nelder-Mead", control = NULL, constr = list(lower = -Inf,
   upper = Inf), prior = NULL, need.hess = TRUE, initialSANN = list(maxit =
-  200), attempts = 1)
+  200), attempts = 1, ...)
 }
 \arguments{
 \item{mov.model}{formula object specifying the time indexed covariates for
@@ -27,16 +27,17 @@ using a drift model.}
 \item{data}{data.frame object containg telemetry and covariate data. A 
 'SpatialPointsDataFrame' object from the package 'sp' or an 'sf' object
 from the 'sf' package with a geometry column of type \code{sfc_POINT}.
-'spacetime' will also be accepted. Values for coords will be taken from 
-the spatial data set and ignored in the arguments.}
+'spacetime' objects were previously accepted but no longer valid. 
+Values for coords will be taken from 
+the spatial data set and ignored in the arguments. Spatial data must have a
+valid proj4string or epsg and must NOT be in longlat.}
 
 \item{coord}{A 2-vector of character values giving the names of the "X" and
 "Y" coordinates in \code{data}.}
 
 \item{Time.name}{character indicating name of the location time column}
 
-\item{initial.state}{list object containg the inital state of the Kalman
-filter.}
+\item{time.scale}{character. Scale for conversion of POSIX time to numeric for modeling. Defaults to "hours".}
 
 \item{theta}{starting values for parameter optimization.}
 
@@ -62,6 +63,8 @@ annealing is used for obtaining start values. See details}
 
 \item{attempts}{The number of times likelihood optimization will be
 attempted}
+
+\item{...}{Additional arguments that are ignored.}
 }
 \value{
 A list with the following elements:
@@ -80,9 +83,6 @@ parameters)}
 \item{loglik}{Maximized log-likelihood value}
 
 \item{aic}{Model AIC value}
-
-\item{initial.state}{Intial state provided to \code{crwMLE} for model
-fitting}
 
 \item{coord}{Coordinate names provided for fitting}
 
@@ -171,11 +171,7 @@ for parameters which are to be estimated.
 The data set specified by \code{data} must contain a numeric or POSIXct column which is
 used as the time index for analysis. The column name is specified by the
 \code{Time.name} argument. If a POSIXct column is used it is internally converted to a
-numeric vector with units of hours. The \code{spacetime} package supports an
-\code{STIDF} object that contains slots for both spatial and time series data types. If
-\code{data} is of class \code{STIDF} then the spatial and temporal information are
-automatically extracted and \code{polar.coord}, \code{Time.name} and \code{coord} are
-not required. If your data are not compatible with these data structures, it is better
+numeric vector with units of hours. If your data are not compatible with these data structures, it is better
 to convert it yourself prior to analysis with crawl. Also, for stopping models, the
 stopping covariate must be between 0 and 1 inclusive, with 1 representing complete stop
 of the animal (no true movement, however, location error can still occur) and 0 

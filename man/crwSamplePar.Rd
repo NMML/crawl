@@ -6,7 +6,7 @@
 simulation.}
 \usage{
 crwSamplePar(object.sim, method = "IS", size = 1000, df = Inf,
-  grid.eps = 1, crit = 2.5, scale = 1, force.quad)
+  grid.eps = 1, crit = 2.5, scale = 1, quad.ask = T, force.quad)
 }
 \arguments{
 \item{object.sim}{A simulation object from \code{\link{crwSimulator}}.}
@@ -25,6 +25,9 @@ posterior}
 
 \item{scale}{Scale multiplier for the covariance matrix of the t
 approximation}
+
+\item{quad.ask}{Logical, for method='quadrature'. Whether or not the sampler should ask if quadrature sampling should take place.
+It is used to stop the sampling if the number of likelihood evaluations would be extreme.}
 
 \item{force.quad}{A logical indicating whether or not to force the execution 
 of the quadrature method for large parameter vectors.}
