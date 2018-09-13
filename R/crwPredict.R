@@ -88,12 +88,12 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     # } 
     if(inherits(predTime,"numeric") && inherits(data[, tn], "POSIXct")) {
       # warning("predTime provided as numeric. converting it to POSIXct.")
-      warning("predTime provided as numeric and original data was POSIX! Make sure they are compatible")
+      stop("predTime provided as numeric and original time data was POSIX!")
       # predTime <- lubridate::as_datetime(predTime)
     }
     if(inherits(predTime,"POSIXct") && inherits(data[, tn], "numeric")) {
       # warning("input data time column provided as numeric. converting to POSIXct")
-      warning("predTime provided as POSIX and original data was numeric! Make sure they are compatible")
+      stop("predTime provided as POSIX and original data was numeric!")
       # data[, tn] <- lubridate::as_datetime(data[, tn])
     }
   }
