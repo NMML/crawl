@@ -9,8 +9,8 @@
 #' 
 
 #' 
-#' A full model specification involves 4 components: a movement model, a
-#' stopping model, 2 location error models, and a drift indication. The
+#' A full model specification involves 4 components: a movement model, an
+#' activity model, 2 location error models, and a drift indication. The
 #' movement model (\code{mov.model}) specifies how the movement parameters
 #' should vary over time. This is a function of specified, time-indexed,
 #' covariates. The movement parameters (sigma for velocity variation and beta
@@ -21,18 +21,7 @@
 #' error. If only one location error model is given, it is used for both
 #' coordinates (parameter values as well). If \code{drift.model} is set to
 #' \code{TRUE}, then, 2 additional parameters are estimated for the drift
-#' process, a drift variance and a beta multiplier. If \code{polar.coord=TRUE}
-#' then the ad-hoc logitude correction factor described by Johnson et al.
-#' (2008) (Ecology 89:1208-1215) is used to adjust the variance scale for the
-#' longitude mdoel.
-#' 
-#' The \code{inital.state} is a list with the following elemets (with the exact
-#' names):
-#' 
-#' \code{a} A vector with initial state values. It has 4 elemets (x location at time 1, x velocity at time 1, y location at time 1, 
-#' y velocity at time 1) for
-#' non-drift models and 6 elemets for drift models (x location at time 1,
-#' x velocity at time 1, x drift velocity at time 1, etc...).
+#' process, a drift variance and a beta multiplier. 
 #' 
 #' \code{theta} and \code{fixPar} are vectors with the appropriate number or
 #' parameters. \code{theta} contains only those paraemters which are to be
@@ -42,10 +31,9 @@
 #' The data set specified by \code{data} must contain a numeric or POSIXct column which is
 #' used as the time index for analysis. The column name is specified by the
 #' \code{Time.name} argument. If a POSIXct column is used it is internally converted to a
-#' numeric vector with units of hours. If your data are not compatible with these data structures, it is better
-#' to convert it yourself prior to analysis with crawl. Also, for stopping models, the
-#' stopping covariate must be between 0 and 1 inclusive, with 1 representing complete stop
-#' of the animal (no true movement, however, location error can still occur) and 0 
+#' numeric vector with units of \code{time.scale}. Also, for activity models, the
+#' sactivity covariate must be between 0 and 1 inclusive, with 0 representing complete stop
+#' of the animal (no true movement, however, location error can still occur) and 1 
 #' represent unhindered movement. The coordinate location should have \code{NA} where no
 #' location is recorded, but there is a change in the movment covariates.
 #' 
@@ -160,7 +148,7 @@
 #' @export
 
 crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
-                  data, coord=c("x", "y"), Time.name, time.scale="hours", #initial.state, 
+                  data, coord=c("x", "y"), Time.name="time", time.scale="hours", #initial.state, 
                   theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
                   prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1, ...)
 {
@@ -215,6 +203,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     data$TimeNum <- as.numeric(data[,Time.name])/ts
   } else{
     data$TimeNum <- as.numeric(data[,Time.name])
+    ts = 1
   }
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
