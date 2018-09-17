@@ -122,7 +122,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     ## Data setup ##
     if(min(predTime) <  min(data$TimeNum)) {
       warning("Predictions times given before first observation!\nOnly those after first observation will be used.")
-      predTime <- predTime[predTime>=data$TimeNum]
+      predTime <- predTime[predTime>=min(data$TimeNum)]
     }
     origTime <- data$TimeNum
     if (is.null(data$locType)) {
