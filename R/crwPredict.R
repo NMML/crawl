@@ -116,6 +116,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     
     if(inherits(predTime, "POSIXct")){
       ts = attr(object.crwFit, "time.scale")
+      tz = attr(predTime,'tzone')
       predTime = as.numeric(predTime)/ts
     }
     
@@ -178,7 +179,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
   out <- list(originalData=fillCols(data), alpha.hat=pred, 
               V.hat=var, speed=speed, loglik=out$ll)
   if(return_posix){
-    out$originalData[,tn] = lubridate::as_datetime(out$originalData$TimeNum*ts)
+    out$originalData[,tn] = lubridate::as_datetime(out$originalData$TimeNum*ts, tz=tz)
   } else out$originalData[,tn] = out$originalData$TimeNum
   
   # if(getUseAvail){
