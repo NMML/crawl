@@ -7,8 +7,6 @@
 #' movement is allowed to completely stop, as well as, a random drift model can
 #' be fit with this function.
 #' 
-
-#' 
 #' A full model specification involves 4 components: a movement model, an
 #' activity model, 2 location error models, and a drift indication. The
 #' movement model (\code{mov.model}) specifies how the movement parameters
@@ -30,9 +28,10 @@
 #' 
 #' The data set specified by \code{data} must contain a numeric or POSIXct column which is
 #' used as the time index for analysis. The column name is specified by the
-#' \code{Time.name} argument. If a POSIXct column is used it is internally converted to a
+#' \code{Time.name} argument and it is strongly suggested that this column be of
+#' POSIXct type and in UTC. If a POSIXct column is used it is internally converted to a
 #' numeric vector with units of \code{time.scale}. Also, for activity models, the
-#' sactivity covariate must be between 0 and 1 inclusive, with 0 representing complete stop
+#' activity covariate must be between 0 and 1 inclusive, with 0 representing complete stop
 #' of the animal (no true movement, however, location error can still occur) and 1 
 #' represent unhindered movement. The coordinate location should have \code{NA} where no
 #' location is recorded, but there is a change in the movment covariates.
@@ -54,16 +53,20 @@
 #' drift component. For most data this is usually not necessary. See \code{\link{northernFurSeal}} for an example
 #' using a drift model.
 #' @param data data.frame object containg telemetry and covariate data. A 
-#'   'SpatialPointsDataFrame' object from the package 'sp' or an 'sf' object
-#'   from the 'sf' package with a geometry column of type \code{sfc_POINT}.
-#'   'spacetime' objects were previously accepted but no longer valid. 
-#'   Values for coords will be taken from 
+#'   'sf' object from the 'sf' package with a geometry column of type \code{sfc_POINT}
+#'   is the preferred format for these data. 'SpatialPointsDataFrame' object 
+#'   from the package 'sp' is still accepted. `spacetime' and 'trip' objects were 
+#'   previously accepted but are no longer valid. Values for coords will be taken from 
 #'   the spatial data set and ignored in the arguments. Spatial data must have a
-#'   valid proj4string or epsg and must NOT be in longlat.
+#'   valid proj4string or epsg and must NOT be in longlat. While data provided as
+#'   a data.frame are supported, they will not be compatible with additional 
+#'   fucntions e.g. \code{fix_path}.
 #' @param coord A 2-vector of character values giving the names of the "X" and
 #' "Y" coordinates in \code{data}.
-#' @param Time.name character indicating name of the location time column
-#' @param time.scale character. Scale for conversion of POSIX time to numeric for modeling. Defaults to "hours".
+#' @param Time.name character indicating name of the location time column. It is
+#' strongly preferred that this column be of type POSIXct and in UTC.
+#' @param time.scale character. Scale for conversion of POSIX time to numeric 
+#' for modeling. Defaults to "hours" and most users will not need to change this.
 #' @param theta starting values for parameter optimization.
 #' @param fixPar Values of parameters which are held fixed to the given value.
 #' @param method Optimization method that is passed to \code{\link{optim}}.
@@ -152,24 +155,24 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                   theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
                   prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1, ...)
 {
-  #if(drift) stop("At this time drift models are not supported with this function. Use 'crwMLE' for now.\n")
   st <- Sys.time()
   
-  ### Transform 'sp' package SpatialPointsDataFrame
   if(inherits(data, "trip")){
-    Time.name <- data@TOR.columns[1]
+    stop("you provided data as a 'trip' data type. this is no longer supported. we suggest you convert to 'sf'.")
   }
+  # p4 is a list that stores our projection information
   p4 <- list(epsg = NULL, proj4string = NULL)
+  
+  # if sp/SpatialPoints, check proj4string, then convert to sf
   if(inherits(data, "SpatialPoints")) {	
     if(!sp::is.projected(data)) {
       stop("proj4string for data of sp class is not specified.")
     }
-    if("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) stop("Location data is provided in longlat; must be projected.")	
-    p4$proj4string <- sp::proj4string(data)
-    coordVals <- as.data.frame(sp::coordinates(data))	
-    coord <- names(coordVals)	
-    data <- cbind(slot(data,"data"), coordVals)    
+    if("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) 
+      stop("Location data is provided in longlat; must be projected.")	
+    data <- sf::st_as_sf(data)    
   }
+  
   if(inherits(data,"sf") && inherits(sf::st_geometry(data),"sfc_POINT")) {
     if (sf::st_is_longlat(data)) {
       stop("Location data is provided in longlat; must be projected.")
@@ -177,7 +180,6 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     p4$epsg <- sf::st_crs(data)$epsg
     p4$proj4string <- sf::st_crs(data)$proj4string
     if(!any(names(data) %in% c("x","y"))) {
-      # warning("no 'x' and 'y' columns detected in 'sf' object so will create")
       coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
       coordVals <- stats::setNames(coordVals, c("x","y"))
       sf::st_geometry(data) <- NULL
@@ -187,9 +189,13 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
       sf::st_geometry(data) <- NULL
     }
   }
-  if(inherits(data,"tbl_df")) {
-    data <- as.data.frame(data)
+  if (inherits( data, c("tbl_df","data.frame") )) {
+    warning("location data is provided in a non-spatial format. please consider using 'sf' or 'sp' data structures.")
+    if (inherits(data, "tbl_df")) {
+      data <- as.data.frame(data) 
+    }
   }
+  
   if(inherits(data[,Time.name],"POSIXct")){
     if(time.scale %in% c("hours", "hour")){
       ts = 60*60
@@ -204,6 +210,10 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   } else{
     data$TimeNum <- as.numeric(data[,Time.name])
     ts = 1
+  }
+  
+  if(is.null(p4$epsg) && is.null(p4$proj4string)) {
+    warning("projection data for coordinates was not provided.")
   }
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
