@@ -121,6 +121,7 @@ crwSimulator = function(
   n.errY <- object.crwFit$n.errY
   n.mov <- object.crwFit$n.mov
   tn <- object.crwFit$Time.name
+  ts = attr(object.crwFit, "time.scale")
   
   return_posix <- ifelse((inherits(predTime,"POSIXct") | inherits(predTime, "character")) & 
                            inherits(data[,tn],"POSIXct"), 
@@ -156,7 +157,6 @@ crwSimulator = function(
       }
     }
     
-    ts = attr(object.crwFit, "time.scale")
     predTime = as.numeric(predTime)/ts
     
     if(min(predTime) <  data[1, "TimeNum"]) {
@@ -190,7 +190,7 @@ crwSimulator = function(
               par=object.crwFit$par, nms=object.crwFit$nms, N=nrow(data), lower=object.crwFit$lower, 
               upper=object.crwFit$upper,
               loglik=object.crwFit$loglik, TimeNum=data$TimeNum, Time.name=tn, return_posix=return_posix,
-              coord=object.crwFit$coord, prior=object.crwFit$prior)
+              coord=object.crwFit$coord, prior=object.crwFit$prior, time.scale=ts)
   class(out) <- 'crwSimulator'
   if(parIS>1 & object.crwFit$need.hess==TRUE) out <- crwSamplePar(out, method=method, size=parIS, df=df, grid.eps=grid.eps, crit=crit, scale=scale, quad.ask=quad.ask, force.quad = force.quad)
   if(!is.null(out)){
