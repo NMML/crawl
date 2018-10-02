@@ -30,7 +30,12 @@
 #' used as the time index for analysis. The column name is specified by the
 #' \code{Time.name} argument and it is strongly suggested that this column be of
 #' POSIXct type and in UTC. If a POSIXct column is used it is internally converted to a
-#' numeric vector with units of \code{time.scale}. Also, for activity models, the
+#' numeric vector with units of \code{time.scale}. \code{time.scale} defaults to
+#' NULL and an appropriate option will be chosen ("seconds","minutes","days","weeks")
+#' based on the median time interval. The user can override this by specifying one
+#' of those time intervals directly. If a numeric time vector is used, then 
+#' the \code{time.scale| is ignofred and there
+#' is no adjustment to the data. Also, for activity models, the
 #' activity covariate must be between 0 and 1 inclusive, with 0 representing complete stop
 #' of the animal (no true movement, however, location error can still occur) and 1 
 #' represent unhindered movement. The coordinate location should have \code{NA} where no
@@ -151,7 +156,7 @@
 #' @export
 
 crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
-                  data, coord=c("x", "y"), Time.name="time", time.scale="hours", #initial.state, 
+                  data, coord=c("x", "y"), Time.name="time", time.scale=NULL, #initial.state, 
                   theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
                   prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1, ...)
 {
@@ -185,8 +190,12 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
       sf::st_geometry(data) <- NULL
       data <- cbind(data, coordVals)
     } else {
-      warning("'x' and 'y' columns detected in 'sf' so will use these")
-      sf::st_geometry(data) <- NULL
+      warning("'x' and 'y' columns detected in 'sf'; will drop and create from geometry")
+      coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
+      coordVals <- stats::setNames(coordVals, c("x","y"))
+      data <- data %>% dplyr::select(-c(x, y)) %>% 
+        sf::st_set_geometry(NULL)
+      data <- cbind(data, coordVals)
     }
   }
   if (inherits( data, c("tbl_df","data.frame") )) {
@@ -196,14 +205,17 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     }
   }
   
-  if(inherits(data[,Time.name],"POSIXct")){
-    if(time.scale %in% c("hours", "hour")){
+  if (inherits(data[,Time.name],"POSIXct")){
+    if (is.null(time.scale)) {
+      time.scale = crawl::detect_timescale(data[,Time.name])
+    }
+    if (time.scale %in% c("hours", "hour")){
       ts = 60*60
-    } else if(time.scale %in% c("days", "day")){
+    } else if (time.scale %in% c("days", "day")){
       ts = 60*60*24
-    } else if(time.scale %in% c("sec","secs","second","seconds")){
+    } else if (time.scale %in% c("sec","secs","second","seconds")){
       ts = 1
-    } else if(time.scale %in% c("min","mins","minute","minutes")){
+    } else if (time.scale %in% c("min","mins","minute","minutes")){
       ts = 60
     } else stop("'time.scale' not specified correctly!")
     data$TimeNum <- as.numeric(data[,Time.name])/ts
@@ -213,7 +225,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   }
   
   if(is.null(p4$epsg) && is.null(p4$proj4string)) {
-    warning("projection data for coordinates was not provided.")
+    warning("projection data for data coordinates were not provided.")
   }
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
