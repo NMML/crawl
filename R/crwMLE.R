@@ -168,17 +168,24 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   # p4 is a list that stores our projection information
   p4 <- list(epsg = NULL, proj4string = NULL)
   
+  if (inherits(data, c("tbl_df","data.frame")) & !inherits(data, "sf")) {
+    warning("location data is provided in a non-spatial format. please consider using 'sf' or 'sp' data structures.")
+    if (inherits(data, "tbl_df")) {
+      data <- as.data.frame(data) 
+    }
+  }
+  
   # if sp/SpatialPoints, check proj4string, then convert to sf
-  if(inherits(data, "SpatialPoints")) {	
-    if(!sp::is.projected(data)) {
+  if (inherits(data, "SpatialPoints")) {	
+    if (!sp::is.projected(data)) {
       stop("proj4string for data of sp class is not specified.")
     }
-    if("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) 
+    if ("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) 
       stop("Location data is provided in longlat; must be projected.")	
     data <- sf::st_as_sf(data)    
   }
   
-  if(inherits(data,"sf") && inherits(sf::st_geometry(data),"sfc_POINT")) {
+  if (inherits(data,"sf") && inherits(sf::st_geometry(data),"sfc_POINT")) {
     if (sf::st_is_longlat(data)) {
       stop("Location data is provided in longlat; must be projected.")
     }
@@ -196,12 +203,6 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
       data <- data %>% dplyr::select(-c(x, y)) %>% 
         sf::st_set_geometry(NULL)
       data <- cbind(data, coordVals)
-    }
-  }
-  if (inherits( data, c("tbl_df","data.frame") )) {
-    warning("location data is provided in a non-spatial format. please consider using 'sf' or 'sp' data structures.")
-    if (inherits(data, "tbl_df")) {
-      data <- as.data.frame(data) 
     }
   }
   
@@ -360,6 +361,9 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     attr(out,"proj4") <- p4$proj4string
     attr(out, "time.scale") = ts
     class(out) <- c("crwFit")
+    if(drift) {
+      class(out) <- c("crwFit_drift","crwFit")
+    }
     return(out)
   }
 }

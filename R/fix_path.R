@@ -6,7 +6,7 @@
 #' will identify path segments from the unrestrained path that pass through these areas.
 #' If the path/points end within the land area, those records will be removed.
 #' The user can then use this information to adjust the path as desired. 
-#' @param crw_object A \code{crwIS} object from the \code{crawl} package 
+#' @param crw_object A \code{crwIS} or \code{crwPredict} object from the \code{crawl} package 
 #' @param vector_mask A \code{sf} object from sf package that indicates 
 #' restricted areas as a polygon feature.  
 #' @return A data.frame with each row associated with each section of the path
@@ -16,20 +16,13 @@
 #' @export
 #' 
 
-get_mask_segments = function(crw_object, vector_mask) {
-  # pull out the alpha.sim and Time columns from the crwIS object
-  # filter to include only the "p" location types
-  alpha.sim <- crw_object$alpha.sim[crw_object$locType == "p",]
-  times.sim <- crw_object$Time[crw_object$locType == "p"]
+get_mask_segments = function(crw_sf, vector_mask, alpha) {
   
-  # convert crwIS to a POINT sf object
-  xy <- crw_as_sf(crw_object,"POINT","p")
-  
-  # intersect xy with vector mask
-  on_mask <- sf::st_intersects(xy, vector_mask) %>% 
+  # intersect crw_sf with vector mask
+  on_mask <- sf::st_intersects(crw_sf, vector_mask) %>% 
     purrr::map_lgl(~ length(.x) > 0)
   if (any(is.na(on_mask))) {
-    stop("points in xy fall outside the extent of vector_mask")
+    stop("points in crw_sf fall outside the extent of vector_mask")
   }
   # return NULL if no points within the vector mask
   if (sum(on_mask,na.rm = TRUE) == 0) {return(NULL)}
@@ -49,7 +42,7 @@ get_mask_segments = function(crw_object, vector_mask) {
                   " observations removed"))
     tail_end <- max(which(on_mask == 0))
   }
-  xy <- xy[head_start:tail_end,]
+  crw_sf <- crw_sf[head_start:tail_end,]
   on_mask <- on_mask[head_start:tail_end]
   
   in.segment <- (on_mask == TRUE)
@@ -60,9 +53,9 @@ get_mask_segments = function(crw_object, vector_mask) {
                      dplyr::lead(c(in.segment, FALSE) == FALSE)) + 1
   on_mask_segments <- data.frame(start_idx, end_idx) %>% 
     rowwise() %>% 
-    dplyr::mutate(start_alpha = list(alpha.sim[start_idx,]),
-                  end_alpha = list(alpha.sim[end_idx,]),
-                  times = list(times.sim[start_idx:end_idx]))
+    dplyr::mutate(start_alpha = list(alpha$alpha[start_idx,]),
+                  end_alpha = list(alpha$alpha[end_idx,]),
+                  times = list(alpha$times[start_idx:end_idx]))
   on_mask_segments <- list(
     on_mask_segments = on_mask_segments,
     fixed_range = c(head_start,tail_end)
@@ -137,13 +130,12 @@ cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1,
 # #' @importFrom rlang .data
 #' @export
 
-fix_segments <- function(crw_object, vector_mask, crwFit) {
-  # get the epsg code of crw_object and par from crwFit
-  crw_epsg <- attr(crw_object,"epsg")
+fix_segments <- function(crw_sf, vector_mask, crwFit, alpha) {
+  # get par from crwFit
   par = tail(crwFit$estPar, 2)
   
   # identify segments that are within the vector mask
-  segments <- get_mask_segments(crw_object,vector_mask)
+  segments <- get_mask_segments(crw_sf,vector_mask, alpha)
   segments <- segments$on_mask_segments
   # add an empty 'fixed_seg' column to segments
   segments[,"fixed_seg"] <- NA
@@ -173,19 +165,19 @@ fix_segments <- function(crw_object, vector_mask, crwFit) {
       colnames(p_draw) <- c("mu.x", "nu.x", "mu.y", "nu.y")
       p_sf <- p_draw %>% as_tibble() %>%
         sf::st_as_sf(coords = c("mu.x", "mu.y")) %>% 
-        sf::st_set_crs(crw_epsg)
+        sf::st_set_crs(sf::st_crs(crw_sf))
       alpha0_pt <- matrix(alpha0,ncol = 4)
       colnames(alpha0_pt) <- c("mu.x", "nu.x", "mu.y", "nu.y")
       start_pt <- alpha0_pt %>% as_tibble() %>% 
         sf::st_as_sf(coords = c("mu.x", "mu.y")) %>% 
-        sf::st_set_crs(crw_epsg)
+        sf::st_set_crs(sf::st_crs(crw_sf))
       
       l_sf  <- vector("list", nrow(p_sf))
       for (k in 1:nrow(p_sf)) {
         l_sf[[k]] <- sf::st_linestring(rbind(sf::st_coordinates(start_pt),
                                              sf::st_coordinates(p_sf[k,])))
       }
-      l_sfc <- sf::st_sfc(l_sf) %>% sf::st_set_crs(crw_epsg)
+      l_sfc <- sf::st_sfc(l_sf) %>% sf::st_set_crs(sf::st_crs(crw_sf))
       
       # now that we have our lines, lets find which ones don't cross the vector mask
       cross_mask <- sf::st_intersects(l_sfc, vector_mask) %>% 
@@ -199,19 +191,19 @@ fix_segments <- function(crw_object, vector_mask, crwFit) {
         colnames(p_draw) <- c("mu.x", "nu.x", "mu.y", "nu.y")
         p_sf <- p_draw %>% as_tibble() %>%
           sf::st_as_sf(coords = c("mu.x", "mu.y")) %>% 
-          sf::st_set_crs(crw_epsg)
+          sf::st_set_crs(sf::st_crs(crw_sf))
         alpha0_pt <- matrix(alpha0,ncol = 4)
         colnames(alpha0_pt) <- c("mu.x", "nu.x", "mu.y", "nu.y")
         start_pt <- alpha0_pt %>% as_tibble() %>% 
           sf::st_as_sf(coords = c("mu.x", "mu.y")) %>% 
-          sf::st_set_crs(crw_epsg)
+          sf::st_set_crs(sf::st_crs(crw_sf))
         
         l_sf  <- vector("list", nrow(p_sf))
         for (k in 1:nrow(p_sf)) {
           l_sf[[k]] <- sf::st_linestring(rbind(sf::st_coordinates(start_pt),
                                                sf::st_coordinates(p_sf[k,])))
         }
-        l_sfc <- sf::st_sfc(l_sf) %>% sf::st_set_crs(crw_epsg)
+        l_sfc <- sf::st_sfc(l_sf) %>% sf::st_set_crs(sf::st_crs(crw_sf))
         
         # now that we have our brownian lines, lets find which 
         # ones don't cross the vector mask
@@ -250,6 +242,35 @@ fix_segments <- function(crw_object, vector_mask, crwFit) {
   return(segments)
 }
 
+#' @title Extract alpha values from \code{crwPredict} or \code{crwIS} objects
+#' @description extracts the needed alpha values for \code{fix_path}
+#' @param crw_object Can be one of the following classes: 
+#' (1) 'crwIS' object from the \code{crwPostIS} function
+#' (2) 'crwPredict' object from the \code{crwPredict} function
+#' @return a list of 2 (matrix of extracted alpha values, times)
+#' @export
+#'
+
+crw_alpha <- function(crw_object) {
+  if (inherits(crw_object,"crwIS")) {
+    # pull out the alpha.sim and Time columns from the crwIS object
+    # filter to include only the "p" location types
+    alpha <- crw_object$alpha.sim[crw_object$locType == "p"]
+    times <- crw_object$Time[crw_object$locType == "p"]
+    predicted_idx <- which(crw_object$locType == "p")
+  }
+  
+  if (inherits(crw_object,"crwPredict")) {
+    alpha <- data.matrix(crw_object[,c("mu.x","nu.x","mu.y","nu.y")])
+    times <- crw_object[,attr(crw_object,"Time.name")]
+    predicted_idx <- which(crw_object$locType == "p")
+  }
+  out <- list(alpha = alpha,
+              times = times,
+              predicted_idx = predicted_idx)
+  class(out) <- "crwAlpha"
+  return(out)
+}
 
 #' @title Project path away from restricted areas
 #' @description Corrects a path so that it does not travel through a restricted area.
@@ -257,28 +278,54 @@ fix_segments <- function(crw_object, vector_mask, crwFit) {
 #' (1) 'crwIS' object from the \code{crwPostIS} function
 #' @param vector_mask an 'sf' polygon object that defines the restricted area
 #' @param crwFit crwFit object that was used to generate the crw_object
-#' @return a new crw_object (of type crwIS)
+#' @return a new crw_object w/ locType set to "f" for fixed points
 #' @export
 #'
 
 fix_path <- function(crw_object, vector_mask, crwFit) {
-  vector_mask <- vector_mask %>% sf::st_buffer(0) %>% 
-    rmapshaper::ms_clip(bbox = sf::st_bbox(crw_as_sf(crw_object,"POINT") %>% 
-    sf::st_buffer(100000)), remove_slivers = TRUE)
-  
-  fix <- fix_segments(crw_object, vector_mask, crwFit)
-  if (inherits(fix, "list")) {return(fix)}
-  predicted_idx <- which(crw_object$locType == "p")
-  alpha.sim <- crw_object$alpha.sim[predicted_idx,]
-  
-  for (i in 1:nrow(fix)) {
-    start_idx <- fix$start_idx[i]
-    end_idx <- fix$end_idx[i]
-    alpha.sim[start_idx:end_idx,] <- fix$fixed_seg[[i]]
+  # check if crwFit used the drift model and stop
+  if (inherits(crwFit,"crwFit_drft")) {
+    stop("model fits with drift = TRUE are currently not supported within fix_path.")
   }
-  crw_object$alpha.sim <- alpha.sim
-  crw_object$locType <- crw_object$locType[predicted_idx]
-  crw_object$Time <- crw_object$Time[predicted_idx]
-  return(crw_object)
+  alpha <- crw_alpha(crw_object)
+  
+  # convert crw_object to a POINT sf object
+  crw_sf <- crawl::crw_as_sf(crw_object,"POINT","p")
+  
+  vector_mask <- vector_mask %>% sf::st_buffer(0) %>% 
+    rmapshaper::ms_clip(bbox = sf::st_bbox(sf::st_buffer(crw_sf,100000)), 
+                        remove_slivers = TRUE)
+  
+  fix <- fix_segments(crw_sf, vector_mask, crwFit, alpha)
+  if (inherits(fix, "list")) {return(fix)}
+  
+  if (inherits(crw_object, "crwIS")) {
+    alpha.sim <- crw_object$alpha.sim
+    loc.types <- crw_object$locType
+    for (i in 1:nrow(fix)) {
+      start_idx <- fix$start_idx[i]
+      end_idx <- fix$end_idx[i]
+      alpha.sim[start_idx:end_idx, ] <- fix$fixed_seg[[i]]
+      loc.types[start_idx:end_idx, ] <- "f"
+    }
+    crw_object$alpha.sim <- alpha.sim
+    crw_object$locType <- loc.types
+    # crw_object$locType <- crw_object$locType[alpha$predicted_idx]
+    # crw_object$Time <- crw_object$Time[alpha$predicted_idx]
+    return(crw_object)
+  }
+  
+  if (inherits(crw_object,"crwPredict")) {
+    for (i in 1:nrow(fix)) {
+      start_idx <- fix$start_idx[i]
+      end_idx <- fix$end_idx[i]
+      crw_object[start_idx:end_idx,"mu.x"] <- fix$fixed_seg[[i]][,1]
+      crw_object[start_idx:end_idx,"nu.x"] <- fix$fixed_seg[[i]][,2]
+      crw_object[start_idx:end_idx,"mu.y"] <- fix$fixed_seg[[i]][,3]
+      crw_object[start_idx:end_idx,"nu.x"] <- fix$fixed_seg[[i]][,4]
+      crw_object[start_idx:end_idx,"locType"] <- "f"
+    }
+    return(crw_object)
+  }
   }
 
