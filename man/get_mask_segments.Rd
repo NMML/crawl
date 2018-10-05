@@ -4,13 +4,13 @@
 \alias{get_mask_segments}
 \title{Identify segments of a path that cross through a restricted area}
 \usage{
-get_mask_segments(crw_object, vector_mask)
+get_mask_segments(crw_sf, vector_mask, alpha)
 }
 \arguments{
-\item{crw_object}{A \code{crwIS} object from the \code{crawl} package}
-
 \item{vector_mask}{A \code{sf} object from sf package that indicates 
 restricted areas as a polygon feature.}
+
+\item{crw_object}{A \code{crwIS} or \code{crwPredict} object from the \code{crawl} package}
 }
 \value{
 A data.frame with each row associated with each section of the path

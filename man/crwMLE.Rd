@@ -4,11 +4,12 @@
 \alias{crwMLE}
 \title{Fit Continuous-Time Correlated Random Walk Models to Animal Telemetry Data}
 \usage{
-crwMLE(mov.model = ~1, err.model = NULL, activity = NULL, drift = FALSE,
-  data, coord = c("x", "y"), Time.name = "time", time.scale = "hours",
-  theta, fixPar, method = "Nelder-Mead", control = NULL,
-  constr = list(lower = -Inf, upper = Inf), prior = NULL,
-  need.hess = TRUE, initialSANN = list(maxit = 200), attempts = 1, ...)
+crwMLE(mov.model = ~1, err.model = NULL, activity = NULL,
+  drift = FALSE, data, coord = c("x", "y"), Time.name = "time",
+  time.scale = NULL, theta, fixPar, method = "Nelder-Mead",
+  control = NULL, constr = list(lower = -Inf, upper = Inf),
+  prior = NULL, need.hess = TRUE, initialSANN = list(maxit = 200),
+  attempts = 1, ...)
 }
 \arguments{
 \item{mov.model}{formula object specifying the time indexed covariates for
@@ -25,19 +26,23 @@ drift component. For most data this is usually not necessary. See \code{\link{no
 using a drift model.}
 
 \item{data}{data.frame object containg telemetry and covariate data. A 
-'SpatialPointsDataFrame' object from the package 'sp' or an 'sf' object
-from the 'sf' package with a geometry column of type \code{sfc_POINT}.
-'spacetime' objects were previously accepted but no longer valid. 
-Values for coords will be taken from 
+'sf' object from the 'sf' package with a geometry column of type \code{sfc_POINT}
+is the preferred format for these data. 'SpatialPointsDataFrame' object 
+from the package 'sp' is still accepted. `spacetime' and 'trip' objects were 
+previously accepted but are no longer valid. Values for coords will be taken from 
 the spatial data set and ignored in the arguments. Spatial data must have a
-valid proj4string or epsg and must NOT be in longlat.}
+valid proj4string or epsg and must NOT be in longlat. While data provided as
+a data.frame are supported, they will not be compatible with additional 
+fucntions e.g. \code{fix_path}.}
 
 \item{coord}{A 2-vector of character values giving the names of the "X" and
 "Y" coordinates in \code{data}.}
 
-\item{Time.name}{character indicating name of the location time column}
+\item{Time.name}{character indicating name of the location time column. It is
+strongly preferred that this column be of type POSIXct and in UTC.}
 
-\item{time.scale}{character. Scale for conversion of POSIX time to numeric for modeling. Defaults to "hours".}
+\item{time.scale}{character. Scale for conversion of POSIX time to numeric 
+for modeling. Defaults to "hours" and most users will not need to change this.}
 
 \item{theta}{starting values for parameter optimization.}
 
@@ -136,42 +141,6 @@ are specified for movement portion and the location error portion. Each
 model can depend on time indexed covariates. A \dQuote{haul out} model where
 movement is allowed to completely stop, as well as, a random drift model can
 be fit with this function.
-}
-\details{
-A full model specification involves 4 components: a movement model, an
-activity model, 2 location error models, and a drift indication. The
-movement model (\code{mov.model}) specifies how the movement parameters
-should vary over time. This is a function of specified, time-indexed,
-covariates. The movement parameters (sigma for velocity variation and beta
-for velocity autocorrelation) are both modeled with a log link as par =
-exp(eta), where eta is the linear predictor based on the covariates. The
-\code{err.model} specification is a list of 2 such models, one for
-\dQuote{longitude} and one for \dQuote{latitude} (in that order) location
-error. If only one location error model is given, it is used for both
-coordinates (parameter values as well). If \code{drift.model} is set to
-\code{TRUE}, then, 2 additional parameters are estimated for the drift
-process, a drift variance and a beta multiplier.
-
-\code{theta} and \code{fixPar} are vectors with the appropriate number or
-parameters. \code{theta} contains only those paraemters which are to be
-estimated, while \code{fixPar} contains all parameter values with \code{NA}
-for parameters which are to be estimated.
-
-The data set specified by \code{data} must contain a numeric or POSIXct column which is
-used as the time index for analysis. The column name is specified by the
-\code{Time.name} argument. If a POSIXct column is used it is internally converted to a
-numeric vector with units of \code{time.scale}. Also, for activity models, the
-sactivity covariate must be between 0 and 1 inclusive, with 0 representing complete stop
-of the animal (no true movement, however, location error can still occur) and 1 
-represent unhindered movement. The coordinate location should have \code{NA} where no
-location is recorded, but there is a change in the movment covariates.
-
-The CTCRW models can be difficult to provide good initial values for
-optimization. If \code{initialSANN} is specified then simulated annealing is
-used first to obtain starting values for the specified optimaization method.
-If simulated annealing is used first, then the returned \code{init} list of
-the crwFit object will be a list with the results of the simulated annealing
-optimization.
 }
 \author{
 Devin S. Johnson, Josh M. London

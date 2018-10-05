@@ -15,7 +15,7 @@ fix_path(crw_object, vector_mask, crwFit)
 \item{crwFit}{crwFit object that was used to generate the crw_object}
 }
 \value{
-a new crw_object (of type crwIS)
+a new crw_object w/ locType set to "f" for fixed points
 }
 \description{
 Corrects a path so that it does not travel through a restricted area.

@@ -5,7 +5,8 @@
 \title{Predict animal locations and velocities using a fitted CTCRW model and
 calculate measurement error fit statistics}
 \usage{
-crwPredict(object.crwFit, predTime = NULL, return.type = "minimal", ...)
+crwPredict(object.crwFit, predTime = NULL, return.type = "minimal",
+  ...)
 }
 \arguments{
 \item{object.crwFit}{A model object from \code{\link{crwMLE}}.}
