@@ -6,7 +6,7 @@
 #'
 #' @param time_vector a vector of class POSIXct
 #'
-#' @return character of either "seconds","hours","days","weeks"
+#' @return character of either "seconds","minutes","hours","days","weeks"
 #' @export
 #'
 
@@ -16,6 +16,9 @@ detect_timescale <- function(time_vector) {
   median_int <- abs(median(intervals))
   if (median_int < 31) {
     return("seconds")
+  }
+  if (median_int < 1801) {
+    return("minutes")
   }
   if (median_int < 3600*12) {
     return("hours")

@@ -185,7 +185,7 @@ crwSimulator = function(
     if (!is.null(err.mfY)) err.mfY <- as.matrix(expandPred(x=err.mfY, Time=origTime, predTime=predTime))
     if (!is.null(rho)) rho <- as.matrix(expandPred(x=rho, Time=origTime, predTime=predTime))
   }
-  data$locType[data[,tn]%in%predTime] <- 'p'
+  data$locType[data$TimeNum%in%predTime] <- 'p'
   delta <- c(diff(data$TimeNum), 1)
   y = as.matrix(data[,object.crwFit$coord])
   noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))
