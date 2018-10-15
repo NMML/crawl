@@ -294,3 +294,134 @@ ggplot() +
           subtitle = "Harbor Seal, Shelikof Strait, Alaska, USA")
 ```
 
+## Identifying the Shortest Coastline Path
+
+For this example, we will focus on the largest over-land segment. To identify
+the specific portion of the path, we can examine _segments_
+
+```{r}
+segments
+```
+
+The second entry in _segments_ represents this protion of the path. The
+goal is to have `fix_path()` route a new path along the coastline to the west.
+We can use several geo-spatial functions provided by the `sf` and `lwgeom`
+packages to extract this stretch of coastline.
+
+The general idea is to create a straight line from the start and end points of
+each segment (both of which will be in-water). We use this line to split the
+*vector_mask* polygon using the `lwgeom::st_split()` function. In the case
+where the straight line only crosses a single polygon, we can simply select the
+smallest area polygon as it will contain the shortest coastline distance between
+our two points. At this point, we employ a series of additional functions and
+conversions to end up with a line feature.
+
+```{r}
+vector_mask <- ak_sf
+crw_sf <- pred1_sf
+
+segments$fixed_seg <- NA
+
+i <- 2
+
+start_idx <- segments[i, "start_idx"][[1]]
+end_idx <- segments[i, "end_idx"][[1]]
+
+fixed_seg <- vector("list", l)
+
+start_pt = sf::st_point(segments[i,]$start_alpha[[1]][c("mu.x", "mu.y")])
+end_pt = sf::st_point(segments[i,]$end_alpha[[1]][c("mu.x", "mu.y")])
+fix_line <- sf::st_linestring(rbind(start_pt, end_pt)) %>%
+  sf::st_sfc() %>% sf::st_set_crs(sf::st_crs(crw_sf))
+
+n_polys <- vector_mask %>%
+  sf::st_cast("POLYGON") %>%
+  st_intersects(fix_line, sparse = FALSE) %>%
+  sum()
+
+coast_line <- vector_mask %>%
+  sf::st_cast("POLYGON") %>%
+  dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>%
+  lwgeom::st_split(fix_line) %>%
+  sf::st_collection_extract("POLYGON") %>%
+  dplyr::slice(which.min(st_area(.))) %>%
+  sf::st_cast("LINESTRING") %>%
+  lwgeom::st_split(st_buffer(fix_line, dist = 1e-10)) %>%
+  sf::st_collection_extract("LINESTRING") %>%
+  dplyr::slice(which.max(st_length(.)))
+
+```
+
+
+```{r}
+ggplot() + 
+  annotation_map_tile(type = esri_ocean,zoomin = 1, progress = "none") +
+  layer_spatial(fix_line %>% st_sf(), lwd = 0.5, color = 'dark red',
+                linetype = 11) +
+  layer_spatial(coast_line, lwd = 1.5, color = 'dark blue') +
+  ggtitle("Shortest Coastline Between Points")
+```
+
+The `fix_path()` approach relies on a series of _waypoints_ that are placed
+evenly along the shortest coastline path. These _waypoints_ serve to anchor/guide
+the model parameters as a new path is developed. We have chosen to set the
+number of _waypoints_ at 4x the number of locations within the segment.
+
+```{r}
+# length of the segment is determined from the times column
+data_times <- list(times = segments[i,]$times[[1]],
+                   type = "data") %>%
+  tibble::as_tibble()
+
+wypt_times <- list(times = c(seq(
+  data_times$times[1],
+  data_times$times[nrow(data_times)],
+  by = 0.25
+))) %>%
+  tibble::as_tibble()
+
+l <- nrow(wypt_times)
+
+data_times <- data_times %>%
+  dplyr::slice(2:(n() - 1))
+
+start_pt <- start_pt %>% 
+      sf::st_sfc() %>%
+      sf::st_set_crs(sf::st_crs(crw_sf))
+    
+    end_pt <- end_pt %>% 
+      sf::st_sfc() %>% 
+      sf::st_set_crs(sf::st_crs(crw_sf))
+    
+    coast_points <- coast_line %>% 
+      sf::st_sample(l-2,type = "regular",offset=runif(1)) %>% 
+      sf::st_cast("POINT") 
+```
+
+```{r}
+ggplot() + 
+  annotation_map_tile(type = esri_ocean,zoomin = 1, progress = "none") +
+  layer_spatial(fix_line %>% st_sf(), lwd = 0.5, color = 'dark red',
+                linetype = 11) +
+  layer_spatial(coast_line, lwd = 0.5, color = 'dark blue') +
+  layer_spatial(coast_points %>% st_sf(), size = 1, color = '#159957') +
+  ggtitle("Distribution of Waypoints")
+```
+
+### Considerations Before Proceeding
+
+At this point, we have all of the basis information and parameters needed
+to proceed with estimation of a new path segment that is routed around the
+land feature. But, it is a good time to review the input data and some of the
+assumptions.
+
+If you examine the maps above, you'll notice the coastline from the Natural
+Earth data does not quite match the ESRI World Ocean Basemap. The importance
+of this discrepancy will depend on your data and the questions of interest.
+Since the waypoints along the coastline only serve as anchors, some discrepancy
+should be tolerable for most applications.
+
+In this example, the function can only handle when the straight line between
+in-water locations crosses one polygon feature. Future development will allow
+up to three polygon crossings. But, more than that, and you will need to either
+increase the number of predicted locations OR simplify the supplied vector mask.
