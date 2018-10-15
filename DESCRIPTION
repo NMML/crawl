@@ -36,7 +36,9 @@ Suggests:
     tidyr,
     xts,
     broom,
-    doParallel
+    doParallel,
+    knitr,
+    rmarkdown
 Description: Fit continuous-time correlated random walk models with time indexed
     covariates to animal telemetry data. The model is fit using the Kalman-filter on
     a state space version of the continuous-time stochastic movement process.
@@ -45,3 +47,4 @@ LazyLoad: yes
 ByteCompile: TRUE
 NeedsCompilation: yes
 RoxygenNote: 6.1.0
+VignetteBuilder: knitr
