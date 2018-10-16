@@ -68,6 +68,7 @@ esri_ocean <- paste0('https://services.arcgisonline.com/arcgis/rest/services/',
 ggplot() + 
   annotation_map_tile(type = esri_ocean,zoomin = 2,progress = "none") +
   layer_spatial(harborSeal_sf, size = 0.5) +
+  scale_x_continuous(expand = expand_scale(mult = c(.5, .5))) +
   ggtitle("Observed Argos Locations", 
           subtitle = "Harbor Seal, Shelikof Strait, Alaska, USA")
 ```
@@ -114,6 +115,7 @@ pred1_sf <- pred1 %>% crawl::crw_as_sf("LINESTRING")
 ggplot() + 
   annotation_map_tile(type = esri_ocean,zoomin = 2,progress = "none") +
   layer_spatial(pred1_sf, lwd = 0.5) +
+  scale_x_continuous(expand = expand_scale(mult = c(.5, .5))) +
   ggtitle("Predicted Path", 
           subtitle = "Harbor Seal, Shelikof Strait, Alaska, USA")
 ```
@@ -170,6 +172,7 @@ ak_sf <- rnaturalearth::ne_download(category = 'physical',type = 'land',
 ggplot() + 
   ggspatial::annotation_spatial(data = ak_sf) +
   ggspatial::layer_spatial(pred1_line, lwd = 0.75, color = '#159957') +
+  scale_x_continuous(expand = expand_scale(mult = c(.5, .5))) +
   ggtitle("Predicted Path for Isolated Portion", 
           subtitle = "Harbor Seal, Shelikof Strait, Alaska, USA")
 ```
@@ -290,6 +293,7 @@ ggplot() +
   ggspatial::annotation_spatial(data = ak_sf) +
   ggspatial::layer_spatial(pred1_line, lwd = 0.75, color = '#159957') +
   ggspatial::layer_spatial(pred1_fix, lwd = 1.5, color = 'dark red') +
+  scale_x_continuous(expand = expand_scale(mult = c(.5, .5))) +
   ggtitle("Predicted Path Highlighting On-Land Segments", 
           subtitle = "Harbor Seal, Shelikof Strait, Alaska, USA")
 ```
@@ -327,7 +331,6 @@ i <- 2
 start_idx <- segments[i, "start_idx"][[1]]
 end_idx <- segments[i, "end_idx"][[1]]
 
-fixed_seg <- vector("list", l)
 
 start_pt = sf::st_point(segments[i,]$start_alpha[[1]][c("mu.x", "mu.y")])
 end_pt = sf::st_point(segments[i,]$end_alpha[[1]][c("mu.x", "mu.y")])
@@ -359,6 +362,7 @@ ggplot() +
   layer_spatial(fix_line %>% st_sf(), lwd = 0.5, color = 'dark red',
                 linetype = 11) +
   layer_spatial(coast_line, lwd = 1.5, color = 'dark blue') +
+  scale_x_continuous(expand = expand_scale(mult = c(.5, .5))) +
   ggtitle("Shortest Coastline Between Points")
 ```
 
@@ -405,6 +409,7 @@ ggplot() +
                 linetype = 11) +
   layer_spatial(coast_line, lwd = 0.5, color = 'dark blue') +
   layer_spatial(coast_points %>% st_sf(), size = 1, color = '#159957') +
+  scale_x_continuous(expand = expand_scale(mult = c(.5, .5))) +
   ggtitle("Distribution of Waypoints")
 ```
 
