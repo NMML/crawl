@@ -207,5 +207,3 @@ getSD <- function(x){
 	if(any(!is.na(d))) return(max(d, na.rm=TRUE))
 	else return(0)
 }
-
-

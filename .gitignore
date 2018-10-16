@@ -15,5 +15,4 @@ crawl.Rproj
 *.zip
 *.tgz
 inst/doc
-/testing/mvn_test.cpp
-/testing/nfs_pups_2005.csv
+/testing

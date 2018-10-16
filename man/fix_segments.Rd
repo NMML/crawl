@@ -4,15 +4,15 @@
 \alias{fix_segments}
 \title{Identify segments of a path that cross a restricted area}
 \usage{
-fix_segments(crw_object, vector_mask, crwFit)
+fix_segments(crw_sf, vector_mask, crwFit, alpha)
 }
 \arguments{
-\item{crw_object}{Coordinate locations for the path. Can be one of the following classes: 
-(1) 'crwIS' object from the \code{crwPostIS} function}
-
 \item{vector_mask}{an 'sf' polygon object that defines the restricted area}
 
 \item{crwFit}{crwFit object that was used to generate the crw_object}
+
+\item{crw_object}{Coordinate locations for the path. Can be one of the following classes: 
+(1) 'crwIS' object from the \code{crwPostIS} function}
 }
 \value{
 a tibble with each record identifying the segments and pertinant values

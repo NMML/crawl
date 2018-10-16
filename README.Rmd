@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-[![Travis-CI Build Status](https://travis-ci.org/NMML/crawl.svg?branch=devel)](https://travis-ci.org/NMML/crawl)
+[![Travis-CI Build Status](https://travis-ci.org/NMML/crawl.svg?branch=master)](https://travis-ci.org/NMML/crawl)
 
 ## Correlated RAndom Walk Library of R functions
 
