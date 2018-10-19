@@ -1,16 +1,27 @@
 ---
 title: "Fixing Animal Movement Paths Around Barriers"
-author: "Josh M. London"
+subtitle: "a vignette in support of the `crawl` R package"
+author:
+- name: Josh M. London
+  affiliation: 1
+- name: Devin S. Johnson
+  affiliation: 2
+address:
+- code: 1
+  address: Alaska Fisheries Science Center, NOAA Fisheries, Seattle, Washington, USA 
+  email: josh.london@noaa.gov
+  orcid: orcid.org/0000-0002-3647-5046
+- code: 2
+  address: Alaska Fisheries Science Center, NOAA Fisheries, Seattle, Washington, USA 
+  email: devin.johnson@noaa.gov 
 date: "`r Sys.Date()`"
-output:
-  prettydoc::html_pretty:
-    theme: cayman
-    fig_width: 8
-    fig_height: 8
-    fig_retina: 2
-    fig_align: center
+abstract: >
+  The `crawl` package provides an analytical framework for developing models of animal movement from telemetry data. The focus is on telemetry data with location error and obtained at irregular intervals. Studies of marine mammals that rely on the Argos satellite system for location estimates fall within this category. Many marine mammal species are coastal (and, in the case of pinnipeds, come ashore at times). This, along with the error inherent in Argos and GPS locations inevitably results in the presence of locations on shore that are not plausible. The `crwMLE()` model fitting function within `crawl` does not incorporate the presence of land as a barrier to movement. To account for any non-plausible locations, we provide the `fix_path()` function. This is a post-hoc adjustment of those track segments that cross the specified barrier. The adjustment is based on key parameters from the model fit as well as a series of waypoints that are laid down along the shortest barrier path (e.g. coastline).
+output: 
+  uswebr::html_uswds:
+    number_sections: FALSE
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Fixing Animal Movement paths Around Barriers}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,24 +34,14 @@ knitr::opts_chunk$set(
   error = FALSE,
   message = FALSE
 )
+# library(showtext)
+# ## Loading Google fonts (http://www.google.com/fonts)
+# font_add_google("Source Sans Pro")
+# ## Automatically use showtext to render text
+# showtext_auto()
+
 devtools::load_all("..")
 ```
-
-# Executive Summary
-
-The `crawl` package provides an analytical framework for developing models of
-animal movement from telemetry data. The focus is on telemetry data with
-location error and obtained at irregular intervals. Studies of marine mammals
-that rely on the Argos satellite system for location estimates fall within this
-category. Many marine mammal species are coastal (and, in the case of pinnipeds,
-come ashore at times). This, along with the error inherent in Argos and GPS
-locations inevitably results in the presence of locations on shore that are not
-plausible. The `crwMLE()` model fitting function within `crawl` does not
-incorporate the presence of land as a barrier to movement. To account for any
-non-plausible locations, we provide the `fix_path()` function. This is a post-hoc
-adjustment of those track segments that cross the specified barrier. The
-adjustment is based on key parameters from the model fit as well as a series of
-waypoints that are laid down along the shortest barrier path (e.g. coastline).
 
 # Example with Alaska Harbor Seal Track
 
@@ -82,24 +83,26 @@ We also use the `DryTime` data to inform the `activity` parameter.
 
 ```{r model-fit, results = 'hide'}
 fixPar = c(log(250), log(500), log(1500), rep(NA,5), 0)
-displayPar( mov.model=~1, err.model=list(x=~Argos_loc_class-1),data=harborSeal_sf, 
-            activity=~I(1-DryTime),fixPar=fixPar)
-constr=list(
-  lower=c(rep(log(1500),3), rep(-Inf,2)),
-  upper=rep(Inf,5)
+displayPar( mov.model = ~1, 
+            err.model = list(x = ~Argos_loc_class-1),
+            data = harborSeal_sf, 
+            activity = ~I(1-DryTime),fixPar = fixPar)
+constr = list(
+  lower = c(rep(log(1500),3), rep(-Inf,2)),
+  upper = rep(Inf,5)
 )
 
 set.seed(123)
 fit1 <- crwMLE(
-  mov.model=~1, 
-  err.model=list(x=~Argos_loc_class-1), 
-  activity=~I(1-DryTime),
-  data=harborSeal_sf, 
-  Time.name="Time", 
-  fixPar=fixPar, 
-  theta=c(rep(log(5000),3),log(3*3600), 0),
-  constr=constr,
-  control=list(maxit=2000, trace=1, REPORT=1)
+  mov.model = ~1, 
+  err.model = list(x = ~Argos_loc_class-1), 
+  activity = ~I(1-DryTime),
+  data = harborSeal_sf, 
+  Time.name = "Time", 
+  fixPar = fixPar, 
+  theta = c(rep(log(5000),3),log(3*3600), 0),
+  constr = constr,
+  control = list(maxit = 2000, trace = 1, REPORT = 1)
 )
 ```
 
@@ -109,7 +112,7 @@ we will use the `crw_as_sf()` function to convert the predicted path to an
 `sf` _LINESTRING_ and plot.
 
 ```{r, path-predict, fig.cap='A map of the predicted path from a telemetry deployment on a single harbor seal in Alaska. Predictions estimated at hourly time intervals'}
-pred1 = crwPredict(fit1, predTime="1 hour")
+pred1 = crwPredict(fit1, predTime = "1 hour")
 pred1_sf <- pred1 %>% crawl::crw_as_sf("LINESTRING")
 
 ggplot() + 
@@ -132,28 +135,28 @@ land.
 harborSeal_sf <- harborSeal_sf %>% 
   dplyr::slice(550:1000)
 fixPar = c(log(250), log(500), log(1500), rep(NA,5), 0)
-displayPar( mov.model=~1, err.model=list(x=~Argos_loc_class-1),
-            data=harborSeal_sf, 
-            activity=~I(1-DryTime),fixPar=fixPar)
-constr=list(
-  lower=c(rep(log(1500),3), rep(-Inf,2)),
-  upper=rep(Inf,5)
+displayPar( mov.model = ~1, err.model = list(x = ~Argos_loc_class-1),
+            data = harborSeal_sf, 
+            activity = ~I(1-DryTime),fixPar = fixPar)
+constr = list(
+  lower = c(rep(log(1500),3), rep(-Inf,2)),
+  upper = rep(Inf,5)
 )
 
 set.seed(123)
 fit1 <- crwMLE(
-  mov.model=~1, 
-  err.model=list(x=~Argos_loc_class-1), 
-  activity=~I(1-DryTime),
-  data=harborSeal_sf, 
-  Time.name="Time", 
-  fixPar=fixPar, 
-  theta=c(rep(log(5000),3),log(3*3600), 0),
-  constr=constr,
-  control=list(maxit=2000, trace=1, REPORT=1)
+  mov.model = ~1, 
+  err.model = list(x = ~Argos_loc_class-1), 
+  activity = ~I(1-DryTime),
+  data = harborSeal_sf, 
+  Time.name = "Time", 
+  fixPar = fixPar, 
+  theta = c(rep(log(5000),3),log(3*3600), 0),
+  constr = constr,
+  control = list(maxit = 2000, trace = 1, REPORT = 1)
 )
 
-pred1 = crwPredict(fit1, predTime="1 hour")
+pred1 = crwPredict(fit1, predTime = "1 hour")
 pred1_sf <- pred1 %>% crawl::crw_as_sf("POINT")
 pred1_line <- pred1 %>% crawl::crw_as_sf("LINESTRING")
 ```
@@ -342,16 +345,29 @@ n_polys <- vector_mask %>%
   st_intersects(fix_line, sparse = FALSE) %>%
   sum()
 
-coast_line <- vector_mask %>%
-  sf::st_cast("POLYGON") %>%
-  dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>%
-  lwgeom::st_split(fix_line) %>%
-  sf::st_collection_extract("POLYGON") %>%
-  dplyr::slice(which.min(st_area(.))) %>%
-  sf::st_cast("LINESTRING") %>%
-  lwgeom::st_split(st_buffer(fix_line, dist = 1e-10)) %>%
-  sf::st_collection_extract("LINESTRING") %>%
-  dplyr::slice(which.max(st_length(.)))
+if (n_polys == 0) {
+  coast_line <- fix_line
+}
+
+if (n_polys == 1) {
+  coast_line <- vector_mask %>%
+    sf::st_cast("POLYGON") %>%
+    dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>%
+    lwgeom::st_split(fix_line) %>%
+    sf::st_collection_extract("POLYGON") %>%
+    dplyr::slice(which.min(st_area(.))) %>%
+    sf::st_cast("LINESTRING") %>%
+    lwgeom::st_split(st_buffer(fix_line, dist = 1e-10)) %>%
+    sf::st_collection_extract("LINESTRING") %>%
+    dplyr::slice(which.max(st_length(.)))
+}
+
+if (n_polys > 1) {
+  stop(paste("an on-land segment crosses more than one polygon.",
+             "this scenario is currently not supported. the best",
+             "solution is to increase the frequency of prediction",
+             "times or reduce complexity of the vector mask."))
+}
 
 ```
 

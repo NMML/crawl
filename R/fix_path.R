@@ -171,16 +171,29 @@ fix_segments <- function(crw_sf, vector_mask, crwFit, alpha) {
       st_intersects(fix_line,sparse=FALSE) %>% 
       sum()
     
-    coast_line <- vector_mask %>% 
-      sf::st_cast("POLYGON") %>% 
-      dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>% 
-      lwgeom::st_split(fix_line) %>% 
-      sf::st_collection_extract("POLYGON") %>% 
-      dplyr::slice(which.min(st_area(.))) %>% 
-      sf::st_cast("LINESTRING") %>% 
-      lwgeom::st_split(st_buffer(fix_line,dist = 1e-10)) %>% 
-      sf::st_collection_extract("LINESTRING") %>% 
-      dplyr::slice(which.max(st_length(.)))
+    if (n_polys == 0) {
+      coast_line <- fix_line
+    }
+    
+    if (n_polys == 1) {
+      coast_line <- vector_mask %>%
+        sf::st_cast("POLYGON") %>%
+        dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>%
+        lwgeom::st_split(fix_line) %>%
+        sf::st_collection_extract("POLYGON") %>%
+        dplyr::slice(which.min(st_area(.))) %>%
+        sf::st_cast("LINESTRING") %>%
+        lwgeom::st_split(st_buffer(fix_line, dist = 1e-10)) %>%
+        sf::st_collection_extract("LINESTRING") %>%
+        dplyr::slice(which.max(st_length(.)))
+    }
+    
+    if (n_polys > 1) {
+      stop(paste("an on-land segment crosses more than one polygon.",
+                 "this scenario is currently not supported. the best",
+                 "solution is to increase the frequency of prediction",
+                 "times or reduce complexity of the vector mask."))
+    }
     
     start_pt <- start_pt %>% 
       sf::st_sfc() %>%
