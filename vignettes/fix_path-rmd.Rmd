@@ -67,7 +67,7 @@ esri_ocean <- paste0('https://services.arcgisonline.com/arcgis/rest/services/',
                      'Ocean/World_Ocean_Base/MapServer/tile/${z}/${y}/${x}.jpeg')
 
 ggplot() + 
-  annotation_map_tile(type = esri_ocean,zoomin = 2,progress = "none") +
+  annotation_map_tile(type = esri_ocean,zoomin = 1,progress = "none") +
   layer_spatial(harborSeal_sf, size = 0.5) +
   scale_x_continuous(expand = expand_scale(mult = c(.5, .5))) +
   ggtitle("Observed Argos Locations", 
@@ -116,7 +116,7 @@ pred1 = crwPredict(fit1, predTime = "1 hour")
 pred1_sf <- pred1 %>% crawl::crw_as_sf("LINESTRING")
 
 ggplot() + 
-  annotation_map_tile(type = esri_ocean,zoomin = 2,progress = "none") +
+  annotation_map_tile(type = esri_ocean,zoomin = 1,progress = "none") +
   layer_spatial(pred1_sf, lwd = 0.5) +
   scale_x_continuous(expand = expand_scale(mult = c(.5, .5))) +
   ggtitle("Predicted Path", 
@@ -175,7 +175,7 @@ ak_sf <- rnaturalearth::ne_download(category = 'physical',type = 'land',
 ggplot() + 
   ggspatial::annotation_spatial(data = ak_sf) +
   ggspatial::layer_spatial(pred1_line, lwd = 0.75, color = '#159957') +
-  scale_x_continuous(expand = expand_scale(mult = c(.5, .5))) +
+  scale_x_continuous(expand = expand_scale(mult = c(.6, .6))) +
   ggtitle("Predicted Path for Isolated Portion", 
           subtitle = "Harbor Seal, Shelikof Strait, Alaska, USA")
 ```
@@ -429,7 +429,7 @@ ggplot() +
   ggtitle("Distribution of Waypoints")
 ```
 
-### Considerations Before Proceeding
+## Considerations Before Proceeding
 
 At this point, we have all of the basis information and parameters needed
 to proceed with estimation of a new path segment that is routed around the
