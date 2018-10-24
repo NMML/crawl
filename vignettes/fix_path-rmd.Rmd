@@ -162,15 +162,12 @@ pred1_line <- pred1 %>% crawl::crw_as_sf("LINESTRING")
 ```
 
 Instead of using the ESRI World Ocean Basemap, we will now use data from the
-Natural Earth II dataset available within the `rnaturalearth` package. This will
+GSHHG dataset available within the `ptolemy` package. This will
 allow us to create a polygon layer that will serve as our land mask.
 
-```{r path-predict-ne, results = 'hide', fig.cap='A map of the predicted path from an isolated portion of a telemetry deployment on a single harbor seal in Alaska. Predictions estimated at hourly time intervals. Land mask from Natural Earth'}
-library(rnaturalearth)
-ak_sf <- rnaturalearth::ne_download(category = 'physical',type = 'land', 
-                   scale = 10, returnclass = 'sf',
-                   destdir = '~/_projects/r/ne_local') %>% 
-  sf::st_transform(3338)
+```{r path-predict-ne, results = 'hide', fig.cap='A map of the predicted path from an isolated portion of a telemetry deployment on a single harbor seal in Alaska. Predictions estimated at hourly time intervals. Land mask from GSHHG/ptolemy'}
+library(ptolemy)
+ak_sf <- ptolemy::alaska()
 
 ggplot() + 
   ggspatial::annotation_spatial(data = ak_sf) +
