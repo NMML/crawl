@@ -10,7 +10,7 @@ detect_timescale(time_vector)
 \item{time_vector}{a vector of class POSIXct}
 }
 \value{
-character of either "seconds","hours","days","weeks"
+character of either "seconds","minutes","hours","days","weeks"
 }
 \description{
 This function examines the time vector and evaluates the median time

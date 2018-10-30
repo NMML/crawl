@@ -2,24 +2,27 @@
 % Please edit documentation in R/fix_path.R
 \name{fix_segments}
 \alias{fix_segments}
-\title{Identify segments of a path that cross a restricted area}
+\title{Identify and re-route segments of a path that cross a restricted area}
 \usage{
 fix_segments(crw_sf, vector_mask, crwFit, alpha)
 }
 \arguments{
+\item{crw_sf}{an `sf` object derived from a \code{crwIS} or \code{crwPredict}}
+
 \item{vector_mask}{an 'sf' polygon object that defines the restricted area}
 
-\item{crwFit}{crwFit object that was used to generate the crw_object}
-
-\item{crw_object}{Coordinate locations for the path. Can be one of the following classes: 
-(1) 'crwIS' object from the \code{crwPostIS} function}
+\item{crwFit}{crwFit object that was used to generate the \code{crwIS} or \code{crwPredict}}
 }
 \value{
 a tibble with each record identifying the segments and pertinant values
 }
 \description{
-This function takes a crw_object (crwIS only for now) and an 'sf'
-polygon object that defines the restricted area and identifies each segment
-of the path that crosses the restricted area. Each segment begins and ends with
-a coordinate that is outside the restricted area.
+This function takes an `sf` object derived from a \code{crwIS} or 
+\code{crwPredict} and an `sf` polygon object that defines the restricted
+area. Each segment of the path that crosses the restricted area is identified
+using the \code{get_mask_segments} function. Each segment begins and ends with
+a coordinate that is outside the restricted area. The path is re-routed using
+a mix of brownian movement and correlated parameters from the fitted movement
+model (\code{crwFit}). A regular distribution of waypoints are established along
+the restricted area boundary to guide the movement path around the area.
 }
