@@ -2,6 +2,7 @@
 
 S3method(crw_as_sf,crwIS)
 S3method(crw_as_sf,crwPredict)
+S3method(crw_as_sf,list)
 S3method(crw_as_sf,sf)
 S3method(crw_as_tibble,crwIS)
 S3method(crw_as_tibble,crwPredict)
