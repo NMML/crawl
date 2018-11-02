@@ -132,7 +132,7 @@ cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1,
 #' @return a tibble with each record identifying the segments and pertinant values
 #' @export
 
-fix_segments <- function(crw_sf, vector_mask, crwFit, alpha) {
+fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha) {
   # get par from crwFit
   par <- tail(crwFit$estPar, 2)
   ts <- attr(crwFit,"time.scale")
@@ -181,8 +181,10 @@ fix_segments <- function(crw_sf, vector_mask, crwFit, alpha) {
         dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>%
         lwgeom::st_split(fix_line) %>%
         sf::st_collection_extract("POLYGON") %>%
-        dplyr::slice(which.min(st_area(.))) %>%
-        sf::st_cast("LINESTRING") %>%
+        dplyr::slice(which.min(st_area(.))) %>% sf::st_buffer(barrier_buffer) %>%
+        st_union(fix_line) %>%  
+        sf::st_convex_hull() %>% 
+        sf::st_cast("LINESTRING")  %>% 
         lwgeom::st_split(st_buffer(fix_line, dist = 1e-10)) %>%
         sf::st_collection_extract("LINESTRING") %>%
         dplyr::slice(which.max(st_length(.)))
