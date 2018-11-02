@@ -61,13 +61,14 @@ crw_as_sf.crwIS <- function(data,
 #' LINESTRING geometry) 
 #' @export
 crw_as_sf.crwPredict <- function(data,ftype,
-                                 locType = c("p","o","f"), 
+                                 locType = c("p","o","f"),
                                  group = NULL, ...) {
-  stopifnot(!missing(ftype), ftype %in% c("POINT","LINESTRING"))
-  crw_crs <- attr(data, "epsg")
   locType <- enquo(locType)
-  
+  stopifnot(!missing(ftype), ftype %in% c("POINT","LINESTRING"))
+
+  crw_crs <- attr(data, "epsg")
   if(is.null(crw_crs) | is.na(crw_crs)) crw_crs <- attr(data, "proj4")
+  
   if(ftype == "POINT" && is.null(group)) {
     data <- crw_as_tibble(data) %>% 
       dplyr::filter(.data$locType %in% !! locType) %>% 
@@ -137,7 +138,7 @@ crw_as_sf.list <- function(data,ftype,
 }
 #' @export
 crw_as_sf.sf <- function(data,ftype,
-                         locType = c("p","o","f"), 
+                         locType = c("p","o","f"),
                          group = NULL, ...) {
   message("No conversion between ftypes yet :-(")
   data 
