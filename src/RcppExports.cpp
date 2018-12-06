@@ -6,6 +6,25 @@
 
 using namespace Rcpp;
 
+// CTCRWNLL
+Rcpp::List CTCRWNLL(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
+RcppExport SEXP _crawl_CTCRWNLL(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Hmat(HmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type sig2(sig2SEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type noObs(noObsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type active(activeSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type P(PSEXP);
+    rcpp_result_gen = Rcpp::wrap(CTCRWNLL(y, Hmat, beta, sig2, delta, noObs, active, a, P));
+    return rcpp_result_gen;
+END_RCPP
+}
 // CTCRWNLL_DRIFT
 Rcpp::List CTCRWNLL_DRIFT(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& beta_drift, const arma::vec& sig2, const arma::vec& sig2_drift, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
 RcppExport SEXP _crawl_CTCRWNLL_DRIFT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP beta_driftSEXP, SEXP sig2SEXP, SEXP sig2_driftSEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
@@ -27,9 +46,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// CTCRWNLL
-Rcpp::List CTCRWNLL(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP _crawl_CTCRWNLL(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
+// CTCRWPREDICT
+Rcpp::List CTCRWPREDICT(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
+RcppExport SEXP _crawl_CTCRWPREDICT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -42,7 +61,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type active(activeSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type a(aSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type P(PSEXP);
-    rcpp_result_gen = Rcpp::wrap(CTCRWNLL(y, Hmat, beta, sig2, delta, noObs, active, a, P));
+    rcpp_result_gen = Rcpp::wrap(CTCRWPREDICT(y, Hmat, beta, sig2, delta, noObs, active, a, P));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -67,9 +86,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// CTCRWPREDICT
-Rcpp::List CTCRWPREDICT(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP _crawl_CTCRWPREDICT(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
+// CTCRWSAMPLE
+Rcpp::List CTCRWSAMPLE(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
+RcppExport SEXP _crawl_CTCRWSAMPLE(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -82,7 +101,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type active(activeSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type a(aSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type P(PSEXP);
-    rcpp_result_gen = Rcpp::wrap(CTCRWPREDICT(y, Hmat, beta, sig2, delta, noObs, active, a, P));
+    rcpp_result_gen = Rcpp::wrap(CTCRWSAMPLE(y, Hmat, beta, sig2, delta, noObs, active, a, P));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -104,25 +123,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::colvec& >::type a(aSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type P(PSEXP);
     rcpp_result_gen = Rcpp::wrap(CTCRWSAMPLE_DRIFT(y, Hmat, beta, beta_drift, sig2, sig2_drift, delta, noObs, active, a, P));
-    return rcpp_result_gen;
-END_RCPP
-}
-// CTCRWSAMPLE
-Rcpp::List CTCRWSAMPLE(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
-RcppExport SEXP _crawl_CTCRWSAMPLE(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Hmat(HmatSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type sig2(sig2SEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type delta(deltaSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type noObs(noObsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type active(activeSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type a(aSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type P(PSEXP);
-    rcpp_result_gen = Rcpp::wrap(CTCRWSAMPLE(y, Hmat, beta, sig2, delta, noObs, active, a, P));
     return rcpp_result_gen;
 END_RCPP
 }

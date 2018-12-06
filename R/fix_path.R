@@ -64,56 +64,75 @@ get_mask_segments = function(crw_sf, vector_mask, alpha) {
   return(on_mask_segments)
 }
 
-#' @title Simulate possible path points conditioned on fit
-#' @description Simulates a set of possible points for a given time conditioned on fit
-#' @param n integer specifying the number of points to return
-#' @param t0 time value for the first location in the segment
-#' @param t1 time value for the current location to be simulated
-#' @param t2 time value for the last location in the segment
-#' @param alpha0 coordinate and velocity values for t0
-#' @param alpha2 coordinate and velocity values for t2
-#' @param par par values from the crwFit object
-#' @param active numeric 1 or 0 whether the animal is moving or not (should almost always = 1)
-#' @param inf_fac Variance inflation factor to increase simulation area
-#' @param bm boolean whether to draw from a Brownian process
-#' @return matrix of coordinate and velocity values drawn
-#' @export
-#'
 
-cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1, bm=0){
-  set.seed(42)
-  if (inherits(t0,"POSIXct")) {
-    t0 <- as.numeric(t0)
+path_simulation_fix <- function(coast_points, sigma, beta, draw_size=500, vector_mask, ...){
+  ret_data = coast_points
+  coast_points = coast_points %>% 
+      tidyr::fill(mu.x, .direction = "up") %>% 
+      tidyr::fill(mu.y, .direction = "up") %>% 
+      dplyr::mutate(
+        delta = c(diff(times),NA),
+        Px = c(mu.x[2:n()],NA),
+        Py = c(mu.y[2:n()],NA)
+    )
+  
+  for(i in 1:(nrow(coast_points)-2)){
+    if(coast_points$delta[i]!=0){
+      if(i==1){
+        nu.x.smp = rnorm(500, (coast_points$Px[i]-ret_data$mu.x[i])/coast_points$delta[i], 
+                         sigma*sqrt(coast_points$delta[i]))
+        nu.y.smp = rnorm(500, (coast_points$Py[i]-ret_data$mu.y[i])/coast_points$delta[i], 
+                         sigma*sqrt(coast_points$delta[i]))
+      } else{
+        nu.x.smp = (1-beta*coast_points$delta[i])*ret_data$nu.x[i-1] + 
+          beta*coast_points$delta[i]*rnorm(500, (coast_points$Px[i]-ret_data$mu.x[i])/coast_points$delta[i], 
+                                           sigma*sqrt(coast_points$delta[i]))
+        nu.y.smp = (1-beta*coast_points$delta[i])*ret_data$nu.y[i-1] + 
+          beta*coast_points$delta[i]*rnorm(500, (coast_points$Py[i]-ret_data$mu.y[i])/coast_points$delta[i], 
+                                           sigma*sqrt(coast_points$delta[i]))
+      }
+      mu.smp = data.frame(
+        mu.x=ret_data$mu.x[i] + nu.x.smp*coast_points$delta[i], 
+        mu.y=ret_data$mu.y[i] + nu.y.smp*coast_points$delta[i]) %>% 
+        st_as_sf(coords=c("mu.x","mu.y")) %>% st_set_crs(st_crs(vector_mask))
+      off_barrier = which(sapply(st_intersects(mu.smp,vector_mask), 
+                                 function(z) if (length(z)==0) TRUE else FALSE))
+      mu.smp = mu.smp %>% st_coordinates
+      ret_data$mu.x[i+1] = mu.smp[off_barrier[1],1]
+      ret_data$mu.y[i+1] = mu.smp[off_barrier[1],2]
+      ret_data$nu.x[i] = nu.x.smp[off_barrier[1]]
+      ret_data$nu.y[i] = nu.y.smp[off_barrier[1]]
+      if(is.na(ret_data$nu.y[i])) {
+        NULL
+        }
+    } else{
+      ret_data$mu.x[i+1] = ret_data$mu.x[i]
+      ret_data$mu.y[i+1] = ret_data$mu.y[i]
+      ret_data$nu.x[i] = ret_data$nu.x[i-1]
+      ret_data$nu.y[i] = ret_data$nu.y[i-1]
+    }
   }
-  if (inherits(t1,"POSIXct")) {
-    t1 <- as.numeric(t1)
-  }
-  if (inherits(t2, "POSIXct")) {
-    t2 <- as.numeric(t2)
-  }
-  if (bm) {
-    mu_cond = c(alpha0 + ((t1 - t0)/(t2 - t0))*(alpha2 - alpha0))[c(1,3)]
-    sigma2 = exp(2*par[1])
-    V_cond = sigma2*diag(rep((t1 - t0)*((t2 - t0) - (t1 - t0))/(t2 - t0), 2))
-    sim = mvtnorm::rmvnorm(n, mu_cond, V_cond)
-    smp = cbind(sim[,1], NA, sim[,2],NA)
-    smp[,2] = (smp[,1] - alpha0[1])/(t1 - t0)
-    smp[,4] = (smp[,3] - alpha0[3])/(t1 - t0)
-  } else{
-    beta = exp(par[2])
-    sigma2 = exp(2*par[1])
-    delta = diff(c(t0, t1, t2))
-    T0 = makeT(b = beta, delta = delta[1], active = active)
-    T1 = makeT(b = beta, delta = delta[2], active = active)
-    Q0 = makeQ(b = beta, sig2 = sigma2, delta = delta[1], active = active)
-    Q1 = makeQ(b = beta, sig2 = sigma2, delta = delta[2], active = active)
-    V_inv = solve(Q0) + t(T1) %*% solve(Q1) %*% T1 
-    v = solve(Q0) %*% T0 %*% alpha0 + t(T1) %*% solve(Q1) %*% alpha2
-    mu_cond = solve(V_inv, v)
-    V_cond = zapsmall(solve(V_inv))
-    smp = mvtnorm::rmvnorm(n, mu_cond, inf_fac*V_cond)
-  }
-  return(smp)
+  ret_data$nu.x = ret_data$nu.x
+  ret_data$nu.x = ret_data$nu.x
+  ret_data <- ret_data %>% 
+    dplyr::filter(type %in% c("data","start")) %>% 
+    dplyr::select(-type, -times)
+  return(ret_data)
+} 
+
+path_prediction_fix = function(coast_points, sigma, beta, draw_size=500, 
+                               paths=20, ...){
+  ret_data = coast_points %>% 
+    tidyr::fill(mu.x, .direction = "up") %>% 
+    tidyr::fill(mu.y, .direction = "up") %>% 
+    dplyr::filter(type %in% c("data","start","end")) %>% 
+    mutate(
+      nu.x = c(diff(mu.x)/diff(times), coast_points$nu.x[n()]),
+      nu.y = c(diff(mu.y)/diff(times), coast_points$nu.y[n()])
+    ) %>% 
+    dplyr::filter(type %in% c("data","start")) %>%
+    dplyr::select(-type, -times)
+  return(ret_data)
 }
 
 
@@ -132,7 +151,7 @@ cond_sim = function(n=500, t0, alpha0, t2, alpha2, t1, par, active=1, inf_fac=1,
 #' @return a tibble with each record identifying the segments and pertinant values
 #' @export
 
-fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha) {
+fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, crwIS = FALSE) {
   # get par from crwFit
   par <- tail(crwFit$estPar, 2)
   ts <- attr(crwFit,"time.scale")
@@ -141,7 +160,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha) 
   segments <- get_mask_segments(crw_sf,vector_mask, alpha)
   segments <- segments$on_mask_segments
   # add an empty 'fixed_seg' column to segments
-  segments[,"fixed_seg"] <- NA
+  segments[,"fixed_seg"] <- list(list(NA))
   
   # begin loop through each segment that needs to be fixed
   for (i in 1:nrow(segments)) {
@@ -159,12 +178,10 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha) 
     data_times <- data_times %>% 
       dplyr::slice(2:(n()-1))
     
-    fixed_seg <- vector("list",l)
-    
-    start_pt = sf::st_point(segments[i, ]$start_alpha[[1]][c("mu.x","mu.y")]) 
-    end_pt = sf::st_point(segments[i, ]$end_alpha[[1]][c("mu.x","mu.y")])
-    fix_line <- sf::st_linestring(rbind(start_pt,end_pt)) %>% 
-      sf::st_sfc() %>% sf::st_set_crs(sf::st_crs(crw_sf))
+    start_pt = sf::st_point(segments[i,]$start_alpha[[1]][c("mu.x", "mu.y")])
+    end_pt = sf::st_point(segments[i,]$end_alpha[[1]][c("mu.x", "mu.y")])
+    fix_pts <- sf::st_sfc(start_pt, end_pt) %>% sf::st_set_crs(sf::st_crs(crw_sf))
+    fix_line <- fix_pts %>% sf::st_union() %>% sf::st_cast("LINESTRING")
     
     n_polys <- vector_mask %>% 
       sf::st_cast("POLYGON") %>% 
@@ -176,18 +193,34 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha) 
     }
     
     if (n_polys == 1) {
-      coast_line <- vector_mask %>%
-        sf::st_cast("POLYGON") %>%
-        dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>%
-        lwgeom::st_split(fix_line) %>%
-        sf::st_collection_extract("POLYGON") %>%
-        dplyr::slice(which.min(st_area(.))) %>% sf::st_buffer(barrier_buffer) %>%
-        st_union(fix_line) %>%  
-        sf::st_convex_hull() %>% 
-        sf::st_cast("LINESTRING")  %>% 
-        lwgeom::st_split(st_buffer(fix_line, dist = 1e-10)) %>%
-        sf::st_collection_extract("LINESTRING") %>%
-        dplyr::slice(which.max(st_length(.)))
+      coast_hull <- vector_mask %>%
+        sf::st_cast("POLYGON") %>% 
+        dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>% 
+        sf::st_difference(sf::st_buffer(sf::st_intersection(fix_line,.),dist = 1)) %>%
+        sf::st_cast("POLYGON") %>% 
+        dplyr::slice(-which.max(st_area(.))) %>% 
+        sf::st_buffer(barrier_buffer) %>% 
+        sf::st_union() %>% 
+        sf::st_union(fix_line) %>% 
+        sf::st_cast("POINT") %>% 
+        sf::st_union() %>% 
+        sf::st_convex_hull() %>% sf::st_sf() 
+      
+      coast_hull_buffer <- coast_hull %>% 
+        st_buffer(dist = 1) %>% 
+        st_cast("LINESTRING") %>% 
+        st_buffer(dist=1e-5)  
+      
+      fix_line <- fix_pts %>% 
+        st_nearest_points(coast_hull_buffer) %>% 
+        st_cast("POINT") %>% st_sf() %>% 
+        dplyr::slice(c(2,4)) %>% 
+        st_union() %>% 
+        st_cast("LINESTRING")
+      
+      coast_line <- coast_hull %>% st_cast("LINESTRING") %>% 
+        sf::st_difference(sf::st_buffer(sf::st_intersection(st_buffer(fix_line,dist=50),.),dist = 1)) %>%
+        sf::st_cast("LINESTRING")
     }
     
     if (n_polys > 1) {
@@ -229,10 +262,23 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha) 
         type == "end" ~ crw_sf$nu.y[end_idx],
         TRUE ~ NA_real_
       )) %>% 
-      dplyr::full_join(data_times) %>% 
+      dplyr::full_join(data_times, by = c("times", "type")) %>% 
       dplyr::arrange(times) %>% 
       dplyr::select(type,mu.x,nu.x,mu.y,nu.y,times)
+    
+    if (!crwIS) {
+      segments[[i,"fixed_seg"]] <- path_prediction_fix(coast_points, 
+                                                     sigma = exp(par[1]), 
+                                                     beta = exp(par[2])) 
+    }
+    if (crwIS) {
+      segments[[i,"fixed_seg"]] <- path_simulation_fix(coast_points, 
+                                                     sigma = exp(par[1]), 
+                                                     beta = exp(par[2]),
+                                                     vector_mask = vector_mask)
+    }
   }
+  return(segments)
 }
 
 #' @title Extract alpha values from \code{crwPredict} or \code{crwIS} objects
@@ -278,6 +324,11 @@ fix_path <- function(crw_object, vector_mask, crwFit) {
   }
   alpha <- crw_alpha(crw_object)
   
+  if (inherits(crw_object,"crwIS")) {
+    crwIS <- TRUE
+  } else {
+    crwIS <- FALSE
+  }
   # convert crw_object to a POINT sf object
   crw_sf <- crawl::crw_as_sf(crw_object,"POINT")
   
@@ -285,15 +336,18 @@ fix_path <- function(crw_object, vector_mask, crwFit) {
     rmapshaper::ms_clip(bbox = sf::st_bbox(sf::st_buffer(crw_sf,100000)), 
                         remove_slivers = TRUE)
   
-  fix <- fix_segments(crw_sf, vector_mask, crwFit, alpha)
-  if (inherits(fix, "list")) {return(fix)}
+  fix <- fix_segments(crw_sf = crw_sf, 
+                      vector_mask = vector_mask, 
+                      crwFit = crwFit, 
+                      alpha = alpha, 
+                      crwIS = crwIS)
   
   if (inherits(crw_object, "crwIS")) {
     alpha.sim <- crw_object$alpha.sim
     loc.types <- crw_object$locType
     for (i in 1:nrow(fix)) {
       start_idx <- fix$start_idx[i]
-      end_idx <- fix$end_idx[i]
+      end_idx <- fix$end_idx[i] - 1
       alpha.sim[start_idx:end_idx, ] <- fix$fixed_seg[[i]]
       loc.types[start_idx:end_idx] <- "f"
     }
@@ -307,7 +361,7 @@ fix_path <- function(crw_object, vector_mask, crwFit) {
   if (inherits(crw_object,"crwPredict")) {
     for (i in 1:nrow(fix)) {
       start_idx <- fix$start_idx[i]
-      end_idx <- fix$end_idx[i]
+      end_idx <- fix$end_idx[i] - 1
       crw_object[start_idx:end_idx,"mu.x"] <- fix$fixed_seg[[i]][,1]
       crw_object[start_idx:end_idx,"nu.x"] <- fix$fixed_seg[[i]][,2]
       crw_object[start_idx:end_idx,"mu.y"] <- fix$fixed_seg[[i]][,3]

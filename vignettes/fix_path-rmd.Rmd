@@ -323,10 +323,12 @@ conversions to end up with a line feature.
 ```{r}
 vector_mask <- ak_sf
 crw_sf <- pred1_sf
+barrier_buffer <- 50
+crwIS = FALSE
 
-segments$fixed_seg <- NA
+segments$fixed_seg <- vector(mode = "list", length = nrow(segments))
 
-i <- 2
+i <- 3
 
 start_idx <- segments[i, "start_idx"][[1]]
 end_idx <- segments[i, "end_idx"][[1]]
@@ -347,17 +349,20 @@ if (n_polys == 0) {
 }
 
 if (n_polys == 1) {
-  coast_line <- vector_mask %>%
-    sf::st_cast("POLYGON") %>%
-    dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>%
-    lwgeom::st_split(fix_line) %>%
-    sf::st_collection_extract("POLYGON") %>%
-    dplyr::slice(which.min(st_area(.))) %>%
-    sf::st_cast("LINESTRING") %>%
-    lwgeom::st_split(st_buffer(fix_line, dist = 1e-10)) %>%
-    sf::st_collection_extract("LINESTRING") %>%
-    dplyr::slice(which.max(st_length(.)))
-}
+      coast_line <- vector_mask %>%
+        sf::st_cast("POLYGON") %>%
+        dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>%
+        lwgeom::st_split(fix_line) %>%
+        sf::st_collection_extract("POLYGON") %>%
+        dplyr::slice(which.min(st_area(.))) %>% 
+        sf::st_buffer(barrier_buffer) %>%
+        st_union(fix_line) %>%  
+        sf::st_convex_hull() %>% 
+        sf::st_cast("LINESTRING")  %>% 
+        lwgeom::st_split(st_buffer(fix_line, dist = 1e-10)) %>%
+        sf::st_collection_extract("LINESTRING") %>%
+        dplyr::slice(which.max(st_length(.)))
+    }
 
 if (n_polys > 1) {
   stop(paste("an on-land segment crosses more than one polygon.",
@@ -410,12 +415,36 @@ start_pt <- start_pt %>%
       sf::st_sfc() %>% 
       sf::st_set_crs(sf::st_crs(crw_sf))
     
-    coast_points <- coast_line %>% 
-      sf::st_sample(l-2,type = "regular",offset=runif(1)) %>% 
-      sf::st_cast("POINT") 
+coast_points <- coast_line %>% 
+      sf::st_sample(l-2,type="regular",offset=runif(1)) %>% 
+      sf::st_cast("POINT") %>% 
+      sf::st_coordinates() %>%
+      rbind(sf::st_coordinates(start_pt),.,st_coordinates(end_pt)) %>% 
+      tibble::as_tibble() %>% 
+      dplyr::rename(mu.x = X, mu.y = Y) %>% 
+      dplyr::bind_cols(wypt_times) %>% 
+      dplyr::mutate(type = "wypt") %>% 
+      dplyr::mutate(type = case_when(
+        row_number() == 1L ~ "start",
+        row_number() == l ~ "end",
+        TRUE ~ type
+      )) %>% 
+      dplyr::mutate(nu.x = case_when(
+        type == "start" ~ crw_sf$nu.x[start_idx],
+        type == "end" ~ crw_sf$nu.x[end_idx],
+        TRUE ~ NA_real_
+      ),
+      nu.y = case_when(
+        type == "start" ~ crw_sf$nu.y[start_idx],
+        type == "end" ~ crw_sf$nu.y[end_idx],
+        TRUE ~ NA_real_
+      )) %>% 
+      dplyr::full_join(data_times) %>% 
+      dplyr::arrange(times) %>% 
+      dplyr::select(type,mu.x,nu.x,mu.y,nu.y,times)
 ```
 
-```{r}
+```{r eval=FALSE}
 ggplot() + 
   annotation_map_tile(type = esri_ocean,zoomin = 1, progress = "none") +
   layer_spatial(fix_line %>% st_sf(), lwd = 0.5, color = 'dark red',
@@ -443,3 +472,20 @@ In this example, the function can only handle when the straight line between
 in-water locations crosses one polygon feature. Future development will allow
 up to three polygon crossings. But, more than that, and you will need to either
 increase the number of predicted locations OR simplify the supplied vector mask.
+
+## Fix Predicted Path
+
+```{r}
+par <- tail(fit1$estPar, 2)
+
+if (!crwIS) {
+      segments[[i,"fixed_seg"]] <- path_prediction_fix(coast_points, 
+                                                     sigma = exp(par[1]), 
+                                                     beta = exp(par[2]))
+    }
+    if (crwIS) {
+      segments[[i,"fixed_seg"]] <- path_simulation_fix(coast_points, 
+                                                     sigma = exp(par[1]), 
+                                                     beta = exp(par[2])) 
+    }
+```
