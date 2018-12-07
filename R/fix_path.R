@@ -82,16 +82,16 @@ path_simulation_fix <- function(coast_points, sigma, beta, draw_size=500, vector
   for(i in 1:(nrow(coast_points)-2)){
     if(coast_points$delta[i]!=0){
       if(i==1){
-        nu.x.smp = rnorm(500, (coast_points$Px[i]-ret_data$mu.x[i])/coast_points$delta[i], 
+        nu.x.smp = rnorm(1000, (coast_points$Px[i]-ret_data$mu.x[i])/coast_points$delta[i], 
                          sigma*sqrt(coast_points$delta[i]))
-        nu.y.smp = rnorm(500, (coast_points$Py[i]-ret_data$mu.y[i])/coast_points$delta[i], 
+        nu.y.smp = rnorm(1000, (coast_points$Py[i]-ret_data$mu.y[i])/coast_points$delta[i], 
                          sigma*sqrt(coast_points$delta[i]))
       } else{
         nu.x.smp = (1-beta*coast_points$delta[i])*ret_data$nu.x[i-1] + 
-          beta*coast_points$delta[i]*rnorm(500, (coast_points$Px[i]-ret_data$mu.x[i])/coast_points$delta[i], 
+          beta*coast_points$delta[i]*rnorm(1000, (coast_points$Px[i]-ret_data$mu.x[i])/coast_points$delta[i], 
                                            sigma*sqrt(coast_points$delta[i]))
         nu.y.smp = (1-beta*coast_points$delta[i])*ret_data$nu.y[i-1] + 
-          beta*coast_points$delta[i]*rnorm(500, (coast_points$Py[i]-ret_data$mu.y[i])/coast_points$delta[i], 
+          beta*coast_points$delta[i]*rnorm(1000, (coast_points$Py[i]-ret_data$mu.y[i])/coast_points$delta[i], 
                                            sigma*sqrt(coast_points$delta[i]))
       }
       mu.smp = data.frame(
@@ -187,8 +187,8 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     fix_line <- fix_pts %>% sf::st_union() %>% sf::st_cast("LINESTRING")
     
     n_polys <- vector_mask %>% 
-      sf::st_cast("POLYGON") %>% 
-      st_intersects(fix_line,sparse=FALSE) %>% 
+      sf::st_cast("POLYGON", warn = FALSE) %>% 
+      st_intersects(fix_line,sparse = FALSE) %>% 
       sum()
     
     if (n_polys == 0) {
@@ -197,10 +197,10 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     
     if (n_polys == 1) {
       coast_hull <- vector_mask %>%
-        sf::st_cast("POLYGON") %>% 
+        sf::st_cast("POLYGON", warn = FALSE) %>% 
         dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>% 
         sf::st_difference(sf::st_buffer(sf::st_intersection(fix_line,.),dist = 1)) %>%
-        sf::st_cast("POLYGON") %>% 
+        sf::st_cast("POLYGON", warn = FALSE) %>% 
         dplyr::slice(-which.max(st_area(.))) %>% 
         sf::st_buffer(barrier_buffer) %>% 
         sf::st_union() %>% 
@@ -224,6 +224,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
       coast_line <- coast_hull %>% st_cast("LINESTRING") %>% 
         sf::st_difference(sf::st_buffer(sf::st_intersection(st_buffer(fix_line,dist=50),.),dist = 1)) %>%
         sf::st_cast("LINESTRING")
+      
     }
     
     if (n_polys > 1) {
@@ -242,10 +243,18 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
       sf::st_set_crs(sf::st_crs(crw_sf))
     
     coast_points <- coast_line %>% 
-      sf::st_sample(l-2,type="regular",offset=runif(1)) %>% 
-      sf::st_cast("POINT") %>% 
+      sf::st_sample(l-2,type="regular",offset=0.5) %>% 
+      sf::st_cast("POINT") 
+    
+    sample_start <- which.min(sf::st_distance(start_pt, coast_points))
+    
+    if (sample_start != 1) {
+      coast_points <- rev(coast_points)
+    }
+    
+    coast_points <- coast_points %>% 
       sf::st_coordinates() %>%
-      rbind(sf::st_coordinates(start_pt),.,st_coordinates(end_pt)) %>% 
+      rbind(sf::st_coordinates(start_pt),.,sf::st_coordinates(end_pt)) %>% 
       tibble::as_tibble() %>% 
       dplyr::rename(mu.x = X, mu.y = Y) %>% 
       dplyr::bind_cols(wypt_times) %>% 
