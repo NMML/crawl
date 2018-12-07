@@ -184,8 +184,8 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     fix_line <- fix_pts %>% sf::st_union() %>% sf::st_cast("LINESTRING")
     
     n_polys <- vector_mask %>% 
-      sf::st_cast("POLYGON") %>% 
-      st_intersects(fix_line,sparse=FALSE) %>% 
+      sf::st_cast("POLYGON", warn = FALSE) %>% 
+      st_intersects(fix_line,sparse = FALSE) %>% 
       sum()
     
     if (n_polys == 0) {
@@ -194,10 +194,10 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     
     if (n_polys == 1) {
       coast_hull <- vector_mask %>%
-        sf::st_cast("POLYGON") %>% 
+        sf::st_cast("POLYGON", warn = FALSE) %>% 
         dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>% 
         sf::st_difference(sf::st_buffer(sf::st_intersection(fix_line,.),dist = 1)) %>%
-        sf::st_cast("POLYGON") %>% 
+        sf::st_cast("POLYGON", warn = FALSE) %>% 
         dplyr::slice(-which.max(st_area(.))) %>% 
         sf::st_buffer(barrier_buffer) %>% 
         sf::st_union() %>% 
