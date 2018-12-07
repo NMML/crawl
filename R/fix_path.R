@@ -66,7 +66,10 @@ get_mask_segments = function(crw_sf, vector_mask, alpha) {
 
 
 path_simulation_fix <- function(coast_points, sigma, beta, draw_size=500, vector_mask, ...){
-  ret_data = coast_points
+  ret_data = coast_points %>% 
+    mutate(mu.x=NA, mu.y=NA, nu.x=NA, nu.y=NA)
+  ret_data$mu.x[1] = coast_points$mu.x[1]
+  ret_data$mu.y[1] = coast_points$mu.y[1]
   coast_points = coast_points %>% 
       tidyr::fill(mu.x, .direction = "up") %>% 
       tidyr::fill(mu.y, .direction = "up") %>% 
