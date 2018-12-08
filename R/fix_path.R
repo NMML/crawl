@@ -65,7 +65,7 @@ get_mask_segments = function(crw_sf, vector_mask, alpha) {
 }
 
 
-path_simulation_fix <- function(coast_points, sigma, beta, draw_size=500, vector_mask, ...){
+path_simulation_fix <- function(coast_points, sigma, beta, draw_size=500, vector_mask, seg_data=NULL, ...){
   ret_data = coast_points %>% 
     mutate(mu.x=NA, mu.y=NA, nu.x=NA, nu.y=NA)
   ret_data$mu.x[1] = coast_points$mu.x[1]
@@ -80,19 +80,16 @@ path_simulation_fix <- function(coast_points, sigma, beta, draw_size=500, vector
     )
   
   for(i in 1:(nrow(coast_points)-2)){
+    sig = sigma*beta*sqrt(coast_points$delta[i])
     if(coast_points$delta[i]!=0){
       if(i==1){
-        nu.x.smp = rnorm(1000, (coast_points$Px[i]-ret_data$mu.x[i])/coast_points$delta[i], 
-                         sigma*sqrt(coast_points$delta[i]))
-        nu.y.smp = rnorm(1000, (coast_points$Py[i]-ret_data$mu.y[i])/coast_points$delta[i], 
-                         sigma*sqrt(coast_points$delta[i]))
+        nu.x.smp = rnorm(1000, (coast_points$Px[i]-ret_data$mu.x[i])/coast_points$delta[i], sig)
+        nu.y.smp = rnorm(1000, (coast_points$Py[i]-ret_data$mu.y[i])/coast_points$delta[i], sig)
       } else{
         nu.x.smp = (1-beta*coast_points$delta[i])*ret_data$nu.x[i-1] + 
-          beta*coast_points$delta[i]*rnorm(1000, (coast_points$Px[i]-ret_data$mu.x[i])/coast_points$delta[i], 
-                                           sigma*sqrt(coast_points$delta[i]))
+          beta*coast_points$delta[i]*rnorm(1000, (coast_points$Px[i]-ret_data$mu.x[i])/coast_points$delta[i], sig)
         nu.y.smp = (1-beta*coast_points$delta[i])*ret_data$nu.y[i-1] + 
-          beta*coast_points$delta[i]*rnorm(1000, (coast_points$Py[i]-ret_data$mu.y[i])/coast_points$delta[i], 
-                                           sigma*sqrt(coast_points$delta[i]))
+          beta*coast_points$delta[i]*rnorm(1000, (coast_points$Py[i]-ret_data$mu.y[i])/coast_points$delta[i], sig)
       }
       mu.smp = data.frame(
         mu.x=ret_data$mu.x[i] + nu.x.smp*coast_points$delta[i], 
@@ -100,14 +97,14 @@ path_simulation_fix <- function(coast_points, sigma, beta, draw_size=500, vector
         st_as_sf(coords=c("mu.x","mu.y")) %>% st_set_crs(st_crs(vector_mask))
       off_barrier = which(sapply(st_intersects(mu.smp,vector_mask), 
                                  function(z) if (length(z)==0) TRUE else FALSE))
+      if(length(off_barrier)==0){
+        NULL
+      }
       mu.smp = mu.smp %>% st_coordinates
       ret_data$mu.x[i+1] = mu.smp[off_barrier[1],1]
       ret_data$mu.y[i+1] = mu.smp[off_barrier[1],2]
       ret_data$nu.x[i] = nu.x.smp[off_barrier[1]]
       ret_data$nu.y[i] = nu.y.smp[off_barrier[1]]
-      if(is.na(ret_data$nu.y[i])) {
-        NULL
-        }
     } else{
       ret_data$mu.x[i+1] = ret_data$mu.x[i]
       ret_data$mu.y[i+1] = ret_data$mu.y[i]
@@ -287,7 +284,9 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
       segments[[i,"fixed_seg"]] <- path_simulation_fix(coast_points, 
                                                      sigma = exp(par[1]), 
                                                      beta = exp(par[2]),
-                                                     vector_mask = vector_mask)
+                                                     vector_mask = vector_mask,
+                                                     seg_data = crw_sf %>% slice(segments$start_idx[i]:segments$end_idx[i])
+      )
     }
   }
   return(segments)
