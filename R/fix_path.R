@@ -17,7 +17,6 @@
 #' 
 
 get_mask_segments = function(crw_sf, vector_mask, alpha) {
-  
   # intersect crw_sf with vector mask
   on_mask <- sf::st_intersects(crw_sf, vector_mask) %>% 
     purrr::map_lgl(~ length(.x) > 0)
@@ -43,7 +42,11 @@ get_mask_segments = function(crw_sf, vector_mask, alpha) {
     tail_end <- max(which(on_mask == 0))
   }
   crw_sf <- crw_sf[head_start:tail_end,]
-  on_mask <- on_mask[head_start:tail_end]
+  alpha$alpha <- alpha$alpha[head_start:tail_end,]
+  alpha$times <- alpha$times[head_start:tail_end]
+  
+  on_mask <- sf::st_intersects(crw_sf, vector_mask) %>% 
+    purrr::map_lgl(~ length(.x) > 0)
   
   in.segment <- (on_mask == TRUE)
   
@@ -157,7 +160,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
   ts <- attr(crwFit,"time.scale")
   
   # identify segments that are within the vector mask
-  segments <- get_mask_segments(crw_sf,vector_mask, alpha)
+  segments <- get_mask_segments(crw_sf, vector_mask, alpha)
   segments <- segments$on_mask_segments
   # add an empty 'fixed_seg' column to segments
   segments[,"fixed_seg"] <- list(list(NA))
@@ -185,7 +188,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     
     n_polys <- vector_mask %>% 
       sf::st_cast("POLYGON", warn = FALSE) %>% 
-      st_intersects(fix_line,sparse = FALSE) %>% 
+      sf::st_intersects(fix_line,sparse = FALSE) %>% 
       sum()
     
     if (n_polys == 0) {
@@ -195,10 +198,10 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     if (n_polys == 1) {
       coast_hull <- vector_mask %>%
         sf::st_cast("POLYGON", warn = FALSE) %>% 
-        dplyr::filter(lengths(st_intersects(., fix_line)) > 0) %>% 
+        dplyr::filter(lengths(sf::st_intersects(., fix_line)) > 0) %>% 
         sf::st_difference(sf::st_buffer(sf::st_intersection(fix_line,.),dist = 1)) %>%
         sf::st_cast("POLYGON", warn = FALSE) %>% 
-        dplyr::slice(-which.max(st_area(.))) %>% 
+        dplyr::slice(-which.max(sf::st_area(.))) %>% 
         sf::st_buffer(barrier_buffer) %>% 
         sf::st_union() %>% 
         sf::st_union(fix_line) %>% 
@@ -207,19 +210,19 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
         sf::st_convex_hull() %>% sf::st_sf() 
       
       coast_hull_buffer <- coast_hull %>% 
-        st_buffer(dist = 1) %>% 
-        st_cast("LINESTRING") %>% 
-        st_buffer(dist=1e-5)  
+        sf::st_buffer(dist = 1) %>% 
+        sf::st_cast("LINESTRING") %>% 
+        sf::st_buffer(dist=1e-5)  
       
       fix_line <- fix_pts %>% 
-        st_nearest_points(coast_hull_buffer) %>% 
-        st_cast("POINT") %>% st_sf() %>% 
+        sf::st_nearest_points(coast_hull_buffer) %>% 
+        sf::st_cast("POINT") %>% sf::st_sf() %>% 
         dplyr::slice(c(2,4)) %>% 
-        st_union() %>% 
-        st_cast("LINESTRING")
+        sf::st_union() %>% 
+        sf::st_cast("LINESTRING")
       
-      coast_line <- coast_hull %>% st_cast("LINESTRING") %>% 
-        sf::st_difference(sf::st_buffer(sf::st_intersection(st_buffer(fix_line,dist=50),.),dist = 1)) %>%
+      coast_line <- coast_hull %>% sf::st_cast("LINESTRING") %>% 
+        sf::st_difference(sf::st_buffer(sf::st_intersection(sf::st_buffer(fix_line,dist=50),.),dist = 1)) %>%
         sf::st_cast("LINESTRING")
       
     }
@@ -240,8 +243,11 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
       sf::st_set_crs(sf::st_crs(crw_sf))
     
     coast_points <- coast_line %>% 
-      sf::st_sample(l-2,type="regular",offset=0.5) %>% 
-      sf::st_cast("POINT") 
+      sf::st_sample(l-2,type="regular",offset=0.5)
+    if (is.null(coast_points)) {
+      NULL
+    }
+    coast_points <- coast_points %>%  sf::st_cast("POINT") 
     
     sample_start <- which.min(sf::st_distance(start_pt, coast_points))
     
