@@ -195,7 +195,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
       coast_line <- fix_line
     }
     
-    if (n_polys == 1) {
+#    if (n_polys == 1) {
       coast_hull <- vector_mask %>%
         sf::st_cast("POLYGON", warn = FALSE) %>% 
         dplyr::filter(lengths(sf::st_intersects(., fix_line)) > 0) %>% 
@@ -207,12 +207,14 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
         sf::st_union(fix_line) %>% 
         sf::st_cast("POINT") %>% 
         sf::st_union() %>% 
-        sf::st_convex_hull() %>% sf::st_sf() 
+        sf::st_convex_hull() %>% 
+        sf::st_buffer(barrier_buffer) %>% 
+        sf::st_sf()
       
       coast_hull_buffer <- coast_hull %>% 
         sf::st_buffer(dist = 1) %>% 
         sf::st_cast("LINESTRING") %>% 
-        sf::st_buffer(dist=1e-5)  
+        sf::st_buffer(dist = 1e-5)  
       
       fix_line <- fix_pts %>% 
         sf::st_nearest_points(coast_hull_buffer) %>% 
@@ -225,14 +227,18 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
         sf::st_difference(sf::st_buffer(sf::st_intersection(sf::st_buffer(fix_line,dist=50),.),dist = 1)) %>%
         sf::st_cast("LINESTRING")
       
-    }
-    
-    if (n_polys > 1) {
-      stop(paste("an on-land segment crosses more than one polygon.",
-                 "this scenario is currently not supported. the best",
-                 "solution is to increase the frequency of prediction",
-                 "times or reduce complexity of the vector mask."))
-    }
+      lines_to_keep <- sf::st_contains_properly(coast_line, vector_mask) %>% purrr::map_lgl(~ length(.x) == 0)
+      
+      coast_line <- coast_line[lines_to_keep,] %>% dplyr::slice(which.max(sf::st_length(.)))
+      
+    # }
+    # 
+    # if (n_polys > 1) {
+    #   stop(paste("an on-land segment crosses more than one polygon.",
+    #              "this scenario is currently not supported. the best",
+    #              "solution is to increase the frequency of prediction",
+    #              "times or reduce complexity of the vector mask."))
+    # }
     
     start_pt <- start_pt %>% 
       sf::st_sfc() %>%
@@ -247,7 +253,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     if (is.null(coast_points)) {
       NULL
     }
-    coast_points <- coast_points %>%  sf::st_cast("POINT") 
+    coast_points <- coast_points %>% sf::st_cast("POINT") 
     
     sample_start <- which.min(sf::st_distance(start_pt, coast_points))
     
