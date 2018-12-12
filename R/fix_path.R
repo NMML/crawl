@@ -169,6 +169,10 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
   for (i in 1:nrow(segments)) {
     start_idx <- segments[i,"start_idx"][[1]]
     end_idx <- segments[i,"end_idx"][[1]]
+    message(paste('segment',i,'starts at', start_idx,'ends at', end_idx))
+    if (i == 51) {
+      NULL
+    }
     # length of the segment is determined from the times column
     data_times <- list(times = segments[i, ]$times[[1]],
                        type = "data") %>% 
@@ -195,12 +199,14 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
       coast_line <- fix_line
     }
     
-#    if (n_polys == 1) {
-      coast_hull <- vector_mask %>%
-        sf::st_cast("POLYGON", warn = FALSE) %>% 
+    if (n_polys != 0) {
+      coast_hull <- vector_mask %>%  
         dplyr::filter(lengths(sf::st_intersects(., fix_line)) > 0) %>% 
         sf::st_difference(sf::st_buffer(sf::st_intersection(fix_line,.),dist = 1)) %>%
+        sf::st_collection_extract(type = "POLYGON", warn = FALSE) %>% 
         sf::st_cast("POLYGON", warn = FALSE) %>% 
+        sf::st_difference() %>% 
+        dplyr::slice(which(!sf::st_is_empty(.))) %>% sf::st_sf() %>% # for crwIS segment 51 has 2 very large polys
         dplyr::slice(-which.max(sf::st_area(.))) %>% 
         sf::st_buffer(barrier_buffer) %>% 
         sf::st_union() %>% 
@@ -227,11 +233,23 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
         sf::st_difference(sf::st_buffer(sf::st_intersection(sf::st_buffer(fix_line,dist=50),.),dist = 1)) %>%
         sf::st_cast("LINESTRING")
       
-      lines_to_keep <- sf::st_contains_properly(coast_line, vector_mask) %>% purrr::map_lgl(~ length(.x) == 0)
+      new_coast_line <- function(coast_line, vector_mask) {
+        no_cross <- sf::st_crosses(coast_line, vector_mask) %>% 
+          purrr::map_lgl(~ length(.x) == 0)
+        if(sum(no_cross) > 0) {
+          coast_line <- coast_line[no_cross,] %>% 
+            dplyr::slice(which.max(sf::st_length(.)))
+          return(coast_line)
+        }
+        select_line <- coast_line %>% 
+          sf::st_crosses(vector_mask) %>% 
+          purrr::map_dbl(~ st_area(vector_mask[.,]) %>% sum()) %>% 
+          which.min()
+        coast_line[select_line,]
+      }
       
-      coast_line <- coast_line[lines_to_keep,] %>% dplyr::slice(which.max(sf::st_length(.)))
-      
-    # }
+      coast_line <- coast_line %>% new_coast_line(vector_mask)
+   }
     # 
     # if (n_polys > 1) {
     #   stop(paste("an on-land segment crosses more than one polygon.",
@@ -356,8 +374,11 @@ fix_path <- function(crw_object, vector_mask, crwFit) {
   crw_sf <- crawl::crw_as_sf(crw_object,"POINT")
   
   vector_mask <- vector_mask %>% sf::st_buffer(0) %>% 
-    rmapshaper::ms_clip(bbox = sf::st_bbox(sf::st_buffer(crw_sf,100000)), 
-                        remove_slivers = TRUE)
+    sf::st_collection_extract(type = "POLYGON", warn = FALSE) %>% 
+    sf::st_cast("POLYGON", warn = FALSE)
+  # %>% 
+  #   rmapshaper::ms_clip(bbox = sf::st_bbox(sf::st_buffer(crw_sf,100000)), 
+  #                       remove_slivers = TRUE)
   
   fix <- fix_segments(crw_sf = crw_sf, 
                       vector_mask = vector_mask, 
