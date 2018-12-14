@@ -170,6 +170,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     start_idx <- segments[i,"start_idx"][[1]]
     end_idx <- segments[i,"end_idx"][[1]]
     message(paste('segment',i,'starts at', start_idx,'ends at', end_idx))
+
     if (i == 131) {
       NULL
     }
