@@ -87,13 +87,13 @@ path_simulation_fix <- function(coast_points, sigma, beta, draw_size=500, vector
   sig = sigma*beta*sqrt(delta)
   for(i in 1:(nrow(coast_points)-2)){
     if(delta[i]!=0){
-      if(i==1){
+      #if(i==1){
         nu.x.smp = (Px[i]-ret_data$mu.x[i])/delta[i]+rnorm(1000, 0, sig[i])
         nu.y.smp = (Py[i]-ret_data$mu.y[i])/delta[i]+rnorm(1000, 0, sig[i])
-      } else{
-        nu.x.smp = (1-beta*delta[i])*ret_data$nu.x[i-1] + beta*delta[i]*(Px[i]-ret_data$mu.x[i])/delta[i]+rnorm(1000, 0, sig[i])
-        nu.y.smp = (1-beta*delta[i])*ret_data$nu.y[i-1] + beta*delta[i]*(Py[i]-ret_data$mu.y[i])/delta[i]+rnorm(1000, 0, sig[i])
-      }
+      #} else{
+        # nu.x.smp = (1-beta*delta[i])*ret_data$nu.x[i-1] + beta*delta[i]*(Px[i]-ret_data$mu.x[i])/delta[i]+rnorm(1000, 0, sig[i])
+        # nu.y.smp = (1-beta*delta[i])*ret_data$nu.y[i-1] + beta*delta[i]*(Py[i]-ret_data$mu.y[i])/delta[i]+rnorm(1000, 0, sig[i])
+      #}
       mu.smp = data.frame(
         mu.x=ret_data$mu.x[i] + nu.x.smp*delta[i], 
         mu.y=ret_data$mu.y[i] + nu.y.smp*delta[i]) %>% 
@@ -170,10 +170,9 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     start_idx <- segments[i,"start_idx"][[1]]
     end_idx <- segments[i,"end_idx"][[1]]
     message(paste('segment',i,'starts at', start_idx,'ends at', end_idx))
-
-    if (i == 131) {
-      NULL
-    }
+    # if (i == 131) {
+    #   NULL
+    # }
     # length of the segment is determined from the times column
     data_times <- list(times = segments[i, ]$times[[1]],
                        type = "data") %>% 
@@ -242,15 +241,11 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
         sf::st_cast("LINESTRING")
       
       new_coast_line <- function(coast_line, vector_mask) {
-        no_cross <- sf::st_crosses(coast_line, tmp_mask) %>% 
+        no_cross <- sf::st_crosses(coast_line, vector_mask) %>% 
           purrr::map_lgl(~ length(.x) == 0)
-        if (sum(no_cross) == 1) {
-          coast_line <- coast_line[no_cross,]
-          return(coast_line)
-        }
-        if (sum(no_cross) > 1) {
+        if(sum(no_cross) > 0) {
           coast_line <- coast_line[no_cross,] %>% 
-            sf::st_union() %>% sf::st_line_merge()
+            dplyr::slice(which.max(sf::st_length(.)))
           return(coast_line)
         }
         select_line <- coast_line %>% 
@@ -406,10 +401,11 @@ fix_path <- function(crw_object, vector_mask, crwFit) {
   if (inherits(crw_object, "crwIS")) {
     alpha.sim <- crw_object$alpha.sim
     loc.types <- crw_object$locType
+    
     for (i in 1:nrow(fix)) {
       start_idx <- fix$start_idx[i]
       end_idx <- fix$end_idx[i] - 1
-      alpha.sim[start_idx:end_idx, ] <- fix$fixed_seg[[i]]
+      alpha.sim[start_idx:end_idx, ] <- as.matrix(fix$fixed_seg[[i]])
       loc.types[start_idx:end_idx] <- "f"
     }
     crw_object$alpha.sim <- alpha.sim
