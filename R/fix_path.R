@@ -154,7 +154,7 @@ path_prediction_fix = function(coast_points, sigma, beta, draw_size=500,
 #' @return a tibble with each record identifying the segments and pertinant values
 #' @export
 
-fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, crwIS = FALSE) {
+fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, crwIS = FALSE, quiet = TRUE) {
   # get par from crwFit
   par <- tail(crwFit$estPar, 2)
   ts <- attr(crwFit,"time.scale")
@@ -169,8 +169,10 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
   for (i in 1:nrow(segments)) {
     start_idx <- segments[i,"start_idx"][[1]]
     end_idx <- segments[i,"end_idx"][[1]]
+    if (!quiet) {
     message(paste('segment',i,'starts at', start_idx,'ends at', end_idx))
-    # if (i == 131) {
+    }
+    # if (i == 5) {
     #   NULL
     # }
     # length of the segment is determined from the times column
@@ -208,9 +210,12 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
         sf::st_difference() %>% 
         dplyr::slice(which(!sf::st_is_empty(.))) %>% sf::st_sf() 
       
-      coast_hull_over <- coast_hull %>% sf::st_intersects() %>% purrr::map_int(length)
-      if(any(coast_hull_over>1)){
-        coast_hull <- coast_hull %>% dplyr::slice(-which(coast_hull_over==max(coast_hull_over))) 
+      coast_hull_over <- coast_hull %>% 
+        sf::st_intersects() %>% 
+        purrr::map_int(length)
+      if (any(coast_hull_over > 1)) {
+        coast_hull <- coast_hull %>% 
+          dplyr::slice(-which(coast_hull_over == max(coast_hull_over))) 
       }
       
       coast_hull <- coast_hull %>% # for crwIS segment 51 has 2 very large polys
@@ -314,11 +319,19 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
       dplyr::arrange(times) %>% 
       dplyr::select(type,mu.x,nu.x,mu.y,nu.y,times)
     
+    # make sure the last row is of type 'end'
+    end_row <- coast_points %>% dplyr::filter(type == "end")
+    coast_points <- coast_points %>% 
+      dplyr::filter(type != "end") %>% 
+      dplyr::bind_rows(end_row)
+    
+    
     if (!crwIS) {
       segments[[i,"fixed_seg"]] <- path_prediction_fix(coast_points, 
                                                        sigma = exp(par[1]), 
                                                        beta = exp(par[2])) 
     }
+    
     if (crwIS) {
       segments[[i,"fixed_seg"]] <- path_simulation_fix(coast_points, 
                                                        sigma = exp(par[1]), 
@@ -370,7 +383,7 @@ crw_alpha <- function(crw_object) {
 #' @export
 #'
 
-fix_path <- function(crw_object, vector_mask, crwFit) {
+fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
   # check if crwFit used the drift model and stop
   if (inherits(crwFit,"crwFit_drft")) {
     stop("model fits with drift = TRUE are currently not supported within fix_path.")
@@ -396,7 +409,8 @@ fix_path <- function(crw_object, vector_mask, crwFit) {
                       vector_mask = vector_mask, 
                       crwFit = crwFit, 
                       alpha = alpha, 
-                      crwIS = crwIS)
+                      crwIS = crwIS,
+                      quiet = quiet)
   
   if (inherits(crw_object, "crwIS")) {
     alpha.sim <- crw_object$alpha.sim
