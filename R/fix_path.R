@@ -161,6 +161,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
   
   # identify segments that are within the vector mask
   segments <- get_mask_segments(crw_sf, vector_mask, alpha)
+  fixed_range <- segments$fixed_range
   segments <- segments$on_mask_segments
   # add an empty 'fixed_seg' column to segments
   segments[,"fixed_seg"] <- list(list(NA))
@@ -172,16 +173,17 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     if (!quiet) {
     message(paste('segment',i,'starts at', start_idx,'ends at', end_idx))
     }
-    # if (i == 5) {
-    #   NULL
+    # if (i == 29) {
+    #   browser()
     # }
     # length of the segment is determined from the times column
     data_times <- list(times = segments[i, ]$times[[1]],
                        type = "data") %>% 
       tibble::as_tibble() 
-    wypt_times <- list(times = c(seq(data_times$times[1], 
-                                     data_times$times[nrow(data_times)], 
-                                     by= 0.25))) %>% 
+    t_1 <- data_times$times[1]
+    t_n <- data_times$times[nrow(data_times)]
+    wypt_times <- list(times = c(seq(t_1, t_n, 
+                                     length.out = 2 + ceiling( (t_n-t_1)/0.25) )) ) %>% 
       tibble::as_tibble()
     l <- nrow(wypt_times)
     data_times <- data_times %>% 
@@ -344,7 +346,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
       )
     }
   }
-  return(segments)
+  return(list(segments = segments, fixed_range = fixed_range))
 }
 
 #' @title Extract alpha values from \code{crwPredict} or \code{crwIS} objects
@@ -405,12 +407,16 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
   #   rmapshaper::ms_clip(bbox = sf::st_bbox(sf::st_buffer(crw_sf,100000)), 
   #                       remove_slivers = TRUE)
   
+  
+  
   fix <- fix_segments(crw_sf = crw_sf, 
                       vector_mask = vector_mask, 
                       crwFit = crwFit, 
                       alpha = alpha, 
                       crwIS = crwIS,
                       quiet = quiet)
+  
+  fix <- fix$segments
   
   if (inherits(crw_object, "crwIS")) {
     alpha.sim <- crw_object$alpha.sim
