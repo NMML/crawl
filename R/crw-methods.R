@@ -3,11 +3,10 @@
 #' @param ... other arguments
 #' @export
 
-"[.crwIS" <- function(x, i, j, ... , drop = TRUE)
-          {
-            x$alpha.sim <- x$alpha.sim[i, ]
-            x$locType <- x$locType[i]
-            x$TimeNum <- x$TimeNum[i]
-            x$Time <- x$Time[i]
-            return(x)
-          }
+"[.crwIS" <- function(x, i, j, ... , drop = TRUE) {
+  x$alpha.sim <- x$alpha.sim[i,]
+  x$locType <- x$locType[i]
+  x$TimeNum <- x$TimeNum[i]
+  x[[attr(x, "Time.name")]] <- x[[attr(x, "Time.name")]][i]
+  return(x)
+}

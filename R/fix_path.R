@@ -140,9 +140,9 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit,
     if (!quiet) {
     message(paste('segment',i,'starts at', start_idx,'ends at', end_idx))
     }
-    if (i == 522) {
-      browser()
-    }
+    # if (i == 522) {
+    #   browser()
+    # }
     # if (between(1522,start_idx, end_idx)) {
     #   browser()
     # }
@@ -441,8 +441,6 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
     }
     crw_object$alpha.sim <- alpha.sim
     crw_object$locType <- loc.types
-    # crw_object$locType <- crw_object$locType[alpha$predicted_idx]
-    # crw_object$Time <- crw_object$Time[alpha$predicted_idx]
     return(crw_object)
   }
   
