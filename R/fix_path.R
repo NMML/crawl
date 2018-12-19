@@ -17,34 +17,6 @@
 #' 
 
 get_mask_segments = function(crw_sf, vector_mask, alpha) {
-  # intersect crw_sf with vector mask
-  on_mask <- sf::st_intersects(crw_sf, vector_mask) %>% 
-    purrr::map_lgl(~ length(.x) > 0)
-  if (any(is.na(on_mask))) {
-    stop("points in crw_sf fall outside the extent of vector_mask")
-  }
-  # return NULL if no points within the vector mask
-  if (sum(on_mask,na.rm = TRUE) == 0) {return(NULL)}
-  
-  head_start <- 1
-  tail_end <- length(on_mask)
-  
-  if (min(which(on_mask == TRUE)) == 1) {
-    warning(paste0("Path starts within vector mask, first ",
-                   min(which(on_mask == 0)) - 1,
-                   " observations removed"))
-    head_start = min(which(on_mask == FALSE))
-  }
-  if (max(which(on_mask == 0)) < length(on_mask)) {
-    warning(paste("Path ends within vector mask, last ", 
-                  length(on_mask) - max(which(on_mask == 0)),
-                  " observations removed"))
-    tail_end <- max(which(on_mask == 0))
-  }
-  crw_sf <- crw_sf[head_start:tail_end,]
-  alpha$alpha <- alpha$alpha[head_start:tail_end,]
-  alpha$times <- alpha$times[head_start:tail_end]
-  
   on_mask <- sf::st_intersects(crw_sf, vector_mask) %>% 
     purrr::map_lgl(~ length(.x) > 0)
   
@@ -59,10 +31,6 @@ get_mask_segments = function(crw_sf, vector_mask, alpha) {
     dplyr::mutate(start_alpha = list(alpha$alpha[start_idx, ]),
                   end_alpha = list(alpha$alpha[end_idx,]),
                   times = list(alpha$times[start_idx:end_idx]))
-  on_mask_segments <- list(
-    on_mask_segments = on_mask_segments,
-    fixed_range = c(head_start,tail_end)
-  )
   
   return(on_mask_segments)
 }
@@ -88,8 +56,8 @@ path_simulation_fix <- function(coast_points, sigma, beta, draw_size=500, vector
   for(i in 1:(nrow(coast_points)-2)){
     if(delta[i]!=0){
       #if(i==1){
-        nu.x.smp = (Px[i]-ret_data$mu.x[i])/delta[i]+rnorm(1000, 0, sig[i])
-        nu.y.smp = (Py[i]-ret_data$mu.y[i])/delta[i]+rnorm(1000, 0, sig[i])
+        nu.x.smp = (Px[i]-ret_data$mu.x[i])/delta[i]+rnorm(500, 0, sig[i])
+        nu.y.smp = (Py[i]-ret_data$mu.y[i])/delta[i]+rnorm(500, 0, sig[i])
       #} else{
         # nu.x.smp = (1-beta*delta[i])*ret_data$nu.x[i-1] + beta*delta[i]*(Px[i]-ret_data$mu.x[i])/delta[i]+rnorm(1000, 0, sig[i])
         # nu.y.smp = (1-beta*delta[i])*ret_data$nu.y[i-1] + beta*delta[i]*(Py[i]-ret_data$mu.y[i])/delta[i]+rnorm(1000, 0, sig[i])
@@ -154,15 +122,14 @@ path_prediction_fix = function(coast_points, sigma, beta, draw_size=500,
 #' @return a tibble with each record identifying the segments and pertinant values
 #' @export
 
-fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, crwIS = FALSE, quiet = TRUE) {
+fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, 
+                         alpha, crwIS = FALSE, quiet = TRUE) {
   # get par from crwFit
   par <- tail(crwFit$estPar, 2)
   ts <- attr(crwFit,"time.scale")
   
   # identify segments that are within the vector mask
   segments <- get_mask_segments(crw_sf, vector_mask, alpha)
-  fixed_range <- segments$fixed_range
-  segments <- segments$on_mask_segments
   # add an empty 'fixed_seg' column to segments
   segments[,"fixed_seg"] <- list(list(NA))
   
@@ -173,7 +140,10 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     if (!quiet) {
     message(paste('segment',i,'starts at', start_idx,'ends at', end_idx))
     }
-    # if (i == 29) {
+    if (i == 522) {
+      browser()
+    }
+    # if (between(1522,start_idx, end_idx)) {
     #   browser()
     # }
     # length of the segment is determined from the times column
@@ -210,18 +180,25 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
         sf::st_collection_extract(type = "POLYGON", warn = FALSE) %>% 
         sf::st_cast("POLYGON", warn = FALSE) %>% 
         sf::st_difference() %>% 
-        dplyr::slice(which(!sf::st_is_empty(.))) %>% sf::st_sf() 
+        dplyr::slice(which(!sf::st_is_empty(.))) %>% 
+        sf::st_cast() %>% 
+        sf::st_cast("POLYGON") %>% sf::st_sf() %>% 
+        dplyr::slice(-which.max(sf::st_area(.)))
       
       coast_hull_over <- coast_hull %>% 
         sf::st_intersects() %>% 
         purrr::map_int(length)
-      if (any(coast_hull_over > 1)) {
+      if (any(coast_hull_over > 1) & sum(diff(coast_hull_over)) != 0) {
         coast_hull <- coast_hull %>% 
           dplyr::slice(-which(coast_hull_over == max(coast_hull_over))) 
       }
+      if (!all(sf::st_geometry_type(coast_hull) == "POLYGON")) {
+        coast_hull <- coast_hull %>% 
+          sf::st_cast() %>% sf::st_cast("POLYGON")
+      }
       
       coast_hull <- coast_hull %>% # for crwIS segment 51 has 2 very large polys
-        dplyr::slice(-which.max(sf::st_area(.))) %>% 
+   #     dplyr::slice(-which.max(sf::st_area(.))) %>% 
         sf::st_buffer(barrier_buffer) %>% 
         sf::st_union() %>% 
         sf::st_union(fix_line) %>% 
@@ -247,6 +224,9 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
         sf::st_difference(sf::st_buffer(sf::st_intersection(sf::st_buffer(fix_line,dist=50),.),dist = 1)) %>%
         sf::st_cast("LINESTRING")
       
+      coast_line <- coast_line %>% 
+        dplyr::slice(which(sf::st_length(.) %>% as.numeric() > barrier_buffer))
+      
       new_coast_line <- function(coast_line, vector_mask) {
         no_cross <- sf::st_crosses(coast_line, vector_mask) %>% 
           purrr::map_lgl(~ length(.x) == 0)
@@ -255,10 +235,20 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
             dplyr::slice(which.max(sf::st_length(.)))
           return(coast_line)
         }
+        if (sf::st_crosses(coast_line, vector_mask) %>% 
+            purrr::map_int(~ .) %>% diff() == 0) {
+          coast_line <- coast_line %>% 
+            dplyr::slice(which.max(sf::st_length(.)))
+          message(paste0("adjusted path may intersect with land for segment ", 
+                         i,"... records: ", start_idx, ":", end_idx))
+          return(coast_line)
+        }
         select_line <- coast_line %>% 
           sf::st_crosses(vector_mask) %>% 
           purrr::map_dbl(~ st_area(vector_mask[.,]) %>% sum()) %>% 
           which.min()
+        message(paste0("adjusted path may intersect with land for segment ", 
+                      i,"... records: ", start_idx,":", end_idx))
         coast_line[select_line,]
       }
       
@@ -284,9 +274,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
     
     coast_points <- coast_line %>% 
       sf::st_sample(l-2,type="regular",offset=0.5)
-    if (is.null(coast_points)) {
-      NULL
-    }
+
     coast_points <- coast_points %>% sf::st_cast("POINT") 
     
     sample_start <- which.min(sf::st_distance(start_pt, coast_points))
@@ -346,7 +334,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit, alpha, 
       )
     }
   }
-  return(list(segments = segments, fixed_range = fixed_range))
+  return(segments)
 }
 
 #' @title Extract alpha values from \code{crwPredict} or \code{crwIS} objects
@@ -390,7 +378,6 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
   if (inherits(crwFit,"crwFit_drft")) {
     stop("model fits with drift = TRUE are currently not supported within fix_path.")
   }
-  alpha <- crw_alpha(crw_object)
   
   if (inherits(crw_object,"crwIS")) {
     crwIS <- TRUE
@@ -407,7 +394,33 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
   #   rmapshaper::ms_clip(bbox = sf::st_bbox(sf::st_buffer(crw_sf,100000)), 
   #                       remove_slivers = TRUE)
   
+  # intersect crw_sf with vector mask
+  on_mask <- sf::st_intersects(crw_sf, vector_mask) %>% 
+    purrr::map_lgl(~ length(.x) > 0)
+  if (any(is.na(on_mask))) {
+    stop("points in crw_sf fall outside the extent of vector_mask")
+  }
+  # return NULL if no points within the vector mask
+  if (sum(on_mask,na.rm = TRUE) == 0) {return(NULL)}
   
+  head_start <- 1
+  tail_end <- length(on_mask)
+  
+  if (min(which(on_mask == TRUE)) == 1) {
+    message(paste0("Path starts within vector mask, first ",
+                   min(which(on_mask == 0)) - 1,
+                   " observations removed"))
+    head_start = min(which(on_mask == FALSE))
+  }
+  if (max(which(on_mask == 0)) < length(on_mask)) {
+    message(paste("Path ends within vector mask, last ", 
+                  length(on_mask) - max(which(on_mask == 0)),
+                  " observations removed"))
+    tail_end <- max(which(on_mask == 0))
+  }
+  crw_sf <- crw_sf[head_start:tail_end,]
+  crw_object <- crw_object[head_start:tail_end,]
+  alpha <- crw_alpha(crw_object)
   
   fix <- fix_segments(crw_sf = crw_sf, 
                       vector_mask = vector_mask, 
@@ -415,8 +428,6 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
                       alpha = alpha, 
                       crwIS = crwIS,
                       quiet = quiet)
-  
-  fix <- fix$segments
   
   if (inherits(crw_object, "crwIS")) {
     alpha.sim <- crw_object$alpha.sim

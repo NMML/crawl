@@ -1,29 +1,13 @@
-#' Generic methods for crwIS and crwPredict classes
+#' Generic subset/bracket method for crwIS classes
 #' 
-#' @param drop_obs boolean whether to drop the "o" locType records
 #' @param ... other arguments
 #' @export
 
-# "[.crwIS" <- function(x, i, j, drop_obs = FALSE, ... , drop = TRUE)
-#           {
-#             alpha.sim <- x$alpha.sim
-#             locType <- x$locType
-#             Time <- x$Time
-#             
-#             if (drop_obs) {
-#               p_idx <- locType == "p"
-#               alpha.sim <- alpha.sim[p_idx, ]
-#               locType <- locType[p_idx]
-#               Time <- Time[p_idx]
-#             }
-#             
-#             alpha.sim <- alpha.sim[i, ]
-#             locType <- locType[i]
-#             Time <- Time[i]
-#             
-#             x$alpha.sim <- alpha.sim
-#             x$locType <- locType
-#             x$Time <- Time
-#             
-#             return(x)
-#           }
+"[.crwIS" <- function(x, i, j, ... , drop = TRUE)
+          {
+            x$alpha.sim <- x$alpha.sim[i, ]
+            x$locType <- x$locType[i]
+            x$TimeNum <- x$TimeNum[i]
+            x$Time <- x$Time[i]
+            return(x)
+          }
