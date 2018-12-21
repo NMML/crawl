@@ -1,17 +1,18 @@
-#' @title Identify segments of a path that cross through a restricted area
-#' @description This function is used to identify sections of a path that pass through 
-#' a restricted area (e.g. for marine mammals or fish, a land mask). the CTCRW model in 
-#' crawl cannot actively steer paths away 
-#' from land. So, this function
-#' will identify path segments from the unrestrained path that pass through these areas.
-#' If the path/points end within the land area, those records will be removed.
-#' The user can then use this information to adjust the path as desired. 
-#' @param crw_object A \code{crwIS} or \code{crwPredict} object from the \code{crawl} package 
-#' @param vector_mask A \code{sf} object from sf package that indicates 
-#' restricted areas as a polygon feature.  
+#' @title Identify segments of a path that cross through a land barrier
+#' @description This function is used to identify sections of a path that cross
+#'   through a land barrier. the \code{crwMLE} function in \code{crawl} cannot
+#'   actively steer paths away from land. So, this function will identify path
+#'   segments from the unrestrained path.
+#' @param crw_sf A \code{crwIS} or \code{crwPredict} object that has been converted
+#' to an \code{sf} 'POINT' object via the \code{crw_as_sf} function.
+#' @param vector_mask A \code{sf} object from sf package that indicates
+#'   restricted areas as a polygon feature.
+#' @param alpha alpha values extracted from a \code{crwPredict} or \code{crwIS}
+#' object via the \code{crw_alpha} function.
 #' @return A data.frame with each row associated with each section of the path
-#' that crosses a restricted area. The columns provide the start and end row indices of \code{xy} where
-#' the section occurs and the previous and post locations that are in unrestricted space.
+#'   that crosses a restricted area. The columns provide the start and end row
+#'   indices of \code{xy} where the section occurs and the previous and post
+#'   locations that are in unrestricted space.
 #' @author Josh M. London (josh.london@noaa.gov)
 #' @export
 #' 
@@ -379,13 +380,21 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
     stop("model fits with drift = TRUE are currently not supported within fix_path.")
   }
   
+  # convert crw_object to a POINT sf object
+  crw_sf <- crawl::crw_as_sf(crw_object,"POINT")
+  
   if (inherits(crw_object,"crwIS")) {
     crwIS <- TRUE
+    crw_sf <- crw_sf %>% 
+      dplyr::mutate(elapsed_time = dplyr::lead(TimeNum) - TimeNum,
+                    distance_to_next = sf::st_distance(
+                      geometry, 
+                      dplyr::lead(geometry, default = empty), 
+                      by_element = TRUE),
+                    speed = distance_to_next/elapsed_time)
   } else {
     crwIS <- FALSE
   }
-  # convert crw_object to a POINT sf object
-  crw_sf <- crawl::crw_as_sf(crw_object,"POINT")
   
   vector_mask <- vector_mask %>% sf::st_buffer(0) %>% 
     sf::st_collection_extract(type = "POLYGON", warn = FALSE) %>% 
