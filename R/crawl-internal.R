@@ -207,3 +207,20 @@ getSD <- function(x){
 	if(any(!is.na(d))) return(max(d, na.rm=TRUE))
 	else return(0)
 }
+
+check_fit <- function(mle) {
+  checkMLE <- inherits(mle, 'try-error')
+  checkConv <-
+    ifelse(inherits(mle, 'try-error'), 1, mle$convergence > 0)
+  
+  C.tmp <- try(2 * solve(mle$hessian), silent = TRUE)
+  if (inherits(C.tmp, "try-error")) {
+    checkCovar <- 1
+    checkDiag <- 1
+  } else {
+    checkCovar <- 0
+    checkDiag <- ifelse(any(diag(C.tmp) <= 0), 1, 0)
+  }
+  return(sum(checkMLE, checkConv, checkCovar, checkDiag) > 0)
+}
+

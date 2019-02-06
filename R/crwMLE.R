@@ -88,6 +88,8 @@
 #' annealing is used for obtaining start values. See details
 #' @param attempts The number of times likelihood optimization will be
 #' attempted
+#' @param retrySD optional user-provided standard deviation for adjusting
+#' starting values when attempts > 1. Default value is 1.
 #' @param ... Additional arguments that are ignored.
 #' @return
 #' 
@@ -158,7 +160,8 @@
 crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                   data, coord=c("x", "y"), Time.name="time", time.scale=NULL, #initial.state, 
                   theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
-                  prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1, ...)
+                  prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1, 
+                  retrySD = 1, ...)
 {
   st <- Sys.time()
   
@@ -308,21 +311,21 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   
   checkFit <- 1
   thetaAttempt <- theta
-  while(attempts > 0 & checkFit) {
-    if (!is.null(initialSANN) & method!='SANN') {
-      #browser()
-      message("Beginning SANN initialization ...")
-      init <- optim(thetaAttempt, crwN2ll, method='SANN', control=initialSANN,
-                    fixPar=fixPar, y=y, noObs=noObs,
-                    delta=c(diff(data$TimeNum), 1), #a=initial.state$a, P=initial.state$P,
-                    mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, rho=rho, activity=activity,
-                    n.mov=n.mov, n.errX=n.errX, n.errY=n.errY,
-                    driftMod=driftMod, prior=prior, need.hess=FALSE, constr=constr)
-      #thetaAttempt <- init$par
-    } else init <- list(par=thetaAttempt)
-    #if(any(init$par<lower)) init$par[init$par<lower] <- lower[init$par<lower] + 0.000001
-    #if(any(init$par>upper)) init$par[init$par>upper] <- upper[init$par>upper] - 0.000001
-    message("Beginning likelihood optimization ...")
+  if (!is.null(initialSANN) & method!='SANN') {
+    message("Beginning SANN initialization ...")
+    init <- optim(thetaAttempt, crwN2ll, method='SANN', control=initialSANN,
+                  fixPar=fixPar, y=y, noObs=noObs,
+                  delta=c(diff(data$TimeNum), 1), #a=initial.state$a, P=initial.state$P,
+                  mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, rho=rho, activity=activity,
+                  n.mov=n.mov, n.errX=n.errX, n.errY=n.errY,
+                  driftMod=driftMod, prior=prior, need.hess=FALSE, constr=constr)
+    #thetaAttempt <- init$par
+  } else init <- list(par=thetaAttempt)
+  #if(any(init$par<lower)) init$par[init$par<lower] <- lower[init$par<lower] + 0.000001
+  #if(any(init$par>upper)) init$par[init$par>upper] <- upper[init$par>upper] - 0.000001
+  message("Beginning likelihood optimization ...")
+  
+  while (attempts > 0 & checkFit) {
     mle <- try(optim(init$par, crwN2ll, method=method, hessian=need.hess,
                      lower=constr$lower, upper=constr$upper, control=control,					  
                      fixPar=fixPar, y=y, noObs=noObs,
@@ -331,17 +334,22 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
                      n.mov=n.mov, n.errX=n.errX, n.errY=n.errY, rho=rho,
                      driftMod=driftMod, prior=prior, need.hess=need.hess, constr=constr), silent=TRUE)
     attempts <- attempts - 1
-    checkFit = inherits(mle, 'try-error')
+  
+    
+    checkFit <- check_fit(mle) 
+      
+    init$par <- mle$par + rnorm(length(mle$par),0,retrySD)
   }
-  if(inherits(mle, 'try-error')) return(mle)
-  else {
+  
+  if (checkFit) {
+    return(paste("crwMLE failed. Try increasing attempts or changing user",
+               "provided sd values. Other parameter values may need to be changed.",
+               "Good Luck!"))
+  }
     par <- fixPar
     par[is.na(fixPar)] <- mle$par
     Cmat <- matrix(NA, n.par, n.par)
-    C.tmp <- try(2 * solve(mle$hessian), silent=TRUE)
-    if (inherits(C.tmp, "try-error")) {
-      cat("\nCannot calculate covariance matrix\n\n")
-    } else Cmat[is.na(fixPar), is.na(fixPar)] <- C.tmp
+    Cmat[is.na(fixPar), is.na(fixPar)] <- 2 * solve(mle$hessian)
     se <- sqrt(diag(Cmat))
     ci.l <- par - 1.96 * se
     ci.u <- par + 1.96 * se
@@ -365,5 +373,4 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
       class(out) <- c("crwFit_drift","crwFit")
     }
     return(out)
-  }
 }
