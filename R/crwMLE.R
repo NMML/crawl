@@ -342,9 +342,10 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   }
   
   if (checkFit) {
-    return(paste("crwMLE failed. Try increasing attempts or changing user",
+    return(simpleError(
+      paste("crwMLE failed. Try increasing attempts or changing user",
                "provided sd values. Other parameter values may need to be changed.",
-               "Good Luck!"))
+               "Good Luck!")))
   }
     par <- fixPar
     par[is.na(fixPar)] <- mle$par
