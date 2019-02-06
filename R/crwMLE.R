@@ -48,6 +48,17 @@
 #' the crwFit object will be a list with the results of the simulated annealing
 #' optimization.
 #' 
+#' The \code{attempts} argument instructs \code{crwMLE} to attempt a fit
+#' multiple times. Each time, the fit is inspected for convergance, whether
+#' the covariance matrix could be calculated, negative values in the diag 
+#' of the covariance matrix, or NA values in the standard errors. If, after
+#' n attempts, the fit is still not valid a \code{simpleError} object is
+#' returned. Users should consider increasing the number of attempts OR
+#' adjusting the standard deviation value for each attempt by setting
+#' \code{retrySD}. The default value for \code{retrySD} is 1, but users may
+#' need to increase or decrease to find a valid fit. Adjusting other
+#' model parameters may also be required.
+#' 
 #' @param mov.model formula object specifying the time indexed covariates for
 #' movement parameters.
 #' @param err.model A 2-element list of formula objects specifying the time
@@ -87,7 +98,7 @@
 #' @param initialSANN Control list for \code{\link{optim}} when simulated
 #' annealing is used for obtaining start values. See details
 #' @param attempts The number of times likelihood optimization will be
-#' attempted
+#' attempted in cases where the fit does not converge or is otherwise non-valid
 #' @param retrySD optional user-provided standard deviation for adjusting
 #' starting values when attempts > 1. Default value is 1.
 #' @param ... Additional arguments that are ignored.
