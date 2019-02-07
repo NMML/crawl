@@ -191,6 +191,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit,
       coast_hull_over <- coast_hull %>% 
         sf::st_intersects() %>% 
         purrr::map_int(length)
+      
       if (any(coast_hull_over > 1) & sum(diff(coast_hull_over)) != 0) {
         coast_hull <- coast_hull %>% 
           dplyr::slice(-which(coast_hull_over == max(coast_hull_over))) 
@@ -200,8 +201,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit,
           sf::st_cast() %>% sf::st_cast("POLYGON")
       }
       
-      coast_hull <- coast_hull %>% # for crwIS segment 51 has 2 very large polys
-   #     dplyr::slice(-which.max(sf::st_area(.))) %>% 
+      coast_hull <- coast_hull %>%  
         sf::st_buffer(barrier_buffer) %>% 
         sf::st_union() %>% 
         sf::st_union(fix_line) %>% 
