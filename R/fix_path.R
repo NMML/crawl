@@ -408,6 +408,7 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
   if (any(is.na(on_mask))) {
     stop("points in crw_sf fall outside the extent of vector_mask")
   }
+  
   # return the provided crw_object if no points within the vector mask
   if (sum(on_mask,na.rm = TRUE) == 0) {return(crw_object)}
   
