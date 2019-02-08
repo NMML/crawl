@@ -175,6 +175,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit,
     }
     
     if (n_polys != 0) {
+      suppressWarnings(
       coast_hull <- vector_mask %>%  
         dplyr::filter(lengths(sf::st_intersects(., fix_line)) > 0) %>% 
         sf::st_difference(sf::st_buffer(sf::st_intersection(fix_line,.),dist = 1)) %>%
@@ -185,10 +186,12 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit,
         sf::st_cast() %>% 
         sf::st_cast("POLYGON") %>% sf::st_sf() %>% 
         dplyr::slice(-which.max(sf::st_area(.)))
+      )
       
       coast_hull_over <- coast_hull %>% 
         sf::st_intersects() %>% 
         purrr::map_int(length)
+      
       if (any(coast_hull_over > 1) & sum(diff(coast_hull_over)) != 0) {
         coast_hull <- coast_hull %>% 
           dplyr::slice(-which(coast_hull_over == max(coast_hull_over))) 
@@ -198,8 +201,7 @@ fix_segments <- function(crw_sf, vector_mask, barrier_buffer=50, crwFit,
           sf::st_cast() %>% sf::st_cast("POLYGON")
       }
       
-      coast_hull <- coast_hull %>% # for crwIS segment 51 has 2 very large polys
-   #     dplyr::slice(-which.max(sf::st_area(.))) %>% 
+      coast_hull <- coast_hull %>%  
         sf::st_buffer(barrier_buffer) %>% 
         sf::st_union() %>% 
         sf::st_union(fix_line) %>% 
@@ -399,9 +401,6 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
   vector_mask <- vector_mask %>% sf::st_buffer(0) %>% 
     sf::st_collection_extract(type = "POLYGON", warn = FALSE) %>% 
     sf::st_cast("POLYGON", warn = FALSE)
-  # %>% 
-  #   rmapshaper::ms_clip(bbox = sf::st_bbox(sf::st_buffer(crw_sf,100000)), 
-  #                       remove_slivers = TRUE)
   
   # intersect crw_sf with vector mask
   on_mask <- sf::st_intersects(crw_sf, vector_mask) %>% 
@@ -409,8 +408,9 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
   if (any(is.na(on_mask))) {
     stop("points in crw_sf fall outside the extent of vector_mask")
   }
-  # return NULL if no points within the vector mask
-  if (sum(on_mask,na.rm = TRUE) == 0) {return(NULL)}
+  
+  # return the provided crw_object if no points within the vector mask
+  if (sum(on_mask,na.rm = TRUE) == 0) {return(crw_object)}
   
   head_start <- 1
   tail_end <- length(on_mask)
