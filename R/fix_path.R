@@ -429,6 +429,12 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
   }
   crw_sf <- crw_sf[head_start:tail_end,]
   crw_object <- crw_object[head_start:tail_end,]
+  # intersect crw_sf with vector mask
+  on_mask <- sf::st_intersects(crw_sf, vector_mask) %>% 
+    purrr::map_lgl(~ length(.x) > 0)
+  # return the crw_object if no points within the vector mask
+  if (sum(on_mask,na.rm = TRUE) == 0) {return(crw_object)}
+  
   alpha <- crw_alpha(crw_object)
   
   fix <- fix_segments(crw_sf = crw_sf, 
