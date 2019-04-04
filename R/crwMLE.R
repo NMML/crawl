@@ -78,7 +78,10 @@
 #'   a data.frame are supported, they will not be compatible with additional 
 #'   fucntions e.g. \code{fix_path}.
 #' @param coord A 2-vector of character values giving the names of the "X" and
-#' "Y" coordinates in \code{data}.
+#' "Y" coordinates in \code{data}. Ignored if \code{data} inherits class
+#' 'sf' or 'sp'.
+#' @param proj A valid epsg integer code or proj4string for \code{data} that does not
+#' inherit either 'sf' or 'sp'. Otherwise, ignored.
 #' @param Time.name character indicating name of the location time column. It is
 #' strongly preferred that this column be of type POSIXct and in UTC.
 #' @param time.scale character. Scale for conversion of POSIX time to numeric 
@@ -169,7 +172,7 @@
 #' @export
 
 crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
-                  data, coord=c("x", "y"), Time.name="time", time.scale=NULL, #initial.state, 
+                  data, coord=c("x", "y"), proj=NULL, Time.name="time", time.scale=NULL, #initial.state, 
                   theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
                   prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1, 
                   retrySD = 1, ...)
@@ -186,6 +189,15 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     warning("location data is provided in a non-spatial format. please consider using 'sf' or 'sp' data structures.")
     if (inherits(data, "tbl_df")) {
       data <- as.data.frame(data) 
+    }
+    if (is.null(proj)) {
+      stop("data is provided in a non-spatial format, but no projection is provided.\n set 'proj' to an appropriate value.")
+    }
+    if (inherits(proj,"integer")) {
+      p4$epsg <- proj
+    }
+    if (inherits(proj,"character")) {
+      p4$proj4string <- proj
     }
   }
   
@@ -205,16 +217,16 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     }
     p4$epsg <- sf::st_crs(data)$epsg
     p4$proj4string <- sf::st_crs(data)$proj4string
-    if(!any(names(data) %in% c("x","y"))) {
+    if(!any(names(data) %in% coord)) {
       coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
-      coordVals <- stats::setNames(coordVals, c("x","y"))
+      coordVals <- stats::setNames(coordVals, coord)
       sf::st_geometry(data) <- NULL
       data <- cbind(data, coordVals)
     } else {
-      warning("'x' and 'y' columns detected in 'sf'; will drop and create from geometry")
+      warning("columns matching supplied coord names detected; will drop and create from geometry")
       coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
-      coordVals <- stats::setNames(coordVals, c("x","y"))
-      data <- data %>% dplyr::select(-c(x, y)) %>% 
+      coordVals <- stats::setNames(coordVals, coord)
+      data <- data %>% dplyr::select(-coord) %>% 
         sf::st_set_geometry(NULL)
       data <- cbind(data, coordVals)
     }
@@ -240,7 +252,7 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   }
   
   if(is.null(p4$epsg) && is.null(p4$proj4string)) {
-    warning("projection data for data coordinates were not provided.")
+    stop("projection data for data coordinates were not provided.")
   }
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
