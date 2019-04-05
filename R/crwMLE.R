@@ -1,3 +1,4 @@
+
 #' Fit Continuous-Time Correlated Random Walk Models to Animal Telemetry Data
 #' 
 #' The function uses the Kalman filter to estimate movement paramters in a
@@ -7,67 +8,6 @@
 #' movement is allowed to completely stop, as well as, a random drift model can
 #' be fit with this function.
 #' 
-#' A full model specification involves 4 components: a movement model, an
-#' activity model, 2 location error models, and a drift indication. The
-#' movement model (\code{mov.model}) specifies how the movement parameters
-#' should vary over time. This is a function of specified, time-indexed,
-#' covariates. The movement parameters (sigma for velocity variation and beta
-#' for velocity autocorrelation) are both modeled with a log link as par =
-#' exp(eta), where eta is the linear predictor based on the covariates. The
-#' \code{err.model} specification is a list of 2 such models, one for
-#' \dQuote{longitude} and one for \dQuote{latitude} (in that order) location
-#' error. If only one location error model is given, it is used for both
-#' coordinates (parameter values as well). If \code{drift.model} is set to
-#' \code{TRUE}, then, 2 additional parameters are estimated for the drift
-#' process, a drift variance and a beta multiplier. 
-#' 
-#' \code{theta} and \code{fixPar} are vectors with the appropriate number or
-#' parameters. \code{theta} contains only those paraemters which are to be
-#' estimated, while \code{fixPar} contains all parameter values with \code{NA}
-#' for parameters which are to be estimated.
-#' 
-#' The data set specified by \code{data} must contain a numeric or POSIXct column which is
-#' used as the time index for analysis. The column name is specified by the
-#' \code{Time.name} argument and it is strongly suggested that this column be of
-#' POSIXct type and in UTC. If a POSIXct column is used it is internally converted to a
-#' numeric vector with units of \code{time.scale}. \code{time.scale} defaults to
-#' NULL and an appropriate option will be chosen ("seconds","minutes","days","weeks")
-#' based on the median time interval. The user can override this by specifying one
-#' of those time intervals directly. If a numeric time vector is used, then 
-#' the \code{time.scale| is ignofred and there
-#' is no adjustment to the data. Also, for activity models, the
-#' activity covariate must be between 0 and 1 inclusive, with 0 representing complete stop
-#' of the animal (no true movement, however, location error can still occur) and 1 
-#' represent unhindered movement. The coordinate location should have \code{NA} where no
-#' location is recorded, but there is a change in the movment covariates.
-#' 
-#' The CTCRW models can be difficult to provide good initial values for
-#' optimization. If \code{initialSANN} is specified then simulated annealing is
-#' used first to obtain starting values for the specified optimaization method.
-#' If simulated annealing is used first, then the returned \code{init} list of
-#' the crwFit object will be a list with the results of the simulated annealing
-#' optimization.
-#' 
-#' The \code{attempts} argument instructs \code{crwMLE} to attempt a fit
-#' multiple times. Each time, the fit is inspected for convergance, whether
-#' the covariance matrix could be calculated, negative values in the diag 
-#' of the covariance matrix, or NA values in the standard errors. If, after
-#' n attempts, the fit is still not valid a \code{simpleError} object is
-#' returned. Users should consider increasing the number of attempts OR
-#' adjusting the standard deviation value for each attempt by setting
-#' \code{retrySD}. The default value for \code{retrySD} is 1, but users may
-#' need to increase or decrease to find a valid fit. Adjusting other
-#' model parameters may also be required.
-#' 
-#' @param mov.model formula object specifying the time indexed covariates for
-#' movement parameters.
-#' @param err.model A 2-element list of formula objects specifying the time
-#' indexed covariates for location error parameters.
-#' @param activity formula object giving the covariate for the activity (i.e., stopped or fully moving)
-#' portion of the model.
-#' @param drift logical indicating whether or not to include a random
-#' drift component. For most data this is usually not necessary. See \code{\link{northernFurSeal}} for an example
-#' using a drift model.
 #' @param data data.frame object containg telemetry and covariate data. A 
 #'   'sf' object from the 'sf' package with a geometry column of type \code{sfc_POINT}
 #'   is the preferred format for these data. 'SpatialPointsDataFrame' object 
@@ -77,6 +17,23 @@
 #'   valid proj4string or epsg and must NOT be in longlat. While data provided as
 #'   a data.frame are supported, they will not be compatible with additional 
 #'   fucntions e.g. \code{fix_path}.
+#' @param ... further arguments passed to or from other methods
+#' @export
+crwMLE <- function(data, ...) {
+  UseMethod("crwMLE")
+}
+
+#' @rdname crwMLE
+#' @method crwMLE default
+#' @param mov.model formula object specifying the time indexed covariates for
+#' movement parameters.
+#' @param err.model A 2-element list of formula objects specifying the time
+#' indexed covariates for location error parameters.
+#' @param activity formula object giving the covariate for the activity (i.e., stopped or fully moving)
+#' portion of the model.
+#' @param drift logical indicating whether or not to include a random
+#' drift component. For most data this is usually not necessary. See \code{\link{northernFurSeal}} for an example
+#' using a drift model.
 #' @param coord A 2-vector of character values giving the names of the "X" and
 #' "Y" coordinates in \code{data}. Ignored if \code{data} inherits class
 #' 'sf' or 'sp'.
@@ -104,80 +61,95 @@
 #' attempted in cases where the fit does not converge or is otherwise non-valid
 #' @param retrySD optional user-provided standard deviation for adjusting
 #' starting values when attempts > 1. Default value is 1.
-#' @param ... Additional arguments that are ignored.
-#' @return
 #' 
-#' A list with the following elements:
-#' 
-#' \item{par}{Parameter maximum likelihood estimates (including fixed
-#' parameters)}
-#' 
+#' @return A list with the following elements:
+#' \item{par}{Parameter maximum likelihood estimates (including fixed parameters)}
 #' \item{estPar}{MLE without fixed parameters}
-#' 
 #' \item{se}{Standard error of MLE}
-#' 
 #' \item{ci}{95\% confidance intervals for parameters}
-#' 
 #' \item{Cmat}{Parameter covariance matrix}
-#' 
 #' \item{loglik}{Maximized log-likelihood value}
-#' 
 #' \item{aic}{Model AIC value}
-#' 
 #' \item{coord}{Coordinate names provided for fitting}
-#' 
 #' \item{fixPar}{Fixed parameter values provided}
-#' 
 #' \item{convergence}{Indicator of convergence (0 = converged)}
-#' 
-#' \item{message}{Meesages given by \code{optim} during parameter optimization}
-#' 
+#' \item{message}{Messages given by \code{optim} during parameter optimization}
 #' \item{activity}{Model provided for stopping variable}
-#' 
 #' \item{drift}{Logical value indicating random drift model}
-#' 
 #' \item{mov.model}{Model description for movement component}
-#' 
 #' \item{err.model}{Model description for location error component}
-#' 
 #' \item{n.par}{number of parameters}
-#' 
 #' \item{nms}{parameter names}
-#' 
 #' \item{n.mov}{number of movement parameters}
-#' 
-#' \item{n.errX}{number or location error parameters for "longitude" error
-#' model}
-#' 
-#' \item{n.errY}{number or location error parameters for "latitude" error
-#' model}
-#' 
+#' \item{n.errX}{number or location error parameters for ``longitude'' error model}
+#' \item{n.errY}{number or location error parameters for ``latitude'' error model}
 #' \item{stop.mf}{covariate for stop indication in stopping models}
-#' 
-#' \item{polar.coord}{Logical indicating coordinates are polar latitude and
-#' longitude}
-#' 
+#' \item{polar.coord}{Logical indicating coordinates are polar latitude and longitude}
 #' \item{init}{Initial values for parameter optimization}
-#' 
 #' \item{data}{Original data.frame used to fit the model}
-#' 
 #' \item{lower}{The lower parameter bounds}
-#' 
 #' \item{upper}{The upper parameter bounds}
-#' 
 #' \item{need.hess}{Logical value}
-#' 
 #' \item{runTime}{Time used to fit model}
+#' 
+#' @details
+#' \itemize{
+#' \item A full model specification involves 4 components: a movement model, an
+#' activity model, 2 location error models, and a drift indication. The
+#' movement model (\code{mov.model}) specifies how the movement parameters
+#' should vary over time. This is a function of specified, time-indexed,
+#' covariates. The movement parameters (sigma for velocity variation and beta
+#' for velocity autocorrelation) are both modeled with a log link as par =
+#' exp(eta), where eta is the linear predictor based on the covariates. The
+#' \code{err.model} specification is a list of 2 such models, one for
+#' \dQuote{longitude} and one for \dQuote{latitude} (in that order) location
+#' error. If only one location error model is given, it is used for both
+#' coordinates (parameter values as well). If \code{drift.model} is set to
+#' \code{TRUE}, then, 2 additional parameters are estimated for the drift
+#' process, a drift variance and a beta multiplier. 
+#' 
+#' \item \code{theta} and \code{fixPar} are vectors with the appropriate number or
+#' parameters. \code{theta} contains only those paraemters which are to be
+#' estimated, while \code{fixPar} contains all parameter values with \code{NA}
+#' for parameters which are to be estimated.
+#' 
+#' \item The data set specified by \code{data} must contain a numeric or POSIXct column which is
+#' used as the time index for analysis. The column name is specified by the
+#' \code{Time.name} argument and it is strongly suggested that this column be of
+#' POSIXct type and in UTC. If a POSIXct column is used it is internally converted to a
+#' numeric vector with units of \code{time.scale}. \code{time.scale} defaults to
+#' NULL and an appropriate option will be chosen ("seconds","minutes","days","weeks")
+#' based on the median time interval. The user can override this by specifying one
+#' of those time intervals directly. If a numeric time vector is used, then 
+#' the \code{time.scale} is ignored and there
+#' is no adjustment to the data. Also, for activity models, the
+#' activity covariate must be between 0 and 1 inclusive, with 0 representing complete stop
+#' of the animal (no true movement, however, location error can still occur) and 1 
+#' represent unhindered movement. The coordinate location should have \code{NA} where no
+#' location is recorded, but there is a change in the movment covariates.
+#' 
+#' \item The CTCRW models can be difficult to provide good initial values for
+#' optimization. If \code{initialSANN} is specified then simulated annealing is
+#' used first to obtain starting values for the specified optimaization method.
+#' If simulated annealing is used first, then the returned \code{init} list of
+#' the crwFit object will be a list with the results of the simulated annealing
+#' optimization.
+#' 
+#' \item The \code{attempts} argument instructs \code{crwMLE} to attempt a fit
+#' multiple times. Each time, the fit is inspected for convergance, whether
+#' the covariance matrix could be calculated, negative values in the diag 
+#' of the covariance matrix, or NA values in the standard errors. If, after
+#' n attempts, the fit is still not valid a \code{simpleError} object is
+#' returned. Users should consider increasing the number of attempts OR
+#' adjusting the standard deviation value for each attempt by setting
+#' \code{retrySD}. The default value for \code{retrySD} is 1, but users may
+#' need to increase or decrease to find a valid fit. Adjusting other
+#' model parameters may also be required.
+#' }
+#' 
 #' @author Devin S. Johnson, Josh M. London
 #' @export
-
-crwMLE <- function(data, ...) {
-  UseMethod("crwMLE")
-}
-
-#' @method crwMLE default
-
-crwMLE.default(
+crwMLE.default <- function(
   data,
   mov.model = ~ 1,
   err.model = NULL,
@@ -493,9 +465,10 @@ crwMLE.default(
 
 
 
-
+#' @rdname crwMLE
 #' @method crwMLE SpatialPoints
-crwMLE.SpatialPoints(
+#' @export
+crwMLE.SpatialPoints <- function(
   data,
   mov.model = ~ 1,
   err.model = NULL,
@@ -548,8 +521,11 @@ crwMLE.SpatialPoints(
   )
   
 }
+
+#' @rdname crwMLE
 #' @method crwMLE sf
-crwMLE.sf(
+#' @export
+crwMLE.sf <- function(
   data,
   mov.model = ~ 1,
   err.model = NULL,
