@@ -194,10 +194,10 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
       stop("data is provided in a non-spatial format, but no projection is provided.\n set 'proj' to an appropriate value.")
     }
     if (inherits(proj,"integer")) {
-      p4$epsg <- proj
+      p4$epsg <- sf::st_crs(proj)$EPSG
     }
     if (inherits(proj,"character")) {
-      p4$proj4string <- proj
+      p4$proj4string <- sf::st_crs(proj)$proj4string
     }
   }
   
