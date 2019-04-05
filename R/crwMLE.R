@@ -210,7 +210,7 @@ crwMLE.default <- function(
     data$TimeNum <- as.numeric(data[, Time.name])
     ts = 1
   }
-  
+  st <- Sys.time()
   ## SET UP MODEL MATRICES AND PARAMETERS ##
   errMod <- !is.null(err.model)
   #if(!errMod) stop("Error model must be specified! (argument 'err.model' is currently set to NULL)")
@@ -453,7 +453,7 @@ crwMLE.default <- function(
       need.hess = need.hess,
       runTime = difftime(Sys.time(), st)
     )
-  attr(out, "epsg") <- p4$epsg
+  attr(out, "epsg") <- p4$EPSG
   attr(out, "proj4") <- p4$proj4string
   attr(out, "time.scale") = ts
   class(out) <- c("crwFit")
