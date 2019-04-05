@@ -206,8 +206,9 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
     if (!sp::is.projected(data)) {
       stop("proj4string for data of sp class is not specified.")
     }
-    if ("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) 
-      stop("Location data is provided in longlat; must be projected.")	
+    if ("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) { 
+      stop("Location data is provided in longlat; must be projected.")
+    }
     data <- sf::st_as_sf(data)    
   }
   
