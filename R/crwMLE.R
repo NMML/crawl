@@ -171,89 +171,72 @@
 #' @author Devin S. Johnson, Josh M. London
 #' @export
 
-crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
-                  data, coord=c("x", "y"), proj=NULL, Time.name="time", time.scale=NULL, #initial.state, 
-                  theta, fixPar, method="Nelder-Mead", control=NULL, constr=list(lower=-Inf, upper=Inf), 
-                  prior=NULL, need.hess=TRUE, initialSANN=list(maxit=200), attempts=1, 
-                  retrySD = 1, ...)
+crwMLE <- function(data, ...) {
+  UseMethod("crwMLE")
+}
+
+#' @method crwMLE default
+
+crwMLE.default(
+  data,
+  mov.model = ~ 1,
+  err.model = NULL,
+  activity = NULL,
+  drift = FALSE,
+  coord = c("x", "y"),
+  proj = NULL,
+  Time.name = "time",
+  time.scale = NULL,
+  theta,
+  fixPar,
+  method = "Nelder-Mead",
+  control = NULL,
+  constr = list(lower = -Inf, upper = Inf),
+  prior = NULL,
+  need.hess = TRUE,
+  initialSANN = list(maxit = 200),
+  attempts = 1,
+  retrySD = 1,
+  ...
+)
+
 {
-  st <- Sys.time()
   
-  if(inherits(data, "trip")){
-    stop("you provided data as a 'trip' data type. this is no longer supported. we suggest you convert to 'sf'.")
+  if (!inherits(data, c("data.frame", "tbl_df"))) {
+    stop("data must be an 'sf'/'sp' spatial object or a data.frame/tibble")
   }
-  # p4 is a list that stores our projection information
-  p4 <- list(epsg = NULL, proj4string = NULL)
-  
-  if (inherits(data, c("tbl_df","data.frame")) & !inherits(data, "sf")) {
-    warning("location data is provided in a non-spatial format. please consider using 'sf' or 'sp' data structures.")
-    if (inherits(data, "tbl_df")) {
-      data <- as.data.frame(data) 
-    }
-    if (is.null(proj)) {
-      stop("data is provided in a non-spatial format, but no projection is provided.\n set 'proj' to an appropriate value.")
-    }
-    if (inherits(proj,"integer")) {
-      p4$epsg <- sf::st_crs(proj)$EPSG
-    }
-    if (inherits(proj,"character")) {
-      p4$proj4string <- sf::st_crs(proj)$proj4string
-    }
-  }
-  
-  # if sp/SpatialPoints, check proj4string, then convert to sf
-  if (inherits(data, "SpatialPoints")) {	
-    if (!sp::is.projected(data)) {
-      stop("proj4string for data of sp class is not specified.")
-    }
-    if ("+proj=longlat" %in% strsplit(sp::proj4string(data), " ")[[1]]) { 
-      stop("Location data is provided in longlat; must be projected.")
-    }
-    data <- sf::st_as_sf(data)    
-  }
-  
-  if (inherits(data,"sf") && inherits(sf::st_geometry(data),"sfc_POINT")) {
-    if (sf::st_is_longlat(data)) {
-      stop("Location data is provided in longlat; must be projected.")
-    }
-    p4$epsg <- sf::st_crs(data)$epsg
-    p4$proj4string <- sf::st_crs(data)$proj4string
-    if(!any(names(data) %in% coord)) {
-      coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
-      coordVals <- stats::setNames(coordVals, coord)
-      sf::st_geometry(data) <- NULL
-      data <- cbind(data, coordVals)
+  p4 <- NULL
+  if (!is.null(proj) && !inherits(proj, "crs")) {
+    if (inherits(proj, "numeric") || inherits(proj, "character")) {
+      p4 <- sf::st_crs(proj)
     } else {
-      warning("columns matching supplied coord names detected; will drop and create from geometry")
-      coordVals <- as.data.frame(do.call(rbind,sf::st_geometry(data)))
-      coordVals <- stats::setNames(coordVals, coord)
-      data <- data %>% dplyr::select(-coord) %>% 
-        sf::st_set_geometry(NULL)
-      data <- cbind(data, coordVals)
+      stop(
+        "provided projection is not valid. must be an EPSG integer code or proj4string character"
+      )
     }
   }
+  if (inherits(proj, "crs")) {
+    p4 <- crs
+  }
   
-  if (inherits(data[,Time.name],"POSIXct")){
+  if (inherits(data[, Time.name], "POSIXct")) {
     if (is.null(time.scale)) {
-      time.scale = crawl::detect_timescale(data[,Time.name])
+      time.scale = crawl::detect_timescale(data[, Time.name])
     }
-    if (time.scale %in% c("hours", "hour")){
-      ts = 60*60
-    } else if (time.scale %in% c("days", "day")){
-      ts = 60*60*24
-    } else if (time.scale %in% c("sec","secs","second","seconds")){
+    if (time.scale %in% c("hours", "hour")) {
+      ts = 60 * 60
+    } else if (time.scale %in% c("days", "day")) {
+      ts = 60 * 60 * 24
+    } else if (time.scale %in% c("sec", "secs", "second", "seconds")) {
       ts = 1
-    } else if (time.scale %in% c("min","mins","minute","minutes")){
+    } else if (time.scale %in% c("min", "mins", "minute", "minutes")) {
       ts = 60
-    } else stop("'time.scale' not specified correctly!")
-    data$TimeNum <- as.numeric(data[,Time.name])/ts
+    } else
+      stop("'time.scale' not specified correctly!")
+    data$TimeNum <- as.numeric(data[, Time.name]) / ts
   } else{
-    data$TimeNum <- as.numeric(data[,Time.name])
+    data$TimeNum <- as.numeric(data[, Time.name])
     ts = 1
-  }
-  
-  if(is.null(p4$epsg) && is.null(p4$proj4string)) {
-    stop("projection data for data coordinates were not provided.")
   }
   
   ## SET UP MODEL MATRICES AND PARAMETERS ##
@@ -262,140 +245,359 @@ crwMLE = function(mov.model=~1, err.model=NULL, activity=NULL, drift=FALSE,
   activeMod <- !is.null(activity)
   driftMod <- drift
   # if (
-  #   length(initial.state$a) != 2*(driftMod+2) | all(dim(initial.state$P) != c(2*(driftMod+2), 2*(driftMod+2))) 
+  #   length(initial.state$a) != 2*(driftMod+2) | all(dim(initial.state$P) != c(2*(driftMod+2), 2*(driftMod+2)))
   # ) stop("Dimentions of 'initial.state' argument are not correct for the specified model")
-  mov.mf <- model.matrix(mov.model, model.frame(mov.model, data, na.action=na.pass))
-  if (any(is.na(mov.mf))) stop("Missing values are not allowed in movement covariates!")
+  mov.mf <-
+    model.matrix(mov.model, model.frame(mov.model, data, na.action = na.pass))
+  if (any(is.na(mov.mf)))
+    stop("Missing values are not allowed in movement covariates!")
   n.mov <- ncol(mov.mf)
   if (errMod) {
-    err.mfX <- model.matrix(err.model$x,model.frame(err.model$x, data, na.action=na.pass))
+    err.mfX <-
+      model.matrix(err.model$x,
+                   model.frame(err.model$x, data, na.action = na.pass))
     err.mfX <- ifelse(is.na(err.mfX), 0, err.mfX)
     n.errX <- ncol(err.mfX)
     if (!is.null(err.model$y)) {
-      err.mfY <- model.matrix(err.model$y,model.frame(err.model$y, data, na.action=na.pass))
+      err.mfY <-
+        model.matrix(err.model$y,
+                     model.frame(err.model$y, data, na.action = na.pass))
       err.mfY <- ifelse(is.na(err.mfY), 0, err.mfY)
       n.errY <- ncol(err.mfY)
     } else {
       err.mfY <- NULL
       n.errY <- 0
     }
-    if(!is.null(err.model$rho)){
-      rho = model.matrix(err.model$rho,model.frame(err.model$rho, data, na.action=na.pass))[,-1]
-      if(any(rho > 1 | rho < -1, na.rm=TRUE)) stop("Error model correlation outside of the range (-1, 1).")
+    if (!is.null(err.model$rho)) {
+      rho = model.matrix(err.model$rho,
+                         model.frame(err.model$rho, data, na.action = na.pass))[, -1]
+      if (any(rho > 1 |
+              rho < -1, na.rm = TRUE))
+        stop("Error model correlation outside of the range (-1, 1).")
       rho <- ifelse(is.na(rho), 0, rho)
-    } else rho = NULL
+    } else
+      rho = NULL
   } else {
     n.errY <- n.errX <- 0
     err.mfX <- err.mfY <- rho <- NULL
   }
   if (activeMod) {
     #stop.model
-    activity <- model.matrix(activity, model.frame(activity, data, na.action=na.pass))
-    if (ncol(activity) > 2) stop("There can only be one activity variable.")
-    activity <- as.double(activity[,2])
-    if (any(activity < 0) | any(activity > 1)) stop("'activity' variable must be >=0 and <=1.")
-    if (any(is.na(activity))) stop("Missing values are not allowed in the activity variable.")
-  } else activity <- NULL
+    activity <-
+      model.matrix(activity, model.frame(activity, data, na.action = na.pass))
+    if (ncol(activity) > 2)
+      stop("There can only be one activity variable.")
+    activity <- as.double(activity[, 2])
+    if (any(activity < 0) |
+        any(activity > 1))
+      stop("'activity' variable must be >=0 and <=1.")
+    if (any(is.na(activity)))
+      stop("Missing values are not allowed in the activity variable.")
+  } else
+    activity <- NULL
   n.drift <- as.integer(driftMod)
   n.activ <- as.integer(activeMod)
-  b.nms <- paste("ln beta ", colnames(mov.mf), sep="")
-  sig.nms <- paste("ln sigma ", colnames(mov.mf), sep="")
+  b.nms <- paste("ln beta ", colnames(mov.mf), sep = "")
+  sig.nms <- paste("ln sigma ", colnames(mov.mf), sep = "")
   if (errMod) {
     if (!is.null(err.model$y)) {
-      tau.nms <- c(paste("ln tau.x ", colnames(err.mfX), sep=""),
-                   paste("ln tau.y ", colnames(err.mfY), sep=""))
-    } else tau.nms <- paste("ln tau ", colnames(err.mfX), sep="")
-  } else tau.nms <- NULL
-  if (activeMod){
+      tau.nms <- c(paste("ln tau.x ", colnames(err.mfX), sep = ""),
+                   paste("ln tau.y ", colnames(err.mfY), sep = ""))
+    } else
+      tau.nms <- paste("ln tau ", colnames(err.mfX), sep = "")
+  } else
+    tau.nms <- NULL
+  if (activeMod) {
     active.nms <- "ln phi"
-    } else active.nms <- NULL
+  } else
+    active.nms <- NULL
   if (driftMod) {
     drift.nms <- c("ln sigma.drift/sigma", "ln psi-1")
-  } else drift.nms <- NULL
+  } else
+    drift.nms <- NULL
   nms <- c(tau.nms, sig.nms, b.nms, active.nms, drift.nms)
   n.par <- length(nms)
-  if (missing(fixPar)) fixPar <- rep(NA, n.par)
+  if (missing(fixPar))
+    fixPar <- rep(NA, n.par)
   n.theta = sum(is.na(fixPar))
-  if (length(fixPar)!=n.par) stop("'fixPar' argument is not the right length! The number of parameters in the model is ", n.par, "\n")
-  if(!(length(constr$lower)==1 | length(constr$lower)==sum(is.na(fixPar)))) stop("The number of lower contraints specified is not correctly! The number of free parameters is ", sum(is.na(fixPar)),"\n")
-  if(!(length(constr$upper)==1 | length(constr$upper)==sum(is.na(fixPar)))) stop("The number of upper contraints specified is not correctly! The number of free parameters is ", sum(is.na(fixPar)),"\n")
+  if (length(fixPar) != n.par)
+    stop(
+      "'fixPar' argument is not the right length! The number of parameters in the model is ",
+      n.par,
+      "\n"
+    )
+  if (!(length(constr$lower) == 1 |
+        length(constr$lower) == sum(is.na(fixPar))))
+    stop(
+      "The number of lower contraints specified is not correctly! The number of free parameters is ",
+      sum(is.na(fixPar)),
+      "\n"
+    )
+  if (!(length(constr$upper) == 1 |
+        length(constr$upper) == sum(is.na(fixPar))))
+    stop(
+      "The number of upper contraints specified is not correctly! The number of free parameters is ",
+      sum(is.na(fixPar)),
+      "\n"
+    )
   # if(length(constr$upper)==1) constr$upper <- rep(constr$upper, sum(is.na(fixPar)))
   # if(length(constr$lower)==1) constr$lower <- rep(constr$lower, sum(is.na(fixPar)))
-  if (missing(theta)) theta = rep(0,n.theta)
-  theta[theta<constr$lower] = constr$lower[theta<constr$lower] + 0.01
-  theta[theta>constr$upper] = constr$upper[theta>constr$upper] - 0.01
-  if(driftMod & is.na(fixPar[n.par])) theta[sum(is.na(fixPar))] <- log(diff(range(data$TimeNum))/9)
+  if (missing(theta))
+    theta = rep(0, n.theta)
+  theta[theta < constr$lower] = constr$lower[theta < constr$lower] + 0.01
+  theta[theta > constr$upper] = constr$upper[theta > constr$upper] - 0.01
+  if (driftMod &
+      is.na(fixPar[n.par]))
+    theta[sum(is.na(fixPar))] <- log(diff(range(data$TimeNum)) / 9)
   if (length(theta) != n.theta) {
     stop("\nWrong number of parameters specified in start value.\n")
   }
   
-  y = data[,c(coord[1],coord[2])]
-  noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))
-  y[noObs==1,] = 0
+  y = data[, c(coord[1], coord[2])]
+  noObs <- as.numeric(is.na(y[, 1]) | is.na(y[, 2]))
+  y[noObs == 1, ] = 0
   
   checkFit <- 1
   thetaAttempt <- theta
-  if (!is.null(initialSANN) & method!='SANN') {
+  if (!is.null(initialSANN) & method != 'SANN') {
     message("Beginning SANN initialization ...")
-    init <- optim(thetaAttempt, crwN2ll, method='SANN', control=initialSANN,
-                  fixPar=fixPar, y=y, noObs=noObs,
-                  delta=c(diff(data$TimeNum), 1), #a=initial.state$a, P=initial.state$P,
-                  mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, rho=rho, activity=activity,
-                  n.mov=n.mov, n.errX=n.errX, n.errY=n.errY,
-                  driftMod=driftMod, prior=prior, need.hess=FALSE, constr=constr)
+    init <-
+      optim(
+        thetaAttempt,
+        crwN2ll,
+        method = 'SANN',
+        control = initialSANN,
+        fixPar = fixPar,
+        y = y,
+        noObs = noObs,
+        delta = c(diff(data$TimeNum), 1),
+        #a=initial.state$a, P=initial.state$P,
+        mov.mf = mov.mf,
+        err.mfX = err.mfX,
+        err.mfY = err.mfY,
+        rho = rho,
+        activity = activity,
+        n.mov = n.mov,
+        n.errX = n.errX,
+        n.errY = n.errY,
+        driftMod = driftMod,
+        prior = prior,
+        need.hess = FALSE,
+        constr = constr
+      )
     #thetaAttempt <- init$par
-  } else init <- list(par=thetaAttempt)
+  } else
+    init <- list(par = thetaAttempt)
   #if(any(init$par<lower)) init$par[init$par<lower] <- lower[init$par<lower] + 0.000001
   #if(any(init$par>upper)) init$par[init$par>upper] <- upper[init$par>upper] - 0.000001
   message("Beginning likelihood optimization ...")
   
   while (attempts > 0 & checkFit) {
-    mle <- try(optim(init$par, crwN2ll, method=method, hessian=need.hess,
-                     lower=constr$lower, upper=constr$upper, control=control,					  
-                     fixPar=fixPar, y=y, noObs=noObs,
-                     delta=c(diff(data$TimeNum), 1), #a=initial.state$a, P=initial.state$P,
-                     mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, activity=activity,
-                     n.mov=n.mov, n.errX=n.errX, n.errY=n.errY, rho=rho,
-                     driftMod=driftMod, prior=prior, need.hess=need.hess, constr=constr), silent=TRUE)
+    mle <-
+      try(optim(
+        init$par,
+        crwN2ll,
+        method = method,
+        hessian = need.hess,
+        lower = constr$lower,
+        upper = constr$upper,
+        control = control,
+        fixPar = fixPar,
+        y = y,
+        noObs = noObs,
+        delta = c(diff(data$TimeNum), 1),
+        #a=initial.state$a, P=initial.state$P,
+        mov.mf = mov.mf,
+        err.mfX = err.mfX,
+        err.mfY = err.mfY,
+        activity = activity,
+        n.mov = n.mov,
+        n.errX = n.errX,
+        n.errY = n.errY,
+        rho = rho,
+        driftMod = driftMod,
+        prior = prior,
+        need.hess = need.hess,
+        constr = constr
+      ),
+      silent = TRUE)
     attempts <- attempts - 1
-  
     
-    checkFit <- check_fit(mle) 
-      
-    init$par <- mle$par + rnorm(length(mle$par),0,retrySD)
+    
+    checkFit <- check_fit(mle)
+    
+    init$par <- mle$par + rnorm(length(mle$par), 0, retrySD)
   }
   
   if (checkFit) {
     return(simpleError(
-      paste("crwMLE failed. Try increasing attempts or changing user",
-               "provided sd values. Other parameter values may need to be changed.",
-               "Good Luck!")))
+      paste(
+        "crwMLE failed. Try increasing attempts or changing user",
+        "provided sd values. Other parameter values may need to be changed.",
+        "Good Luck!"
+      )
+    ))
   }
-    par <- fixPar
-    par[is.na(fixPar)] <- mle$par
-    Cmat <- matrix(NA, n.par, n.par)
-    Cmat[is.na(fixPar), is.na(fixPar)] <- 2 * solve(mle$hessian)
-    se <- sqrt(diag(Cmat))
-    ci.l <- par - 1.96 * se
-    ci.u <- par + 1.96 * se
-    
-    out <- list(par=par, estPar=mle$par, se=se, ci=cbind(L=ci.l, U=ci.u), Cmat=Cmat,
-                loglik=-mle$value / 2, aic=mle$value + 2 * sum(is.na(fixPar)),
-                coord=coord,fixPar=fixPar,
-                convergence=mle$convergence, message=mle$message,
-                activity=activity, random.drift=drift,
-                mov.model=mov.model, err.model=err.model, n.par=n.par, nms=nms,
-                n.mov=n.mov, n.errX=n.errX, n.errY=n.errY,
-                mov.mf=mov.mf, err.mfX=err.mfX, err.mfY=err.mfY, rho=rho,
-                Time.name=Time.name, init=init, data=data,
-                lower=constr$lower, upper=constr$upper, prior=prior, need.hess=need.hess,
-                runTime=difftime(Sys.time(), st))
-    attr(out,"epsg") <- p4$epsg
-    attr(out,"proj4") <- p4$proj4string
-    attr(out, "time.scale") = ts
-    class(out) <- c("crwFit")
-    if(drift) {
-      class(out) <- c("crwFit_drift","crwFit")
-    }
-    return(out)
+  par <- fixPar
+  par[is.na(fixPar)] <- mle$par
+  Cmat <- matrix(NA, n.par, n.par)
+  Cmat[is.na(fixPar), is.na(fixPar)] <- 2 * solve(mle$hessian)
+  se <- sqrt(diag(Cmat))
+  ci.l <- par - 1.96 * se
+  ci.u <- par + 1.96 * se
+  
+  out <-
+    list(
+      par = par,
+      estPar = mle$par,
+      se = se,
+      ci = cbind(L = ci.l, U = ci.u),
+      Cmat = Cmat,
+      loglik = -mle$value / 2,
+      aic = mle$value + 2 * sum(is.na(fixPar)),
+      coord = coord,
+      fixPar = fixPar,
+      convergence = mle$convergence,
+      message = mle$message,
+      activity = activity,
+      random.drift = drift,
+      mov.model = mov.model,
+      err.model = err.model,
+      n.par = n.par,
+      nms = nms,
+      n.mov = n.mov,
+      n.errX = n.errX,
+      n.errY = n.errY,
+      mov.mf = mov.mf,
+      err.mfX = err.mfX,
+      err.mfY = err.mfY,
+      rho = rho,
+      Time.name = Time.name,
+      init = init,
+      data = data,
+      lower = constr$lower,
+      upper = constr$upper,
+      prior = prior,
+      need.hess = need.hess,
+      runTime = difftime(Sys.time(), st)
+    )
+  attr(out, "epsg") <- p4$epsg
+  attr(out, "proj4") <- p4$proj4string
+  attr(out, "time.scale") = ts
+  class(out) <- c("crwFit")
+  if (drift) {
+    class(out) <- c("crwFit_drift", "crwFit")
+  }
+  return(out)
+}
+
+
+
+
+#' @method crwMLE SpatialPoints
+crwMLE.SpatialPoints(
+  data,
+  mov.model = ~ 1,
+  err.model = NULL,
+  activity = NULL,
+  drift = FALSE,
+  Time.name = "time",
+  time.scale = NULL,
+  theta,
+  fixPar,
+  method = "Nelder-Mead",
+  control = NULL,
+  constr = list(lower = -Inf, upper = Inf),
+  prior = NULL,
+  need.hess = TRUE,
+  initialSANN = list(maxit = 200),
+  attempts = 1,
+  retrySD = 1,
+  ...
+)
+
+{
+  coord <- colnames(attr(data, 'coord'))
+  data <- sf::st_as_sf(data)
+  proj <- sf::st_crs(data)
+  data <- crawl:::sfc_as_cols(data, names = coord)
+  
+  return(
+    crwMLE.default(
+      data,
+      mov.model,
+      err.model,
+      activity,
+      drift,
+      coord,
+      proj,
+      Time.name,
+      time.scale,
+      theta,
+      fixPar,
+      method,
+      control,
+      constr,
+      prior,
+      need.hess,
+      initialSANN,
+      attempts,
+      retrySD,
+      ...
+    )
+  )
+  
+}
+#' @method crwMLE sf
+crwMLE.sf(
+  data,
+  mov.model = ~ 1,
+  err.model = NULL,
+  activity = NULL,
+  drift = FALSE,
+  Time.name = "time",
+  time.scale = NULL,
+  theta,
+  fixPar,
+  method = "Nelder-Mead",
+  control = NULL,
+  constr = list(lower = -Inf, upper = Inf),
+  prior = NULL,
+  need.hess = TRUE,
+  initialSANN = list(maxit = 200),
+  attempts = 1,
+  retrySD = 1,
+  ...
+)
+
+{
+  proj <- sf::st_crs(data)
+  data <- crawl:::sfc_as_cols(data)
+  
+  return(
+    crwMLE.default(
+      data,
+      mov.model,
+      err.model,
+      activity,
+      drift,
+      coord = c("x", "y"),
+      proj,
+      Time.name,
+      time.scale,
+      theta,
+      fixPar,
+      method,
+      control,
+      proj,
+      constr,
+      prior,
+      need.hess,
+      initialSANN,
+      attempts,
+      retrySD,
+      ...
+    )
+  )
+  
 }
