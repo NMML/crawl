@@ -188,7 +188,7 @@ crwMLE.default <- function(
     }
   }
   if (inherits(proj, "crs")) {
-    p4 <- crs
+    p4 <- proj
   }
   
   if (inherits(data[, Time.name], "POSIXct")) {
@@ -205,9 +205,9 @@ crwMLE.default <- function(
       ts = 60
     } else
       stop("'time.scale' not specified correctly!")
-    data$TimeNum <- as.numeric(data[, Time.name]) / ts
+    data$TimeNum <- as.numeric(data[[Time.name]]) / ts
   } else{
-    data$TimeNum <- as.numeric(data[, Time.name])
+    data$TimeNum <- as.numeric(data[[Time.name]])
     ts = 1
   }
   st <- Sys.time()
@@ -490,32 +490,33 @@ crwMLE.SpatialPoints <- function(
 )
 
 {
-  coord <- colnames(attr(data, 'coord'))
+  coord_sp <- dimnames(data@coords)[[2]]
   data <- sf::st_as_sf(data)
   proj <- sf::st_crs(data)
-  data <- crawl:::sfc_as_cols(data, names = coord)
+  data <- crawl:::sfc_as_cols(data, names = coord_sp) %>% 
+    as_data_frame()
   
   return(
     crwMLE.default(
-      data,
-      mov.model,
-      err.model,
-      activity,
-      drift,
-      coord,
-      proj,
-      Time.name,
-      time.scale,
-      theta,
-      fixPar,
-      method,
-      control,
-      constr,
-      prior,
-      need.hess,
-      initialSANN,
-      attempts,
-      retrySD,
+      data = data,
+      mov.model = mov.model,
+      err.model = err.model,
+      activity = activity,
+      drift = drift,
+      coord = coord_sp,
+      proj = proj,
+      Time.name = Time.name,
+      time.scale = time.scale,
+      theta = theta,
+      fixPar = fixPar,
+      method = method,
+      control = control,
+      constr = constr,
+      prior = prior,
+      need.hess = need.hess,
+      initialSANN = initialSANN,
+      attempts = attempts,
+      retrySD = retrySD,
       ...
     )
   )
@@ -548,30 +549,29 @@ crwMLE.sf <- function(
 
 {
   proj <- sf::st_crs(data)
-  data <- crawl:::sfc_as_cols(data)
+  data <- crawl:::sfc_as_cols(data) %>% 
+    as_data_frame()
   
   return(
     crwMLE.default(
-      data,
-      mov.model,
-      err.model,
-      activity,
-      drift,
-      coord = c("x", "y"),
-      proj,
-      Time.name,
-      time.scale,
-      theta,
-      fixPar,
-      method,
-      control,
-      proj,
-      constr,
-      prior,
-      need.hess,
-      initialSANN,
-      attempts,
-      retrySD,
+      data = data,
+      mov.model = mov.model,
+      err.model = err.model,
+      activity = activity,
+      drift = drift,
+      proj = proj,
+      Time.name = Time.name,
+      time.scale = time.scale,
+      theta = theta,
+      fixPar = fixPar,
+      method = method,
+      control = control,
+      constr = constr,
+      prior = prior,
+      need.hess = need.hess,
+      initialSANN = initialSANN,
+      attempts = attempts,
+      retrySD = retrySD,
       ...
     )
   )
