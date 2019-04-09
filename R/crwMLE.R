@@ -495,7 +495,7 @@ crwMLE.SpatialPoints <- function(
     data <- sf::st_as_sf(data)
     proj <- sf::st_crs(data)
     data <- crawl:::sfc_as_cols(data, names = coord) %>%
-      tibble::as_data_frame() %>% 
+      tibble::as_tibble() %>% 
       dplyr::select(-geometry)
   } else {
     if (!identical(coord,dimnames(data@coords)[[2]])) {
@@ -504,7 +504,7 @@ crwMLE.SpatialPoints <- function(
     data <- sf::st_as_sf(data)
     proj <- sf::st_crs(data)
     data <- crawl:::sfc_as_cols(data, names = coord) %>%
-      tibble::as_data_frame() %>% 
+      tibble::as_tibble() %>% 
       dplyr::select(-geometry)
   }
   
@@ -560,7 +560,7 @@ crwMLE.sf <- function(
 {
   proj <- sf::st_crs(data)
   data <- crawl:::sfc_as_cols(data) %>% 
-    tibble::as_data_frame() %>% 
+    tibble::as_tibble() %>% 
     dplyr::select(-geometry)
   
   return(
