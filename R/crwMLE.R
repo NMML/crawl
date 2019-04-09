@@ -38,7 +38,7 @@ crwMLE <- function(data, ...) {
 #' "Y" coordinates in \code{data}. Ignored if \code{data} inherits class
 #' 'sf' or 'sp'.
 #' @param proj A valid epsg integer code or proj4string for \code{data} that does not
-#' inherit either 'sf' or 'sp'. Otherwise, ignored.
+#' inherit either 'sf' or 'sp'. A valid 'crs' list is also accepted. Otherwise, ignored.
 #' @param Time.name character indicating name of the location time column. It is
 #' strongly preferred that this column be of type POSIXct and in UTC.
 #' @param time.scale character. Scale for conversion of POSIX time to numeric 
@@ -168,8 +168,7 @@ crwMLE.default <- function(
   need.hess = TRUE,
   initialSANN = list(maxit = 200),
   attempts = 1,
-  retrySD = 1,
-  ...
+  retrySD = 1
 )
 
 {
@@ -486,15 +485,28 @@ crwMLE.SpatialPoints <- function(
   initialSANN = list(maxit = 200),
   attempts = 1,
   retrySD = 1,
+  coord = NULL,
   ...
 )
 
 {
-  coord_sp <- dimnames(data@coords)[[2]]
-  data <- sf::st_as_sf(data)
-  proj <- sf::st_crs(data)
-  data <- crawl:::sfc_as_cols(data, names = coord_sp) %>% 
-    as_data_frame()
+  if (is.null(coord)) {
+    coord <- dimnames(data@coords)[[2]]
+    data <- sf::st_as_sf(data)
+    proj <- sf::st_crs(data)
+    data <- crawl:::sfc_as_cols(data, names = coord) %>%
+      tibble::as_data_frame() %>% 
+      dplyr::select(-geometry)
+  } else {
+    if (!identical(coord,dimnames(data@coords)[[2]])) {
+      warning("user supplied coord argument differs from the sp data object. user wishes will be honored.")
+    }
+    data <- sf::st_as_sf(data)
+    proj <- sf::st_crs(data)
+    data <- crawl:::sfc_as_cols(data, names = coord) %>%
+      tibble::as_data_frame() %>% 
+      dplyr::select(-geometry)
+  }
   
   return(
     crwMLE.default(
@@ -503,7 +515,7 @@ crwMLE.SpatialPoints <- function(
       err.model = err.model,
       activity = activity,
       drift = drift,
-      coord = coord_sp,
+      coord = coord,
       proj = proj,
       Time.name = Time.name,
       time.scale = time.scale,
@@ -516,8 +528,7 @@ crwMLE.SpatialPoints <- function(
       need.hess = need.hess,
       initialSANN = initialSANN,
       attempts = attempts,
-      retrySD = retrySD,
-      ...
+      retrySD = retrySD
     )
   )
   
@@ -543,14 +554,14 @@ crwMLE.sf <- function(
   need.hess = TRUE,
   initialSANN = list(maxit = 200),
   attempts = 1,
-  retrySD = 1,
-  ...
+  retrySD = 1
 )
 
 {
   proj <- sf::st_crs(data)
   data <- crawl:::sfc_as_cols(data) %>% 
-    as_data_frame()
+    tibble::as_data_frame() %>% 
+    dplyr::select(-geometry)
   
   return(
     crwMLE.default(
@@ -571,8 +582,7 @@ crwMLE.sf <- function(
       need.hess = need.hess,
       initialSANN = initialSANN,
       attempts = attempts,
-      retrySD = retrySD,
-      ...
+      retrySD = retrySD
     )
   )
   
