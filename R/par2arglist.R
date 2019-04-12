@@ -6,6 +6,7 @@
 par2arglist = function(theta, fixPar, y, noObs, delta, 
                        mov.mf, err.mfX, err.mfY, rho, activity,
                        n.errX, n.errY, n.mov, driftMod){
+  y <- as.matrix(y)
   N <- nrow(y)
   par <- fixPar
   par[is.na(fixPar)] <- theta
