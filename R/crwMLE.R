@@ -452,7 +452,7 @@ crwMLE.default <- function(
       need.hess = need.hess,
       runTime = difftime(Sys.time(), st)
     )
-  attr(out, "epsg") <- p4$EPSG
+  attr(out, "epsg") <- p4$epsg
   attr(out, "proj4") <- p4$proj4string
   attr(out, "time.scale") = ts
   class(out) <- c("crwFit")
