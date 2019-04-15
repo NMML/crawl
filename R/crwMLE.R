@@ -554,7 +554,8 @@ crwMLE.sf <- function(
   need.hess = TRUE,
   initialSANN = list(maxit = 200),
   attempts = 1,
-  retrySD = 1
+  retrySD = 1,
+  ...
 )
 
 {
