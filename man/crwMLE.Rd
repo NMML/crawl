@@ -14,14 +14,14 @@ crwMLE(data, ...)
   Time.name = "time", time.scale = NULL, theta, fixPar,
   method = "Nelder-Mead", control = NULL, constr = list(lower = -Inf,
   upper = Inf), prior = NULL, need.hess = TRUE,
-  initialSANN = list(maxit = 200), attempts = 1, retrySD = 1, ...)
+  initialSANN = list(maxit = 200), attempts = 1, retrySD = 1)
 
 \method{crwMLE}{SpatialPoints}(data, mov.model = ~1, err.model = NULL,
   activity = NULL, drift = FALSE, Time.name = "time",
   time.scale = NULL, theta, fixPar, method = "Nelder-Mead",
   control = NULL, constr = list(lower = -Inf, upper = Inf),
   prior = NULL, need.hess = TRUE, initialSANN = list(maxit = 200),
-  attempts = 1, retrySD = 1, ...)
+  attempts = 1, retrySD = 1, coord = NULL, ...)
 
 \method{crwMLE}{sf}(data, mov.model = ~1, err.model = NULL,
   activity = NULL, drift = FALSE, Time.name = "time",
@@ -61,7 +61,7 @@ using a drift model.}
 'sf' or 'sp'.}
 
 \item{proj}{A valid epsg integer code or proj4string for \code{data} that does not
-inherit either 'sf' or 'sp'. Otherwise, ignored.}
+inherit either 'sf' or 'sp'. A valid 'crs' list is also accepted. Otherwise, ignored.}
 
 \item{Time.name}{character indicating name of the location time column. It is
 strongly preferred that this column be of type POSIXct and in UTC.}

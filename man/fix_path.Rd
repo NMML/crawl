@@ -4,7 +4,7 @@
 \alias{fix_path}
 \title{Project path away from restricted areas}
 \usage{
-fix_path(crw_object, vector_mask, crwFit, quiet = TRUE)
+fix_path(crw_object, vector_mask, crwFit, quiet = TRUE, random = TRUE)
 }
 \arguments{
 \item{crw_object}{Coordinate locations for the path. Can be one of the following classes: 
@@ -13,6 +13,10 @@ fix_path(crw_object, vector_mask, crwFit, quiet = TRUE)
 \item{vector_mask}{an 'sf' polygon object that defines the restricted area}
 
 \item{crwFit}{crwFit object that was used to generate the crw_object}
+
+\item{quiet}{Should function return progress reports}
+
+\item{random}{Should function return random draws for crwIS objects. Ignored for non-crwIS objects}
 }
 \value{
 a new crw_object w/ locType set to "f" for fixed points
