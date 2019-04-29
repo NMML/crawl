@@ -4,7 +4,7 @@
 \alias{fix_path}
 \title{Project path away from restricted areas}
 \usage{
-fix_path(crw_object, vector_mask, crwFit)
+fix_path(crw_object, vector_mask, crwFit, quiet = TRUE)
 }
 \arguments{
 \item{crw_object}{Coordinate locations for the path. Can be one of the following classes: 

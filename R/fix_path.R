@@ -372,11 +372,13 @@ crw_alpha <- function(crw_object) {
 #' (1) 'crwIS' object from the \code{crwPostIS} function
 #' @param vector_mask an 'sf' polygon object that defines the restricted area
 #' @param crwFit crwFit object that was used to generate the crw_object
+#' @param quiet Should function return progress reports
+#' @param random Should function return random draws for crwIS objects. Ignored for non-crwIS objects
 #' @return a new crw_object w/ locType set to "f" for fixed points
 #' @export
 #'
 
-fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
+fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE, random=TRUE) {
   # check if crwFit used the drift model and stop
   if (inherits(crwFit,"crwFit_drft")) {
     stop("model fits with drift = TRUE are currently not supported within fix_path.")
@@ -386,14 +388,19 @@ fix_path <- function(crw_object, vector_mask, crwFit, quiet = TRUE) {
   crw_sf <- crawl::crw_as_sf(crw_object,"POINT")
   
   if (inherits(crw_object,"crwIS")) {
-    crwIS <- TRUE
-    crw_sf <- crw_sf %>% 
-      dplyr::mutate(elapsed_time = dplyr::lead(TimeNum) - TimeNum,
-                    distance_to_next = sf::st_distance(
-                      geometry, 
-                      dplyr::lead(geometry, default = empty), 
-                      by_element = TRUE),
-                    speed = distance_to_next/elapsed_time)
+    if(random){
+      crwIS <- TRUE
+    }else{
+      crwIS <- FALSE
+    }
+    ### Not sure why the commented code is in here
+    # crw_sf <- crw_sf %>% 
+    #   dplyr::mutate(elapsed_time = dplyr::lead(TimeNum) - TimeNum,
+    #                 distance_to_next = sf::st_distance(
+    #                   geometry, 
+    #                   dplyr::lead(geometry, default = empty), 
+    #                   by_element = TRUE),
+    #                 speed = distance_to_next/elapsed_time)
   } else {
     crwIS <- FALSE
   }

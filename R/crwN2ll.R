@@ -45,7 +45,7 @@ crwN2ll = function(theta, fixPar, y, noObs, delta, #a, P,
   N <- nrow(y)
   par <- fixPar
   par[is.na(fixPar)] <- theta
-  
+  y <- as.matrix(y)
   argslist = par2arglist(theta, fixPar, y, noObs, delta,
                           mov.mf, err.mfX, err.mfY, rho=NULL, activity=NULL,
                           n.errX, n.errY, n.mov, driftMod)

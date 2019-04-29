@@ -9,8 +9,8 @@
 #' \tabular{ll}{ 
 #' Package: \tab crawl\cr 
 #' Type: \tab Package\cr 
-#' Version: \tab 2.2.2\cr 
-#' Date: \tab September 17, 2018\cr 
+#' Version: \tab 2.2.3\cr 
+#' Date: \tab April 30, 2019\cr 
 #' License: \tab CC0 \cr 
 #' LazyLoad: \tab yes\cr 
 #' }
@@ -26,7 +26,7 @@
 #' @name crawl-package
 #' @aliases crawl-package crawl
 #' @docType package
-#' @author Devin S. Johnson
+#' @author Josh London and Devin S. Johnson 
 #' 
 #' Maintainer: Devin S. Johnson <devin.johnson@@noaa.gov>
 #' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)

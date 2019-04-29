@@ -33,7 +33,7 @@ crw_as_sf.crwIS <- function(data,
   stopifnot(!missing(ftype), ftype %in% c("POINT", "LINESTRING"))
   
   crw_crs <- attr(data, "epsg")
-  if(is.null(crw_crs) | is.na(crw_crs)) crw_crs <- attr(data, "proj4")
+  if(is.null(crw_crs) || is.na(crw_crs)) crw_crs <- attr(data, "proj4")
   
   if (ftype == "POINT") {
     data <- crw_as_tibble(data) %>%
@@ -67,7 +67,7 @@ crw_as_sf.crwPredict <- function(data,ftype,
   stopifnot(!missing(ftype), ftype %in% c("POINT","LINESTRING"))
 
   crw_crs <- attr(data, "epsg")
-  if(is.null(crw_crs) | is.na(crw_crs)) crw_crs <- attr(data, "proj4")
+  if(is.null(crw_crs) || is.na(crw_crs)) crw_crs <- attr(data, "proj4")
   
   if(ftype == "POINT" && is.null(group)) {
     data <- crw_as_tibble(data) %>% 

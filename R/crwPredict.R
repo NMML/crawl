@@ -57,7 +57,8 @@
 
 crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
 {
-  data <- object.crwFit$data
+  if(inherits(object.crwFit, "error")) stop("Model was not fit correctly, please revisit fitting stage!")
+  data <- as.data.frame(object.crwFit$data)
   tn <- object.crwFit$Time.name
   driftMod <- object.crwFit$random.drift
   mov.mf <- object.crwFit$mov.mf

@@ -109,7 +109,7 @@ crwSimulator = function(
   crit=2.5, 
   scale=1, quad.ask=TRUE, force.quad) {
   ## Model definition/parameters ##
-  data <- object.crwFit$data
+  data <- as.data.frame(object.crwFit$data)
   driftMod <- object.crwFit$random.drift
   mov.mf <- object.crwFit$mov.mf
   activity <- object.crwFit$activity
