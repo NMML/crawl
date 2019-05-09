@@ -190,9 +190,9 @@ crwMLE.default <- function(
     p4 <- proj
   }
   
-  if (inherits(data[, Time.name], "POSIXct")) {
+  if (inherits(data[[Time.name]], "POSIXct")) {
     if (is.null(time.scale)) {
-      time.scale = crawl::detect_timescale(data[, Time.name])
+      time.scale = crawl::detect_timescale(data[[Time.name]])
     }
     if (time.scale %in% c("hours", "hour")) {
       ts = 60 * 60
