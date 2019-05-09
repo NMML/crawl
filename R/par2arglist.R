@@ -56,7 +56,7 @@ par2arglist = function(theta, fixPar, y, noObs, delta,
     out$b.drift = NULL
     out$sig2.drift = NULL
     out$a = c(y[1,1], 0, y[1,2],0)
-    out$P = diag(c(var(y[noObs==0,1], na.rm=T), out$sig2[1]*out$b[1], var(y[noObs==0,2],na.rm=T), out$sig2[1]*out$b[1]))
+    out$P = diag(c(var(y[noObs==0,1], na.rm=T), out$sig2[1]*out$b[1]/2, var(y[noObs==0,2],na.rm=T), out$sig2[1]*out$b[1]/2))
   }
   return(out)
 }
