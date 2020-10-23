@@ -104,7 +104,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     if(inherits(predTime,"character")) {
       if(!inherits(data[,tn],"POSIXct")) stop("Character specification of predTime can only be used with POSIX times in the original data!")
       t_int <- unlist(strsplit(predTime, " "))
-      if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
+      if(t_int[2] %in% c("sec","secs","min","mins","hour","hours","day","days")) {
         min_dt <- min(data[,tn],na.rm=TRUE)
         max_dt <- max(data[,tn],na.rm=TRUE)
         min_dt <- lubridate::ceiling_date(min_dt,t_int[2])
