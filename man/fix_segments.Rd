@@ -4,8 +4,15 @@
 \alias{fix_segments}
 \title{Identify and re-route segments of a path that cross a restricted area}
 \usage{
-fix_segments(crw_sf, vector_mask, barrier_buffer = 50, crwFit, alpha,
-  crwIS = FALSE, quiet = TRUE)
+fix_segments(
+  crw_sf,
+  vector_mask,
+  barrier_buffer = 50,
+  crwFit,
+  alpha,
+  crwIS = FALSE,
+  quiet = TRUE
+)
 }
 \arguments{
 \item{crw_sf}{an `sf` object derived from a \code{crwIS} or \code{crwPredict}}

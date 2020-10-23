@@ -9,11 +9,9 @@
 \usage{
 crw_as_sf(data, ftype, locType, group)
 
-\method{crw_as_sf}{crwIS}(data, ftype, locType = c("p", "o", "f"),
-  group = NULL, ...)
+\method{crw_as_sf}{crwIS}(data, ftype, locType = c("p", "o", "f"), group = NULL, ...)
 
-\method{crw_as_sf}{crwPredict}(data, ftype, locType = c("p", "o", "f"),
-  group = NULL, ...)
+\method{crw_as_sf}{crwPredict}(data, ftype, locType = c("p", "o", "f"), group = NULL, ...)
 
 \method{crw_as_sf}{list}(data, ftype, locType = c("p", "o", "f"), ...)
 }

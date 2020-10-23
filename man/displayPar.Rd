@@ -4,8 +4,17 @@
 \alias{displayPar}
 \title{Display the order of parameters along with fixed values and starting values}
 \usage{
-displayPar(mov.model = ~1, err.model = NULL, activity = NULL,
-  drift = FALSE, data, Time.name, theta, fixPar, ...)
+displayPar(
+  mov.model = ~1,
+  err.model = NULL,
+  activity = NULL,
+  drift = FALSE,
+  data,
+  Time.name,
+  theta,
+  fixPar,
+  ...
+)
 }
 \arguments{
 \item{mov.model}{formula object specifying the time indexed covariates for

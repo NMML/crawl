@@ -9,26 +9,70 @@
 \usage{
 crwMLE(data, ...)
 
-\method{crwMLE}{default}(data, mov.model = ~1, err.model = NULL,
-  activity = NULL, drift = FALSE, coord = c("x", "y"), proj = NULL,
-  Time.name = "time", time.scale = NULL, theta, fixPar,
-  method = "Nelder-Mead", control = NULL, constr = list(lower = -Inf,
-  upper = Inf), prior = NULL, need.hess = TRUE,
-  initialSANN = list(maxit = 200), attempts = 1, retrySD = 1)
+\method{crwMLE}{default}(
+  data,
+  mov.model = ~1,
+  err.model = NULL,
+  activity = NULL,
+  drift = FALSE,
+  coord = c("x", "y"),
+  proj = NULL,
+  Time.name = "time",
+  time.scale = NULL,
+  theta,
+  fixPar,
+  method = "Nelder-Mead",
+  control = NULL,
+  constr = list(lower = -Inf, upper = Inf),
+  prior = NULL,
+  need.hess = TRUE,
+  initialSANN = list(maxit = 200),
+  attempts = 1,
+  retrySD = 1
+)
 
-\method{crwMLE}{SpatialPoints}(data, mov.model = ~1, err.model = NULL,
-  activity = NULL, drift = FALSE, Time.name = "time",
-  time.scale = NULL, theta, fixPar, method = "Nelder-Mead",
-  control = NULL, constr = list(lower = -Inf, upper = Inf),
-  prior = NULL, need.hess = TRUE, initialSANN = list(maxit = 200),
-  attempts = 1, retrySD = 1, coord = NULL, ...)
+\method{crwMLE}{SpatialPoints}(
+  data,
+  mov.model = ~1,
+  err.model = NULL,
+  activity = NULL,
+  drift = FALSE,
+  Time.name = "time",
+  time.scale = NULL,
+  theta,
+  fixPar,
+  method = "Nelder-Mead",
+  control = NULL,
+  constr = list(lower = -Inf, upper = Inf),
+  prior = NULL,
+  need.hess = TRUE,
+  initialSANN = list(maxit = 200),
+  attempts = 1,
+  retrySD = 1,
+  coord = NULL,
+  ...
+)
 
-\method{crwMLE}{sf}(data, mov.model = ~1, err.model = NULL,
-  activity = NULL, drift = FALSE, Time.name = "time",
-  time.scale = NULL, theta, fixPar, method = "Nelder-Mead",
-  control = NULL, constr = list(lower = -Inf, upper = Inf),
-  prior = NULL, need.hess = TRUE, initialSANN = list(maxit = 200),
-  attempts = 1, retrySD = 1, ...)
+\method{crwMLE}{sf}(
+  data,
+  mov.model = ~1,
+  err.model = NULL,
+  activity = NULL,
+  drift = FALSE,
+  Time.name = "time",
+  time.scale = NULL,
+  theta,
+  fixPar,
+  method = "Nelder-Mead",
+  control = NULL,
+  constr = list(lower = -Inf, upper = Inf),
+  prior = NULL,
+  need.hess = TRUE,
+  initialSANN = list(maxit = 200),
+  attempts = 1,
+  retrySD = 1,
+  ...
+)
 }
 \arguments{
 \item{data}{data.frame object containg telemetry and covariate data. A 
