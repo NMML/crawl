@@ -19,8 +19,8 @@ crwMLE(data, ...)
   proj = NULL,
   Time.name = "time",
   time.scale = NULL,
-  theta,
-  fixPar,
+  theta = NULL,
+  fixPar = NULL,
   method = "Nelder-Mead",
   control = NULL,
   constr = list(lower = -Inf, upper = Inf),
@@ -39,8 +39,8 @@ crwMLE(data, ...)
   drift = FALSE,
   Time.name = "time",
   time.scale = NULL,
-  theta,
-  fixPar,
+  theta = NULL,
+  fixPar = NULL,
   method = "Nelder-Mead",
   control = NULL,
   constr = list(lower = -Inf, upper = Inf),
@@ -61,8 +61,8 @@ crwMLE(data, ...)
   drift = FALSE,
   Time.name = "time",
   time.scale = NULL,
-  theta,
-  fixPar,
+  theta = NULL,
+  fixPar = NULL,
   method = "Nelder-Mead",
   control = NULL,
   constr = list(lower = -Inf, upper = Inf),
@@ -197,7 +197,7 @@ coordinates (parameter values as well). If \code{drift.model} is set to
 process, a drift variance and a beta multiplier. 
 
 \item \code{theta} and \code{fixPar} are vectors with the appropriate number or
-parameters. \code{theta} contains only those paraemters which are to be
+parameters. \code{theta} contains only those parameters which are to be
 estimated, while \code{fixPar} contains all parameter values with \code{NA}
 for parameters which are to be estimated.
 
