@@ -109,7 +109,7 @@ crwMLE <- function(data, ...) {
 #' process, a drift variance and a beta multiplier. 
 #' 
 #' \item \code{theta} and \code{fixPar} are vectors with the appropriate number or
-#' parameters. \code{theta} contains only those paraemters which are to be
+#' parameters. \code{theta} contains only those parameters which are to be
 #' estimated, while \code{fixPar} contains all parameter values with \code{NA}
 #' for parameters which are to be estimated.
 #' 
@@ -159,8 +159,8 @@ crwMLE.default <- function(
   proj = NULL,
   Time.name = "time",
   time.scale = NULL,
-  theta,
-  fixPar,
+  theta = NULL,
+  fixPar = NULL,
   method = "Nelder-Mead",
   control = NULL,
   constr = list(lower = -Inf, upper = Inf),
@@ -288,7 +288,7 @@ crwMLE.default <- function(
     drift.nms <- NULL
   nms <- c(tau.nms, sig.nms, b.nms, active.nms, drift.nms)
   n.par <- length(nms)
-  if (missing(fixPar))
+  if (is.null(fixPar))
     fixPar <- rep(NA, n.par)
   n.theta = sum(is.na(fixPar))
   if (length(fixPar) != n.par)
@@ -313,8 +313,8 @@ crwMLE.default <- function(
     )
   # if(length(constr$upper)==1) constr$upper <- rep(constr$upper, sum(is.na(fixPar)))
   # if(length(constr$lower)==1) constr$lower <- rep(constr$lower, sum(is.na(fixPar)))
-  if (missing(theta))
-    theta = rep(0, n.theta)
+  if (is.null(theta))
+    theta <- rep(0, n.theta)
   theta[theta < constr$lower] = constr$lower[theta < constr$lower] + 0.01
   theta[theta > constr$upper] = constr$upper[theta > constr$upper] - 0.01
   if (driftMod &
@@ -475,8 +475,8 @@ crwMLE.SpatialPoints <- function(
   drift = FALSE,
   Time.name = "time",
   time.scale = NULL,
-  theta,
-  fixPar,
+  theta = NULL,
+  fixPar = NULL,
   method = "Nelder-Mead",
   control = NULL,
   constr = list(lower = -Inf, upper = Inf),
@@ -545,8 +545,8 @@ crwMLE.sf <- function(
   drift = FALSE,
   Time.name = "time",
   time.scale = NULL,
-  theta,
-  fixPar,
+  theta = NULL,
+  fixPar = NULL,
   method = "Nelder-Mead",
   control = NULL,
   constr = list(lower = -Inf, upper = Inf),
