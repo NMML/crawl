@@ -37,7 +37,7 @@ crw_as_sf.crwIS <- function(crw_object,
   
   if (ftype == "POINT") {
     crw_object <- crw_as_tibble(crw_object) %>%
-      dplyr::filter(.data$locType %in% locType,
+      dplyr::filter(.data$locType %in% {{ locType }},
                     !is.na(.data$mu.x),
                     !is.na(.data$mu.y)) %>%
       sf::st_as_sf(coords = c("mu.x", "mu.y"))
@@ -45,7 +45,7 @@ crw_as_sf.crwIS <- function(crw_object,
   }
   if (ftype == "LINESTRING") {
     crw_object <- crw_as_tibble(crw_object) %>%
-      dplyr::filter(.data$locType %in% locType,
+      dplyr::filter(.data$locType %in% {{ locType }},
                     !is.na(.data$mu.x),
                     !is.na(.data$mu.y)) %>%
       sf::st_as_sf(coords = c("mu.x", "mu.y"))
@@ -68,7 +68,7 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
   if(is.null(crw_crs) | is.na(crw_crs)) crw_crs <- attr(crw_object, "proj4")
   if(ftype == "POINT" && is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
-      dplyr::filter(.data$locType %in% locType) %>% 
+      dplyr::filter(.data$locType %in% {{ locType }} ) %>% 
       dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) 
     crw_object = crw_object %>% sf::st_set_crs(crw_crs)
@@ -78,7 +78,7 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
   }
   if(ftype == "LINESTRING" && is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
-      dplyr::filter(.data$locType %in% locType) %>% 
+      dplyr::filter(.data$locType %in% {{ locType }} ) %>% 
       dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y"))
     crw_object = crw_object %>% sf::st_set_crs(crw_crs)
@@ -86,7 +86,7 @@ crw_as_sf.crwPredict <- function(crw_object,ftype,
   }
   if(ftype == "LINESTRING" && !is.null(group)) {
     crw_object <- crw_as_tibble(crw_object) %>% 
-      dplyr::filter(.data$locType %in% locType) %>% 
+      dplyr::filter(.data$locType %in% {{ locType }} ) %>% 
       dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) 
     crw_object = crw_object %>% sf::st_set_crs(crw_crs)
