@@ -4,7 +4,8 @@
 \name{northernFurSeal}
 \alias{northernFurSeal}
 \title{Northern fur seal pup relocation data set used in Johnson et al. (2008)}
-\format{A data frame with 795 observations on the following 4 variables:
+\format{
+A data frame with 795 observations on the following 4 variables:
 
 \describe{ \item{GMT}{A POSIX time vector}
 
@@ -15,7 +16,8 @@
 
 \item{long}{a numeric vector. Longitude for the locations}
 
-}}
+}
+}
 \source{
 Marine Mammal Laboratory, Alaska
 Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand

@@ -78,6 +78,7 @@ crwPostIS = function(object.sim, fullPost=TRUE, df=Inf, scale=1, thetaSamp=NULL)
   upper <- object.sim$upper 
   prior <- object.sim$prior
   eInd <- is.na(fixPar)
+  ts = object.sim$time.scale
   ###
   ### Sample parameter vector
   ###
@@ -119,10 +120,11 @@ crwPostIS = function(object.sim, fullPost=TRUE, df=Inf, scale=1, thetaSamp=NULL)
   samp <- list(alpha.sim=out$sim,
                locType=object.sim$locType, TimeNum=object.sim$TimeNum, 
                loglik=out$lly+out$llx, par=par, log.isw = isw)
-  samp[[object.sim$Time.name]] = object.sim$TimeNum
+  samp[[object.sim$Time.name]] = object.sim$TimeNum*ts
   if(object.sim$return_posix) samp[[object.sim$Time.name]] = lubridate::as_datetime(samp[[object.sim$Time.name]])
   class(samp) <- c("crwIS","list")
   attr(samp, "Time.name") = object.sim$Time.name
+  attr(samp, "time.scale") = object.sim$time.scale
   attr(samp,"coord") <- object.sim$coord
   attr(samp,"random.drift") <- object.sim$driftMod
   attr(samp,"activity.model") <- !is.null(object.sim$activity)

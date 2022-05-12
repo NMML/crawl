@@ -6,6 +6,7 @@
 par2arglist = function(theta, fixPar, y, noObs, delta, 
                        mov.mf, err.mfX, err.mfY, rho, activity,
                        n.errX, n.errY, n.mov, driftMod){
+  y <- as.matrix(y)
   N <- nrow(y)
   par <- fixPar
   par[is.na(fixPar)] <- theta
@@ -49,13 +50,13 @@ par2arglist = function(theta, fixPar, y, noObs, delta,
     out$b.drift <- exp(log(out$b) - log(1+exp(theta.drift[2])))
     out$sig2.drift <- exp(log(out$sig2) + 2 * theta.drift[1]) 
     out$a = c(y[1,1], 0, 0, y[1,2],0, 0)
-    out$P = diag(c(var(y[noObs==0,1], na.rm=T), out$sig2[1]*out$b[1], out$sig2.drift[1]*out$b.drift[1], 
-               var(y[noObs==0,2],na.rm=T), out$sig2[1]*out$b[1], out$sig2.drift[1]*out$b.drift[1]))
+    out$P = diag(c(var(y[noObs==0,1], na.rm=T), out$sig2[1]*out$b[1]/2, out$sig2.drift[1]*out$b.drift[1]/2, 
+               var(y[noObs==0,2],na.rm=T), out$sig2[1]*out$b[1]/2, out$sig2.drift[1]*out$b.drift[1]/2))
   } else {
     out$b.drift = NULL
     out$sig2.drift = NULL
     out$a = c(y[1,1], 0, y[1,2],0)
-    out$P = diag(c(var(y[noObs==0,1], na.rm=T), out$sig2[1]*out$b[1], var(y[noObs==0,2],na.rm=T), out$sig2[1]*out$b[1]))
+    out$P = diag(c(var(y[noObs==0,1], na.rm=T), out$sig2[1]*out$b[1]/2, var(y[noObs==0,2],na.rm=T), out$sig2[1]*out$b[1]/2))
   }
   return(out)
 }

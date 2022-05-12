@@ -4,9 +4,18 @@
 \alias{crwSimulator}
 \title{Construct a posterior simulation object for the CTCRW state vectors}
 \usage{
-crwSimulator(object.crwFit, predTime = NULL, method = "IS", parIS = 1000,
-  df = Inf, grid.eps = 1, crit = 2.5, scale = 1, quad.ask = TRUE,
-  force.quad)
+crwSimulator(
+  object.crwFit,
+  predTime = NULL,
+  method = "IS",
+  parIS = 1000,
+  df = Inf,
+  grid.eps = 1,
+  crit = 2.5,
+  scale = 1,
+  quad.ask = TRUE,
+  force.quad
+)
 }
 \arguments{
 \item{object.crwFit}{A model object from \code{\link{crwMLE}}.}

@@ -57,7 +57,8 @@
 
 crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
 {
-  data <- object.crwFit$data
+  if(inherits(object.crwFit, "error")) stop("Model was not fit correctly, please revisit fitting stage!")
+  data <- as.data.frame(object.crwFit$data)
   tn <- object.crwFit$Time.name
   driftMod <- object.crwFit$random.drift
   mov.mf <- object.crwFit$mov.mf
@@ -103,7 +104,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     if(inherits(predTime,"character")) {
       if(!inherits(data[,tn],"POSIXct")) stop("Character specification of predTime can only be used with POSIX times in the original data!")
       t_int <- unlist(strsplit(predTime, " "))
-      if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
+      if(t_int[2] %in% c("sec","secs","min","mins","hour","hours","day","days")) {
         min_dt <- min(data[,tn],na.rm=TRUE)
         max_dt <- max(data[,tn],na.rm=TRUE)
         min_dt <- lubridate::ceiling_date(min_dt,t_int[2])
@@ -140,8 +141,11 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     if (!is.null(err.mfX)) err.mfX <- as.matrix(expandPred(x=err.mfX, Time=origTime, predTime=predTime))
     if (!is.null(err.mfY)) err.mfY <- as.matrix(expandPred(x=err.mfY, Time=origTime, predTime=predTime))
     if (!is.null(rho)) rho <- as.matrix(expandPred(x=rho, Time=origTime, predTime=predTime))
+    data$locType[data$TimeNum%in%predTime] <- 'p'
+  } else{
+    data$locType <- "o"
   }
-  data$locType[data$TimeNum%in%predTime] <- 'p'
+
   delta <- c(diff(data$TimeNum), 1)
   y = as.matrix(data[,object.crwFit$coord])
   noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))

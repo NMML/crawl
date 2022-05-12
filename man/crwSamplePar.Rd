@@ -5,8 +5,17 @@
 \title{Create a weighted importance sample for posterior predictive track
 simulation.}
 \usage{
-crwSamplePar(object.sim, method = "IS", size = 1000, df = Inf,
-  grid.eps = 1, crit = 2.5, scale = 1, quad.ask = T, force.quad)
+crwSamplePar(
+  object.sim,
+  method = "IS",
+  size = 1000,
+  df = Inf,
+  grid.eps = 1,
+  crit = 2.5,
+  scale = 1,
+  quad.ask = T,
+  force.quad
+)
 }
 \arguments{
 \item{object.sim}{A simulation object from \code{\link{crwSimulator}}.}
