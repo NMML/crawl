@@ -33,19 +33,18 @@ crw_as_sf.crwIS <- function(data,
   stopifnot(!missing(ftype), ftype %in% c("POINT", "LINESTRING"))
   
   crw_crs <- attr(data, "epsg")
-  if(is.null(crw_crs) || is.na(crw_crs)) crw_crs <- attr(data, "proj4")
-  
+  if(is.null(crw_crs) || is.na(crw_crs)) crw_crs <- attr(data, "proj4")  
   if (ftype == "POINT") {
-    data <- crw_as_tibble(data) %>%
-      dplyr::filter(locType %in% !! locType,
+    crw_object <- crw_as_tibble(crw_object) %>%
+      dplyr::filter(.data$locType %in% {{ locType }},
                     !is.na(.data$mu.x),
                     !is.na(.data$mu.y)) %>%
       sf::st_as_sf(coords = c("mu.x", "mu.y"))
     data = data %>% sf::st_set_crs(crw_crs)
   }
   if (ftype == "LINESTRING") {
-    data <- crw_as_tibble(data) %>%
-      dplyr::filter(locType %in% !! locType,
+    crw_object <- crw_as_tibble(crw_object) %>%
+      dplyr::filter(.data$locType %in% {{ locType }},
                     !is.na(.data$mu.x),
                     !is.na(.data$mu.y)) %>%
       sf::st_as_sf(coords = c("mu.x", "mu.y"))
@@ -70,8 +69,8 @@ crw_as_sf.crwPredict <- function(data,ftype,
   if(is.null(crw_crs) || is.na(crw_crs)) crw_crs <- attr(data, "proj4")
   
   if(ftype == "POINT" && is.null(group)) {
-    data <- crw_as_tibble(data) %>% 
-      dplyr::filter(.data$locType %in% !! locType) %>% 
+    crw_object <- crw_as_tibble(crw_object) %>% 
+      dplyr::filter(.data$locType %in% {{ locType }} ) %>% 
       dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) 
     data = data %>% sf::st_set_crs(crw_crs)
@@ -80,16 +79,18 @@ crw_as_sf.crwPredict <- function(data,ftype,
     warning("group argument not applicable for 'POINT' type. ignoring")
   }
   if(ftype == "LINESTRING" && is.null(group)) {
-    data <- crw_as_tibble(data) %>% 
-      dplyr::filter(.data$locType %in% !! locType) %>% 
+
+    crw_object <- crw_as_tibble(crw_object) %>% 
+      dplyr::filter(.data$locType %in% {{ locType }} ) %>% 
       dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y"))
     data = data %>% sf::st_set_crs(crw_crs)
     data = data %>% summarise(id=1,do_union = FALSE) %>% sf::st_cast("LINESTRING")
   }
   if(ftype == "LINESTRING" && !is.null(group)) {
-    data <- crw_as_tibble(data) %>% 
-      dplyr::filter(.data$locType %in% !! locType) %>% 
+
+    crw_object <- crw_as_tibble(crw_object) %>% 
+      dplyr::filter(.data$locType %in% {{ locType }} ) %>% 
       dplyr::arrange(.data$TimeNum) %>% 
       sf::st_as_sf(coords = c("mu.x","mu.y")) 
     data = data %>% sf::st_set_crs(crw_crs)
