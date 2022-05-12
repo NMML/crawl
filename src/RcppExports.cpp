@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // CTCRWNLL
 Rcpp::List CTCRWNLL(const arma::mat& y, const arma::mat& Hmat, const arma::vec& beta, const arma::vec& sig2, const arma::vec& delta, const arma::vec& noObs, const arma::vec& active, const arma::colvec& a, const arma::mat& P);
 RcppExport SEXP _crawl_CTCRWNLL(SEXP ySEXP, SEXP HmatSEXP, SEXP betaSEXP, SEXP sig2SEXP, SEXP deltaSEXP, SEXP noObsSEXP, SEXP activeSEXP, SEXP aSEXP, SEXP PSEXP) {
