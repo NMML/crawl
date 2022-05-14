@@ -10,7 +10,7 @@ Authors@R: c(person("Josh", "London", email = "josh.london@noaa.gov",
            person("Kenady", "Wilson", email = "kenady@wildlifecomputers.com",
                   role = c("ctb")) )
 Depends:
-    R (>= 2.10)
+    R (>= 3.4.0)
 Imports: 
     mvtnorm,
     Rcpp (>= 0.11.1),
