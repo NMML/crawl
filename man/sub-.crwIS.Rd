@@ -4,10 +4,18 @@
 \alias{[.crwIS}
 \title{Generic subset/bracket method for crwIS classes}
 \usage{
-\method{[}{crwIS}(x, i, j, ..., drop = TRUE)
+\method{[}{crwIS}(x, i, ..., drop = TRUE)
 }
 \arguments{
+\item{x}{crwIS object}
+
+\item{i}{elements to extract or replace. These are numeric or character or, 
+empty or logical. Numeric values are coerced to integer as if by \code{as.integer}}
+
 \item{...}{other arguments}
+
+\item{drop}{logical. If TRUE the result is coerced to the lowest possible 
+dimension.}
 }
 \description{
 Generic subset/bracket method for crwIS classes

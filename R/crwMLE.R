@@ -1,14 +1,14 @@
 
 #' Fit Continuous-Time Correlated Random Walk Models to Animal Telemetry Data
 #' 
-#' The function uses the Kalman filter to estimate movement paramters in a
+#' The function uses the Kalman filter to estimate movement parameters in a
 #' state-space version of the continuous-time movement model. Separate models
 #' are specified for movement portion and the location error portion. Each
 #' model can depend on time indexed covariates. A \dQuote{haul out} model where
 #' movement is allowed to completely stop, as well as, a random drift model can
 #' be fit with this function.
 #' 
-#' @param data data.frame object containg telemetry and covariate data. A 
+#' @param data data.frame object contain telemetry and covariate data. A 
 #'   'sf' object from the 'sf' package with a geometry column of type \code{sfc_POINT}
 #'   is the preferred format for these data. 'SpatialPointsDataFrame' object 
 #'   from the package 'sp' is still accepted. `spacetime' and 'trip' objects were 
@@ -490,11 +490,12 @@ crwMLE.SpatialPoints <- function(
 )
 
 {
+  geometry <- NULL
   if (is.null(coord)) {
     coord <- dimnames(data@coords)[[2]]
     data <- sf::st_as_sf(data)
     proj <- sf::st_crs(data)
-    data <- crawl:::sfc_as_cols(data, names = coord) %>%
+    data <- sfc_as_cols(data, names = coord) %>%
       tibble::as_tibble() %>% 
       dplyr::select(-geometry)
   } else {
@@ -503,7 +504,7 @@ crwMLE.SpatialPoints <- function(
     }
     data <- sf::st_as_sf(data)
     proj <- sf::st_crs(data)
-    data <- crawl:::sfc_as_cols(data, names = coord) %>%
+    data <- sfc_as_cols(data, names = coord) %>%
       tibble::as_tibble() %>% 
       dplyr::select(-geometry)
   }
@@ -559,8 +560,9 @@ crwMLE.sf <- function(
 )
 
 {
+  geometry <- NULL
   proj <- sf::st_crs(data)
-  data <- crawl:::sfc_as_cols(data) %>% 
+  data <- sfc_as_cols(data) %>% 
     tibble::as_tibble() %>% 
     dplyr::select(-geometry)
   

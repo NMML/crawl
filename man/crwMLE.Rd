@@ -75,7 +75,7 @@ crwMLE(data, ...)
 )
 }
 \arguments{
-\item{data}{data.frame object containg telemetry and covariate data. A 
+\item{data}{data.frame object contain telemetry and covariate data. A 
 'sf' object from the 'sf' package with a geometry column of type \code{sfc_POINT}
 is the preferred format for these data. 'SpatialPointsDataFrame' object 
 from the package 'sp' is still accepted. `spacetime' and 'trip' objects were 
@@ -173,7 +173,7 @@ A list with the following elements:
 \item{runTime}{Time used to fit model}
 }
 \description{
-The function uses the Kalman filter to estimate movement paramters in a
+The function uses the Kalman filter to estimate movement parameters in a
 state-space version of the continuous-time movement model. Separate models
 are specified for movement portion and the location error portion. Each
 model can depend on time indexed covariates. A \dQuote{haul out} model where
