@@ -3,7 +3,7 @@
 ^\\.gitignore$
 ^\\.DS_Store$
 ^\\.git$
-^\.travis\.yml$
+^\\.github$
 ^README\.Rmd$
 ^README\.md$
 ^README-.*\.png$
