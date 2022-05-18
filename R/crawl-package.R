@@ -99,6 +99,34 @@ NULL
 #' @keywords datasets
 NULL
 
+#' Harbor seal relocation data set used in Johnson et al. (2008)
+#' 
+#' 
+#' @name harborSeal_sf
+#' @docType data
+#' @format
+#' 
+#' An \code{sf} Simple feature collection with 7059 features and 3 fields.
+#' 
+#' \describe{ \item{Time}{a numeric vector.}
+#' 
+#' \item{DryTime}{a numeric vector.}
+#' 
+#' \item{Argos_loc_class}{a factor with levels \code{0} \code{1}
+#' \code{2} \code{3} \code{A} \code{B}}.}
+#' 
+#' \item{geometry}{a list column with geometry data; CRS = EPSG:4326}
+#' 
+#' @author Josh M. London
+#' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
+#' Continuous-time random walk model for animal telemetry data. Ecology
+#' 89:1208-1215.
+#' @source Marine Mammal Laboratory, Alaska
+#' Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
+#' Point Way NE Seattle, WA 98115
+#' @keywords datasets
+NULL
+
 #' Bearded Seal Location Data
 #' 
 #' 

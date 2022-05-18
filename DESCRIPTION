@@ -35,3 +35,4 @@ LazyLoad: yes
 ByteCompile: TRUE
 NeedsCompilation: yes
 RoxygenNote: 7.1.2
+LazyData: true
