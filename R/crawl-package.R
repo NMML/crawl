@@ -75,9 +75,7 @@ NULL
 #' 
 #' @name harborSeal
 #' @docType data
-#' @format
-#' 
-#' A data frame with 7059 observations on the following 5 variables.
+#' @format A data frame with 7059 observations on the following 5 variables.
 #' 
 #' \describe{ \item{Time}{a numeric vector.}
 #' 
@@ -104,18 +102,15 @@ NULL
 #' 
 #' @name harborSeal_sf
 #' @docType data
-#' @format
+#' @format A Simple feature collection with 7059 features and 3 fields.
 #' 
-#' An \code{sf} Simple feature collection with 7059 features and 3 fields.
-#' 
-#' \describe{ \item{Time}{a numeric vector.}
-#' 
+#' \describe{ 
+#' \item{Time}{a numeric vector.}
 #' \item{DryTime}{a numeric vector.}
-#' 
 #' \item{Argos_loc_class}{a factor with levels \code{0} \code{1}
-#' \code{2} \code{3} \code{A} \code{B}}.}
-#' 
+#' \code{2} \code{3} \code{A} \code{B}.}
 #' \item{geometry}{a list column with geometry data; CRS = EPSG:4326}
+#' }
 #' 
 #' @author Josh M. London
 #' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)

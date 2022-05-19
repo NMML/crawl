@@ -5,16 +5,15 @@
 \alias{harborSeal_sf}
 \title{Harbor seal relocation data set used in Johnson et al. (2008)}
 \format{
-An \code{sf} Simple feature collection with 7059 features and 3 fields.
+A Simple feature collection with 7059 features and 3 fields.
 
-\describe{ \item{Time}{a numeric vector.}
-
+\describe{ 
+\item{Time}{a numeric vector.}
 \item{DryTime}{a numeric vector.}
-
 \item{Argos_loc_class}{a factor with levels \code{0} \code{1}
-\code{2} \code{3} \code{A} \code{B}}.}
-
+\code{2} \code{3} \code{A} \code{B}.}
 \item{geometry}{a list column with geometry data; CRS = EPSG:4326}
+}
 }
 \source{
 Marine Mammal Laboratory, Alaska
