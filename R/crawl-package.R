@@ -70,7 +70,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @keywords datasets
 NULL
 
-#' Harbor seal relocation data set used in Johnson et al. (2008)
+#' Harbor seal location data set used in Johnson et al. (2008)
 #' 
 #' 
 #' @name harborSeal
@@ -97,12 +97,17 @@ NULL
 #' @keywords datasets
 NULL
 
-#' Harbor seal relocation data set used in Johnson et al. (2008)
+#' Harbor seal location data updated since Johnson et al. (2008)
 #' 
+#' The original location data used in Johnson et al. (2008) was geographic
+#' (latitude/longitude) (but not explicitly documented) and provided as a 
+#' simple data frame. This data updates the data to a Simple Feature
+#' Collection (as part of the \href{https://r-spatial.github.io/sf/articles/}{sf} 
+#' package) with the CRS explicitly set.
 #' 
 #' @name harborSeal_sf
 #' @docType data
-#' @format A Simple feature collection with 7059 features and 3 fields.
+#' @format A Simple Feature Collection with 7059 features and 3 fields.
 #' 
 #' \describe{ 
 #' \item{Time}{a numeric vector.}

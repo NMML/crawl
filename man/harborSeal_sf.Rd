@@ -3,9 +3,9 @@
 \docType{data}
 \name{harborSeal_sf}
 \alias{harborSeal_sf}
-\title{Harbor seal relocation data set used in Johnson et al. (2008)}
+\title{Harbor seal location data updated since Johnson et al. (2008)}
 \format{
-A Simple feature collection with 7059 features and 3 fields.
+A Simple Feature Collection with 7059 features and 3 fields.
 
 \describe{ 
 \item{Time}{a numeric vector.}
@@ -21,7 +21,11 @@ Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
 Point Way NE Seattle, WA 98115
 }
 \description{
-Harbor seal relocation data set used in Johnson et al. (2008)
+The original location data used in Johnson et al. (2008) was geographic
+(latitude/longitude) (but not explicitly documented) and provided as a 
+simple data frame. This data updates the data to a Simple Feature
+Collection (as part of the \href{https://r-spatial.github.io/sf/articles/}{sf} 
+package) with the CRS explicitly set.
 }
 \references{
 Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
