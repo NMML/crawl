@@ -29,7 +29,6 @@ crw_as_sf.crwIS <- function(data,
   if (!is.null(group)) {
     warning("group argument not applicable to crwIS objects. ignorning")
   }
-  locType <- enquo(locType)
   stopifnot(!missing(ftype), ftype %in% c("POINT", "LINESTRING"))
   
   crw_crs <- attr(data, "epsg")
@@ -62,7 +61,6 @@ crw_as_sf.crwIS <- function(data,
 crw_as_sf.crwPredict <- function(data,ftype,
                                  locType = c("p","o","f"),
                                  group = NULL, ...) {
-  locType <- enquo(locType)
   stopifnot(!missing(ftype), ftype %in% c("POINT","LINESTRING"))
 
   crw_crs <- attr(data, "epsg")
@@ -106,7 +104,6 @@ crw_as_sf.crwPredict <- function(data,ftype,
 #' @export
 crw_as_sf.list <- function(data,ftype,
                            locType = c("p","o","f"), ...) {
-  locType <- enquo(locType)
   
   is_list_of_crwis <- data %>% 
     purrr::modify_depth(1, ~purrr::map_lgl(.,inherits,"crwIS")) %>% 
@@ -118,7 +115,7 @@ crw_as_sf.list <- function(data,ftype,
   data <- data %>% 
     purrr::modify_depth(1, ~ purrr::map(., crawl::crw_as_sf,
                                         ftype = "LINESTRING", 
-                                        locType = !!locType))
+                                        locType = {{ locType }} ))
   
   if (ftype == "MULTILINESTRING") {
     make_mls <- function(ll) {
