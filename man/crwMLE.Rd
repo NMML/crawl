@@ -28,7 +28,8 @@ crwMLE(data, ...)
   need.hess = TRUE,
   initialSANN = list(maxit = 200),
   attempts = 1,
-  retrySD = 1
+  retrySD = 1,
+  ...
 )
 
 \method{crwMLE}{SpatialPoints}(
@@ -75,15 +76,9 @@ crwMLE(data, ...)
 )
 }
 \arguments{
-\item{data}{data.frame object contain telemetry and covariate data. A 
-'sf' object from the 'sf' package with a geometry column of type \code{sfc_POINT}
-is the preferred format for these data. 'SpatialPointsDataFrame' object 
-from the package 'sp' is still accepted. `spacetime' and 'trip' objects were 
-previously accepted but are no longer valid. Values for coords will be taken from 
-the spatial data set and ignored in the arguments. Spatial data must have a
-valid proj4string or epsg and must NOT be in longlat. While data provided as
-a data.frame are supported, they will not be compatible with additional 
-fucntions e.g. \code{fix_path}.}
+\item{data}{a dataset of location observations as a data.frame, tibble,
+SpatialPointsDataFrame ('sp' package), or a data.frame of class 'sf' that
+contains a geometry column of type \code{sfc_POINT}}
 
 \item{...}{further arguments passed to or from other methods}
 

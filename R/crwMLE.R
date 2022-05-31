@@ -25,6 +25,9 @@ crwMLE <- function(data, ...) {
 
 #' @rdname crwMLE
 #' @method crwMLE default
+#' @param data a dataset of location observations as a data.frame, tibble,
+#' SpatialPointsDataFrame ('sp' package), or a data.frame of class 'sf' that
+#' contains a geometry column of type \code{sfc_POINT}
 #' @param mov.model formula object specifying the time indexed covariates for
 #' movement parameters.
 #' @param err.model A 2-element list of formula objects specifying the time
@@ -168,7 +171,8 @@ crwMLE.default <- function(
   need.hess = TRUE,
   initialSANN = list(maxit = 200),
   attempts = 1,
-  retrySD = 1
+  retrySD = 1,
+  ...
 )
 
 {
