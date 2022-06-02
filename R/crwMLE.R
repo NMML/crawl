@@ -15,8 +15,9 @@
 #'   previously accepted but are no longer valid. Values for coords will be taken from 
 #'   the spatial data set and ignored in the arguments. Spatial data must have a
 #'   valid proj4string or epsg and must NOT be in longlat. While data provided as
-#'   a data.frame are supported, they will not be compatible with additional 
-#'   fucntions e.g. \code{fix_path}.
+#'   a data.frame are supported, they may not be compatible with additional 
+#'   functions. An 'sf' object with projected, non-longlat geometry really is
+#'   the way to go!
 #' @param ... further arguments passed to or from other methods
 #' @export
 crwMLE <- function(data, ...) {
@@ -105,7 +106,7 @@ crwMLE <- function(data, ...) {
 #' for velocity autocorrelation) are both modeled with a log link as par =
 #' exp(eta), where eta is the linear predictor based on the covariates. The
 #' \code{err.model} specification is a list of 2 such models, one for
-#' \dQuote{longitude} and one for \dQuote{latitude} (in that order) location
+#' \dQuote{X (longitude)} and one for \dQuote{Y (latitude)} (in that order) location
 #' error. If only one location error model is given, it is used for both
 #' coordinates (parameter values as well). If \code{drift.model} is set to
 #' \code{TRUE}, then, 2 additional parameters are estimated for the drift
@@ -180,6 +181,7 @@ crwMLE.default <- function(
   if (!inherits(data, c("data.frame", "tbl_df"))) {
     stop("data must be an 'sf'/'sp' spatial object or a data.frame/tibble")
   }
+  
   p4 <- NULL
   if (!is.null(proj) && !inherits(proj, "crs")) {
     if (inherits(proj, "numeric") || inherits(proj, "character")) {
@@ -192,6 +194,13 @@ crwMLE.default <- function(
   }
   if (inherits(proj, "crs")) {
     p4 <- proj
+  }
+  
+  if(p4$IsGeographic) {
+    stop(
+      "Provided projection is geographic (e.g. longlat). Coordinates must be in
+      a non-geographic, projected coordinate reference system."
+    )
   }
   
   if (inherits(data[[Time.name]], "POSIXct")) {
@@ -498,6 +507,20 @@ crwMLE.SpatialPoints <- function(
   if (is.null(coord)) {
     coord <- dimnames(data@coords)[[2]]
     data <- sf::st_as_sf(data)
+    
+    longlat_check <- sf::st_is_longlat(data)
+    
+    if (!is.na(longlat_check)) {
+      if (longlat_check) {
+        stop(
+          "data is provided in longlat format
+        (i.e. st_is_longlat(data) returns TRUE).
+        Please project your data (using sf::st_transform) to an 
+        appropriate projection for your study area."
+        )
+      }
+    }
+    
     proj <- sf::st_crs(data)
     data <- sfc_as_cols(data, names = coord) %>%
       tibble::as_tibble() %>% 
@@ -564,6 +587,19 @@ crwMLE.sf <- function(
 )
 
 {
+  longlat_check <- sf::st_is_longlat(data)
+  
+  if (!is.na(longlat_check)) {
+    if (longlat_check) {
+      stop(
+        "data is provided in longlat format
+        (i.e. st_is_longlat(data) returns TRUE).
+        Please project your data (using sf::st_transform) to an 
+        appropriate projection for your study area."
+      )
+    }
+  }
+  
   geometry <- NULL
   proj <- sf::st_crs(data)
   data <- sfc_as_cols(data) %>% 
