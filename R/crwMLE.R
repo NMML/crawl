@@ -64,6 +64,8 @@ crwMLE <- function(data, ...) {
 #' attempted in cases where the fit does not converge or is otherwise non-valid
 #' @param retrySD optional user-provided standard deviation for adjusting
 #' starting values when attempts > 1. Default value is 1.
+#' @param skip_check Skip the likelihood optimization check and return the fitted values.
+#' Can be useful for debugging problem fits. 
 #' 
 #' @return A list with the following elements:
 #' \item{par}{Parameter maximum likelihood estimates (including fixed parameters)}
@@ -172,6 +174,7 @@ crwMLE.default <- function(
   initialSANN = list(maxit = 200),
   attempts = 1,
   retrySD = 1,
+  skip_check = FALSE,
   ...
 )
 
@@ -404,7 +407,7 @@ crwMLE.default <- function(
     init$par <- mle$par + rnorm(length(mle$par), 0, retrySD)
   }
   
-  if (checkFit) {
+  if (checkFit & !skip_check) {
     return(simpleError(
       paste(
         "crwMLE failed. Try increasing attempts or changing user",
@@ -489,6 +492,7 @@ crwMLE.SpatialPoints <- function(
   initialSANN = list(maxit = 200),
   attempts = 1,
   retrySD = 1,
+  skip_check=FALSE,
   coord = NULL,
   ...
 )
@@ -533,7 +537,8 @@ crwMLE.SpatialPoints <- function(
       need.hess = need.hess,
       initialSANN = initialSANN,
       attempts = attempts,
-      retrySD = retrySD
+      retrySD = retrySD,
+      skip_check=skip_check
     )
   )
   
@@ -560,6 +565,7 @@ crwMLE.sf <- function(
   initialSANN = list(maxit = 200),
   attempts = 1,
   retrySD = 1,
+  skip_check=FALSE,
   ...
 )
 
@@ -589,7 +595,8 @@ crwMLE.sf <- function(
       need.hess = need.hess,
       initialSANN = initialSANN,
       attempts = attempts,
-      retrySD = retrySD
+      retrySD = retrySD,
+      skip_check=skip_check
     )
   )
   

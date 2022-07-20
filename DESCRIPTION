@@ -2,7 +2,7 @@ Package: crawl
 Type: Package
 Title: Fit Continuous-Time Correlated Random Walk Models to Animal Movement Data
 Version: 2.3.0
-Date: 2022-05-13
+Date: 2022-07-20
 Authors@R: c(person("Josh", "London", email = "josh.london@noaa.gov",
                   role = c("aut")),
                   person("Devin S.", "Johnson", email = "devin.johnson@noaa.gov",
@@ -34,5 +34,5 @@ Encoding: UTF-8
 LazyLoad: yes
 ByteCompile: TRUE
 NeedsCompilation: yes
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 LazyData: true

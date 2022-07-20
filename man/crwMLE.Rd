@@ -29,6 +29,7 @@ crwMLE(data, ...)
   initialSANN = list(maxit = 200),
   attempts = 1,
   retrySD = 1,
+  skip_check = FALSE,
   ...
 )
 
@@ -50,6 +51,7 @@ crwMLE(data, ...)
   initialSANN = list(maxit = 200),
   attempts = 1,
   retrySD = 1,
+  skip_check = FALSE,
   coord = NULL,
   ...
 )
@@ -72,6 +74,7 @@ crwMLE(data, ...)
   initialSANN = list(maxit = 200),
   attempts = 1,
   retrySD = 1,
+  skip_check = FALSE,
   ...
 )
 }
@@ -135,6 +138,9 @@ attempted in cases where the fit does not converge or is otherwise non-valid}
 
 \item{retrySD}{optional user-provided standard deviation for adjusting
 starting values when attempts > 1. Default value is 1.}
+
+\item{skip_check}{Skip the likelihood optimization check and return the fitted values.
+Can be useful for debugging problem fits.}
 }
 \value{
 A list with the following elements:
