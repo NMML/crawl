@@ -191,7 +191,7 @@ covariates. The movement parameters (sigma for velocity variation and beta
 for velocity autocorrelation) are both modeled with a log link as par =
 exp(eta), where eta is the linear predictor based on the covariates. The
 \code{err.model} specification is a list of 2 such models, one for
-\dQuote{longitude} and one for \dQuote{latitude} (in that order) location
+\dQuote{X (longitude)} and one for \dQuote{Y (latitude)} (in that order) location
 error. If only one location error model is given, it is used for both
 coordinates (parameter values as well). If \code{drift.model} is set to
 \code{TRUE}, then, 2 additional parameters are estimated for the drift

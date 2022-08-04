@@ -10,7 +10,7 @@
 #' Package: \tab crawl\cr 
 #' Type: \tab Package\cr 
 #' Version: \tab 2.3.0\cr 
-#' Date: \tab July 20, 2022\cr 
+#' Date: \tab August 4, 2022\cr 
 #' License: \tab CC0 \cr 
 #' LazyLoad: \tab yes\cr 
 #' }
@@ -177,3 +177,9 @@ NULL
 #   return(invisible())
 # }
 
+#' @title fix_path function id depriciated. 
+#' @param ... Any arguments are ignored.
+#' @export
+fix_path <- function(...){
+  stop("The 'fix_path()' function has been removed from {crawl}. Please use the {pathroutr} package instead: 'https://github.com/jmlondon/pathroutr'")
+}

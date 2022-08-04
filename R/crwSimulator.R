@@ -123,8 +123,12 @@ crwSimulator = function(
   tn <- object.crwFit$Time.name
   ts = attr(object.crwFit, "time.scale")
   
-  return_posix <- ifelse((inherits(predTime,"POSIXct") | inherits(predTime, "character")) & 
-                           inherits(data[,tn],"POSIXct"), 
+  if (is.null(data$locType)) {
+    data$locType <- "o"
+  }
+  
+  return_posix <- ifelse(
+    (inherits(predTime,"POSIXct") | inherits(predTime, "character") | is.null(predTime)) & inherits(data[,tn],"POSIXct"), 
                          TRUE, FALSE)
   if(!return_posix) {
     # if(inherits(predTime,"numeric") && inherits(data[, tn],"numeric")) {
@@ -169,9 +173,6 @@ crwSimulator = function(
       predTime <- predTime[predTime>=min(data$TimeNum)]
     }
     origTime <- data$TimeNum
-    if (is.null(data$locType)) {
-      data$locType <- "o"
-    }
     predData <- data.frame(predTime, "p")
     names(predData) <- c("TimeNum", "locType")
     # predTime <- as.numeric(predTime)
