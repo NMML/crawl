@@ -146,7 +146,7 @@ NULL
 #' \item{error_radius}{Argos error radius}
 #' \item{error_semimajor_axis}{Argos error ellipse major axis length}
 #' \item{error_semiminor_axis}{Argos error ellipse minor axis length}
-#' \item{error_ellipse_orientation}{Argos error ellispse degree orientation}
+#' \item{error_ellipse_orientation}{Argos error ellipse degree orientation}
 #' }
 #' @source Marine Mammal Laboratory, Alaska
 #' Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
@@ -169,7 +169,7 @@ NULL
           "https://dsjohnson.github.io/crawl_examples/\n",
           "\n",
           "WARNING!!! v. 2.3.0 will be the last version of {crawl} hosted on CRAN.\n",
-          "Go to 'https://dsjohnson.r-universe.dev/ui#package:crawl' for any future bug fixes."
+          "see 'https://github.com/NMML/crawl' for any future bug fixes."
           )
   )
 }

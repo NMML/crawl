@@ -8,7 +8,7 @@
 #' called without any arguments and it will search out all 'crwFit' objects in
 #' the current workspace and produce the model selection table for all 'crwFit'
 #' objects in the workspace. Caution should be used when executing the function
-#' in this way. ALL 'crwFit' objects will be included whether ot not the same
+#' in this way. ALL 'crwFit' objects will be included whether or not the same
 #' locations are used!  For all of the models listed as arguments (or in the
 #' workspace), AIC, delta AIC, and Akaike weights will be calculated.
 #' 

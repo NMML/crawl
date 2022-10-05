@@ -10,16 +10,17 @@ stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecy
 
 ## Correlated RAndom Walk Library of R functions
 
-The Correlated RAndom Walk Library of R functions was designed for
-fitting continuous-time correlated random walk (CTCRW) models with time
-indexed covariates. The model is fit using the Kalman-Filter on a state
-space version of the continuous-time stochastic movement process. The
-use case in the estimation of animal movement paths where the observed
-locations are determined from Argos or FastLoc enabled bio-loggers. In
-addition to the continuous-time component, `{crawl}` was specifically
-developed to incorporate the measurement error often associated with
-these observed locations. Lastly, `{crawl}` provides a framework for
-multiple imputation workflows for incorporation of model uncertainty.
+The \[C\]orrelated \[RA\]ndom \[W\]alk \[L\]ibrary of R functions was
+designed for fitting continuous-time correlated random walk (CTCRW)
+models with time indexed covariates. The model is fit using the
+Kalman-Filter on a state space version of the continuous-time stochastic
+movement process. The use case in the estimation of animal movement
+paths where the observed locations are determined from Argos or FastLoc
+enabled bio-loggers. In addition to the continuous-time component,
+`{crawl}` was specifically developed to incorporate the measurement
+error often associated with these observed locations. Lastly, `{crawl}`
+provides a framework for multiple imputation workflows for incorporation
+of model uncertainty.
 
 ## The Future of crawl
 

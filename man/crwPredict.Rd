@@ -39,7 +39,7 @@ covariance matrix for \code{alpha.hat[,i]}.}
 \description{
 The \code{crwMEfilter} function uses a fitted model object from
 \code{crwMLE} to predict animal locations (with estimated uncertainty) at
-times in the original data set and supplimented by times in \code{predTime}.
+times in the original data set and supplemented by times in \code{predTime}.
 If \code{speedEst} is set to \code{TRUE}, then animal log-speed is also
 estimated. In addition, the measurement error shock detection filter of de
 Jong and Penzer (1998) is also calculated to provide a measure for outlier

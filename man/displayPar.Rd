@@ -29,7 +29,7 @@ portion of the model.}
 \item{drift}{logical indicating whether or not to include a random
 drift component.}
 
-\item{data}{data.frame object containg telemetry and covariate data. A
+\item{data}{data.frame object containing telemetry and covariate data. A
 \code{SpatialPointsDataFrame} object from the package 'sp' will also be accepted.}
 
 \item{Time.name}{character indicating name of the location time column}
@@ -54,7 +54,7 @@ these values will remain fixed and will not be estimated.}
 correspond to the \code{thetaIdx} column.}
 }
 \description{
-This function takes the model spesification arguments to the \code{\link{crwMLE}} function and displays a table
+This function takes the model specification arguments to the \code{\link{crwMLE}} function and displays a table
 with the parameter names in the order that \code{crwMLE} will use during model fitting. This is useful for specifying 
 values for the \code{fixPar} or \code{theta} (starting values for free parameters) arguments.
 }

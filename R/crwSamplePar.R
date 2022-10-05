@@ -70,7 +70,7 @@
 #' 
 #' \item{fixPar}{Fixed values for parameters in model fitting}
 #' 
-#' \item{Cmat}{Covaraince matrix for parameter sampling distribution}
+#' \item{Cmat}{Covariance matrix for parameter sampling distribution}
 #' 
 #' \item{Lmat}{Cholesky decomposition of Cmat}
 #' 

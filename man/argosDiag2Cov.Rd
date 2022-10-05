@@ -2,7 +2,7 @@
 % Please edit documentation in R/argosDiag2Cov.R
 \name{argosDiag2Cov}
 \alias{argosDiag2Cov}
-\title{Tranform Argos diagnostic data to covariance matrix form}
+\title{Transform Argos diagnostic data to covariance matrix form}
 \usage{
 argosDiag2Cov(Major, Minor, Orientation)
 }

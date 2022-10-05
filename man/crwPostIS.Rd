@@ -44,7 +44,7 @@ values or "full" posterior draw with approximated parameter posterior
 \details{
 The crwPostIS draws a posterior sample of the track state matrices. If
 fullPost was set to TRUE when the object.sim was build in
-\link{crwSimulator} then a psuedo-posterior draw will be made by first
+\link{crwSimulator} then a pseudo-posterior draw will be made by first
 sampling a parameter value from a multivariate t distribution which
 approximates the marginal posterior distribution of the parameters. The
 covariance matrix from the fitted model object is used to scale the MVt
@@ -53,7 +53,7 @@ the approximation. Further, the parameter simulations are centered on the
 fitted values.
 
 To correct for the MVt approximation, the importance sampling weight is also
-supplied. When calulating averages of track functions for Bayes estimates
+supplied. When calculating averages of track functions for Bayes estimates
 one should use the importance sampling weights to calculate a weighted
 average (normalizing first, so the weights sum to 1).
 }

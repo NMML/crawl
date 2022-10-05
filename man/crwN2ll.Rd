@@ -52,7 +52,7 @@ crwN2ll(
 
 \item{n.mov}{number or movement parameters.}
 
-\item{driftMod}{Logical. inicates whether a drift model is specified.}
+\item{driftMod}{Logical. indicates whether a drift model is specified.}
 
 \item{prior}{Function of theta that returns the log-density of the prior}
 

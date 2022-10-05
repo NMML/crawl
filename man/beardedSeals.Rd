@@ -19,7 +19,7 @@ A data frame with 27,548 observations on 3 bearded seals in Alaska:
 \item{error_radius}{Argos error radius}
 \item{error_semimajor_axis}{Argos error ellipse major axis length}
 \item{error_semiminor_axis}{Argos error ellipse minor axis length}
-\item{error_ellipse_orientation}{Argos error ellispse degree orientation}
+\item{error_ellipse_orientation}{Argos error ellipse degree orientation}
 }
 }
 \source{

@@ -1,4 +1,4 @@
-#' @title Tranform Argos diagnostic data to covariance matrix form
+#' @title Transform Argos diagnostic data to covariance matrix form
 #' 
 #' @description Using this function the user can transform the Argos diagnostic data for location
 #' error into a form usable as a covariance matrix to approximate the location error with a

@@ -22,7 +22,7 @@ crw_as_sf(data, ftype, locType, group)
 
 \item{locType}{character vector of location points to include ("p","o")}
 
-\item{group}{(optional) character specifying the column to group by for mulitple LINESTRING features}
+\item{group}{(optional) character specifying the column to group by for multiple LINESTRING features}
 
 \item{...}{Additional arguments that are ignored}
 }
@@ -30,7 +30,7 @@ crw_as_sf(data, ftype, locType, group)
 Provides reliable conversion of \code{"crwIS"} and \code{"crwPredict"} objects
 into simple features objects supported in the \code{"sf"} package. Both 
 \code{"sf"} objects with "POINT" geometry and \code{"sfc_LINESTRING"} objects
-are created. Coersion of \code{"crwPredict"} objects to \code{"sfc_LINESTRING"}
+are created. Coercion of \code{"crwPredict"} objects to \code{"sfc_LINESTRING"}
 has an option \code{"group"} argument when the \code{"crwPredict"} object
 includes predictions from multiple deployments. The grouping column will be 
 used and a tibble of multiple \code{"sf_LINESTRING"} objects will be returned
