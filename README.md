@@ -45,6 +45,12 @@ recommended.
 install.packages("crawl")
 ```
 
+However, should `{crawl}` v 2.3.0 fail to pass CRAN checks it will be
+archived on CRAN and all future bug and check fixes will only be
+available on this repository and the R-universe repository described in
+the next section. So, if you cannot find `{crawl}` on CRAN, this has
+probably happened.
+
 ### Install via R-Universe
 
 The latest version of `{crawl}` is also available via R-Universe.
@@ -80,7 +86,7 @@ options(repos = c(dsjohnson = 'https://dsjohnson.r-universe.dev',
 
 ### Install via Github
 
-A development version of `{pathroutr}` is also available from
+A development version of `{crawl}` is also available from
 [GitHub](https://github.com/NMML/crawl). This version should be used
 with caution and only after consulting with package authors.
 
