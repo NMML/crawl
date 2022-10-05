@@ -1,10 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^\\.gitignore$
-^\\.DS_Store$
-^\\.git$
-^\.travis\.yml$
+^\.gitignore$
+^\.DS_Store$
+^\.git$
+^\.github$
 ^README\.Rmd$
 ^README\.md$
 ^README-.*\.png$
-^testing$

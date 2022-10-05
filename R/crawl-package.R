@@ -1,16 +1,16 @@
 #' @title Fit Continuous-Time Correlated Random Walk Models to Animal Movement Data
 #' 
-#' @description The Correlated RAndom Walk Library (I know it is not an R library,
+#' @description The [C]orrelated [RA]ndom [W]alk [L]ibrary (I know it is not an R library,
 #' but, "crawp" did not sound as good) of R functions was designed for fitting
 #' continuous-time correlated random walk (CTCRW) models with time indexed
 #' covariates. The model is fit using the Kalman-Filter on a state space
-#' version of the continuous-time staochistic movement process.
+#' version of the continuous-time stochastic movement process.
 #' 
 #' \tabular{ll}{ 
 #' Package: \tab crawl\cr 
 #' Type: \tab Package\cr 
-#' Version: \tab 2.2.2\cr 
-#' Date: \tab September 17, 2018\cr 
+#' Version: \tab 2.3.0\cr 
+#' Date: \tab October 5, 2022\cr 
 #' License: \tab CC0 \cr 
 #' LazyLoad: \tab yes\cr 
 #' }
@@ -26,19 +26,19 @@
 #' @name crawl-package
 #' @aliases crawl-package crawl
 #' @docType package
-#' @author Devin S. Johnson
+#' @author Josh London and Devin S. Johnson 
 #' 
 #' Maintainer: Devin S. Johnson <devin.johnson@@noaa.gov>
 #' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
 #' Continuous-time correlated random walk model for animal telemetry data.
 #' Ecology 89(5) 1208-1215.
-#' @import dplyr
+#' @import dplyr rlang
 #' @importFrom Rcpp evalCpp
 #' @importFrom graphics layout
 #' @importFrom methods as slot 
 #' @importFrom stats approx model.frame model.matrix 
 #'             na.pass optim pchisq pexp pnorm qnorm 
-#'             rchisq runif sd setNames
+#'             rchisq runif sd setNames median rnorm
 #' @useDynLib crawl, .registration = TRUE
 
 NULL
@@ -70,14 +70,12 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @keywords datasets
 NULL
 
-#' Harbor seal relocation data set used in Johnson et al. (2008)
+#' Harbor seal location data set used in Johnson et al. (2008)
 #' 
 #' 
 #' @name harborSeal
 #' @docType data
-#' @format
-#' 
-#' A data frame with 7059 observations on the following 5 variables.
+#' @format A data frame with 7059 observations on the following 5 variables.
 #' 
 #' \describe{ \item{Time}{a numeric vector.}
 #' 
@@ -97,6 +95,36 @@ NULL
 #' Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
 #' Point Way NE Seattle, WA 98115
 #' @keywords datasets
+NULL
+
+#' Harbor seal location data updated since Johnson et al. (2008)
+#' 
+#' The original location data used in Johnson et al. (2008) was geographic
+#' (latitude/longitude) (but not explicitly documented) and provided as a 
+#' simple data frame. This data updates the data to a Simple Feature
+#' Collection (as part of the \href{https://r-spatial.github.io/sf/articles/}{sf} 
+#' package) with the CRS explicitly set.
+#' 
+#' @name harborSeal_sf
+#' @docType data
+#' @format A Simple Feature Collection with 7059 features and 3 fields.
+#' 
+#' \describe{ 
+#' \item{Time}{a numeric vector.}
+#' \item{DryTime}{a numeric vector.}
+#' \item{Argos_loc_class}{a factor with levels \code{0} \code{1}
+#' \code{2} \code{3} \code{A} \code{B}.}
+#' \item{geometry}{a list column with geometry data; CRS = EPSG:4326}
+#' }
+#' 
+#' @author Josh M. London
+#' @references Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
+#' Continuous-time random walk model for animal telemetry data. Ecology
+#' 89:1208-1215.
+#' @source Marine Mammal Laboratory, Alaska
+#' Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
+#' Point Way NE Seattle, WA 98115
+#' @keywords data sets
 NULL
 
 #' Bearded Seal Location Data
@@ -138,7 +166,11 @@ NULL
   packageStartupMessage(
     paste(paste(package, version, paste("(",date, ")", sep=""), "\n"), 
           "Demos and documentation can be found at our new GitHub repository:\n",
-          "https://dsjohnson.github.io/crawl_examples/")
+          "https://dsjohnson.github.io/crawl_examples/\n",
+          "\n",
+          "WARNING!!! v. 2.3.0 will be the last version of {crawl} hosted on CRAN.\n",
+          "Go to 'https://dsjohnson.r-universe.dev/ui#package:crawl' for any future bug fixes."
+          )
   )
 }
 
@@ -149,3 +181,9 @@ NULL
 #   return(invisible())
 # }
 
+#' @title fix_path function id depreciated. 
+#' @param ... Any arguments are ignored.
+#' @export
+fix_path <- function(...){
+  stop("The 'fix_path()' function has been removed from {crawl}. Please use the {pathroutr} package instead: 'https://github.com/jmlondon/pathroutr'")
+}

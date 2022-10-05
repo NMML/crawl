@@ -3,8 +3,9 @@
 \docType{data}
 \name{harborSeal}
 \alias{harborSeal}
-\title{Harbor seal relocation data set used in Johnson et al. (2008)}
-\format{A data frame with 7059 observations on the following 5 variables.
+\title{Harbor seal location data set used in Johnson et al. (2008)}
+\format{
+A data frame with 7059 observations on the following 5 variables.
 
 \describe{ \item{Time}{a numeric vector.}
 
@@ -15,14 +16,15 @@
 \item{DryTime}{a numeric vector.}
 
 \item{Argos_loc_class}{a factor with levels \code{0} \code{1}
-\code{2} \code{3} \code{A} \code{B}}.}}
+\code{2} \code{3} \code{A} \code{B}}.}
+}
 \source{
 Marine Mammal Laboratory, Alaska
 Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand
 Point Way NE Seattle, WA 98115
 }
 \description{
-Harbor seal relocation data set used in Johnson et al. (2008)
+Harbor seal location data set used in Johnson et al. (2008)
 }
 \references{
 Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)

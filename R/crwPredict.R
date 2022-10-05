@@ -24,7 +24,19 @@
 #' @details 
 #' \itemize{
 #' \item("predTime"){
-#' \code{predTime} can be either passed as a separate vector of POSIXct or numeric values for all prediction times expected in the returned object. Note, previous versions of \code{crwPredict} would return both times specified via \code{predTime} as well as each original observed time. This is no longer the default (see \item{return.type}). If the original data were provided as a POSIXct type, then \code{crwPredict} can derive a sequence of regularly spaced prediction times from the original data. This is specified by providing a character string that corresponds to the \code{by} argument of the \code{seq.POSIXt} function (e.g. '1 hour', '30 mins'). \code{crwPredict} will round the first observed time up to the nearest unit (e.g. '1 hour' will round up to the nearest hour, '30 mins' will round up to the nearest minute) and start the sequence from there. The last observation time is truncated down to the nearest unit to specify the end time.
+#' \code{predTime} can be either passed as a separate vector of POSIXct or 
+#' numeric values for all prediction times expected in the returned object. 
+#' Note, previous versions of \code{crwPredict} would return both times 
+#' specified via \code{predTime} as well as each original observed time. This is
+#'  no longer the default (see \item{return.type}). If the original data were 
+#'  provided as a POSIXct type, then \code{crwPredict} can derive a sequence of 
+#'  regularly spaced prediction times from the original data. This is specified 
+#'  by providing a character string that corresponds to the \code{by} argument 
+#'  of the \code{seq.POSIXt} function (e.g. '1 hour', '30 mins'). 
+#'  \code{crwPredict} will round the first observed time up to the nearest unit 
+#'  (e.g. '1 hour' will round up to the nearest hour, '30 mins' will round up to 
+#'  the nearest minute) and start the sequence from there. The last observation 
+#'  time is truncated down to the nearest unit to specify the end time.
 #' }
 #' }
 #' 
@@ -57,7 +69,8 @@
 
 crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
 {
-  data <- object.crwFit$data
+  if(inherits(object.crwFit, "error")) stop("Model was not fit correctly, please revisit fitting stage!")
+  data <- as.data.frame(object.crwFit$data)
   tn <- object.crwFit$Time.name
   driftMod <- object.crwFit$random.drift
   mov.mf <- object.crwFit$mov.mf
@@ -103,7 +116,7 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     if(inherits(predTime,"character")) {
       if(!inherits(data[,tn],"POSIXct")) stop("Character specification of predTime can only be used with POSIX times in the original data!")
       t_int <- unlist(strsplit(predTime, " "))
-      if(t_int[2] %in% c("min","mins","hour","hours","day","days")) {
+      if(t_int[2] %in% c("sec","secs","min","mins","hour","hours","day","days")) {
         min_dt <- min(data[,tn],na.rm=TRUE)
         max_dt <- max(data[,tn],na.rm=TRUE)
         min_dt <- lubridate::ceiling_date(min_dt,t_int[2])
@@ -140,8 +153,11 @@ crwPredict=function(object.crwFit, predTime=NULL, return.type="minimal", ...)
     if (!is.null(err.mfX)) err.mfX <- as.matrix(expandPred(x=err.mfX, Time=origTime, predTime=predTime))
     if (!is.null(err.mfY)) err.mfY <- as.matrix(expandPred(x=err.mfY, Time=origTime, predTime=predTime))
     if (!is.null(rho)) rho <- as.matrix(expandPred(x=rho, Time=origTime, predTime=predTime))
+    data$locType[data$TimeNum%in%predTime] <- 'p'
+  } else{
+    data$locType <- "o"
   }
-  data$locType[data$TimeNum%in%predTime] <- 'p'
+
   delta <- c(diff(data$TimeNum), 1)
   y = as.matrix(data[,object.crwFit$coord])
   noObs <- as.numeric(is.na(y[,1]) | is.na(y[,2]))

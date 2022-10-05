@@ -4,18 +4,19 @@
 \alias{crw_as_sf}
 \alias{crw_as_sf.crwIS}
 \alias{crw_as_sf.crwPredict}
+\alias{crw_as_sf.list}
 \title{Coerce to sf/sfc object}
 \usage{
-crw_as_sf(crw_object, ftype, locType, group)
+crw_as_sf(data, ftype, locType, group)
 
-\method{crw_as_sf}{crwIS}(crw_object, ftype, locType = c("p", "o"),
-  group = NULL, ...)
+\method{crw_as_sf}{crwIS}(data, ftype, locType = c("p", "o", "f"), group = NULL, ...)
 
-\method{crw_as_sf}{crwPredict}(crw_object, ftype, locType = c("p", "o"),
-  group = NULL, ...)
+\method{crw_as_sf}{crwPredict}(data, ftype, locType = c("p", "o", "f"), group = NULL, ...)
+
+\method{crw_as_sf}{list}(data, ftype, locType = c("p", "o", "f"), ...)
 }
 \arguments{
-\item{crw_object}{an object of class \code{"crwIS"} or \code{"crwPredict"}}
+\item{data}{an object of class \code{"crwIS"} or \code{"crwPredict"}}
 
 \item{ftype}{character of either "POINT" or "LINESTRING" specifying the feature type}
 
@@ -36,10 +37,13 @@ used and a tibble of multiple \code{"sf_LINESTRING"} objects will be returned
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{crwIS}: coerce crwIS object to sf (POINT or 
+\item \code{crw_as_sf(crwIS)}: coerce crwIS object to sf (POINT or 
 LINESTRING geometry)
 
-\item \code{crwPredict}: coerce crwPredict object to sf (POINT or 
+\item \code{crw_as_sf(crwPredict)}: coerce crwPredict object to sf (POINT or 
 LINESTRING geometry)
+
+\item \code{crw_as_sf(list)}: coerce list of crwIS objects to sf (LINESTRING or 
+MULTILINESTRING geometry)
+
 }}
-

@@ -1,29 +1,16 @@
-#' Generic methods for crwIS and crwPredict classes
-#' 
-#' @param drop_obs boolean whether to drop the "o" locType records
+#' Generic subset/bracket method for crwIS classes
+#' @param x crwIS object
+#' @param i elements to extract or replace. These are numeric or character or, 
+#' empty or logical. Numeric values are coerced to integer as if by \code{as.integer}
 #' @param ... other arguments
+#' @param drop logical. If TRUE the result is coerced to the lowest possible 
+#' dimension. 
 #' @export
 
-# "[.crwIS" <- function(x, i, j, drop_obs = FALSE, ... , drop = TRUE)
-#           {
-#             alpha.sim <- x$alpha.sim
-#             locType <- x$locType
-#             Time <- x$Time
-#             
-#             if (drop_obs) {
-#               p_idx <- locType == "p"
-#               alpha.sim <- alpha.sim[p_idx, ]
-#               locType <- locType[p_idx]
-#               Time <- Time[p_idx]
-#             }
-#             
-#             alpha.sim <- alpha.sim[i, ]
-#             locType <- locType[i]
-#             Time <- Time[i]
-#             
-#             x$alpha.sim <- alpha.sim
-#             x$locType <- locType
-#             x$Time <- Time
-#             
-#             return(x)
-#           }
+"[.crwIS" <- function(x, i, ..., drop = TRUE) {
+  x$alpha.sim <- x$alpha.sim[i,drop=drop]
+  x$locType <- x$locType[i,drop=drop]
+  x$TimeNum <- x$TimeNum[i,drop=drop]
+  x[[attr(x, "Time.name")]] <- x[[attr(x, "Time.name")]][i,drop=drop]
+  return(x)
+}

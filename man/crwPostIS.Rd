@@ -4,8 +4,7 @@
 \alias{crwPostIS}
 \title{Simulate a value from the posterior distribution of a CTCRW model}
 \usage{
-crwPostIS(object.sim, fullPost = TRUE, df = Inf, scale = 1,
-  thetaSamp = NULL)
+crwPostIS(object.sim, fullPost = TRUE, df = Inf, scale = 1, thetaSamp = NULL)
 }
 \arguments{
 \item{object.sim}{A crwSimulator object from \code{\link{crwSimulator}}.}

@@ -4,9 +4,25 @@
 \alias{crwN2ll}
 \title{-2 * log-likelihood for CTCRW models}
 \usage{
-crwN2ll(theta, fixPar, y, noObs, delta, mov.mf, err.mfX, err.mfY, rho = NULL,
-  activity = NULL, n.errX, n.errY, n.mov, driftMod, prior, need.hess,
-  constr = list(lower = -Inf, upper = Inf))
+crwN2ll(
+  theta,
+  fixPar,
+  y,
+  noObs,
+  delta,
+  mov.mf,
+  err.mfX,
+  err.mfY,
+  rho = NULL,
+  activity = NULL,
+  n.errX,
+  n.errY,
+  n.mov,
+  driftMod,
+  prior,
+  need.hess,
+  constr = list(lower = -Inf, upper = Inf)
+)
 }
 \arguments{
 \item{theta}{parameter values.}

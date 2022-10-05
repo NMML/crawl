@@ -28,8 +28,9 @@
 #' (difference in log-likelihood)
 #' @param scale Scale multiplier for the covariance matrix of the t
 #' approximation
-#' @param quad.ask Logical, for method='quadrature'. Whether or not the sampler should ask if quadrature sampling should take place.
-#' It is used to stop the sampling if the number of likelihood evaluations would be extreme.
+#' @param quad.ask Logical, for method='quadrature'. Whether or not the sampler 
+#' should ask if quadrature sampling should take place. It is used to stop the 
+#' sampling if the number of likelihood evaluations would be extreme.
 #' @param force.quad A logical indicating whether or not to force the execution 
 #' of the quadrature method for large parameter vectors.
 #' @return

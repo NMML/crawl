@@ -4,7 +4,8 @@
 \name{beardedSeals}
 \alias{beardedSeals}
 \title{Bearded Seal Location Data}
-\format{A data frame with 27,548 observations on 3 bearded seals in Alaska:
+\format{
+A data frame with 27,548 observations on 3 bearded seals in Alaska:
 
 \describe{
 \item{deployid}{Unique animal ID}
@@ -19,7 +20,8 @@
 \item{error_semimajor_axis}{Argos error ellipse major axis length}
 \item{error_semiminor_axis}{Argos error ellipse minor axis length}
 \item{error_ellipse_orientation}{Argos error ellispse degree orientation}
-}}
+}
+}
 \source{
 Marine Mammal Laboratory, Alaska
 Fisheries Science Center, National Marine Fisheries Service, NOAA 7600 Sand

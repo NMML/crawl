@@ -1,47 +1,38 @@
 Package: crawl
 Type: Package
 Title: Fit Continuous-Time Correlated Random Walk Models to Animal Movement Data
-Version: 2.2.2
-Date: 2018-09-17
-Authors@R: c( person("Devin S.", "Johnson", email = "devin.johnson@noaa.gov",
-                  role = c("aut", "cre")),
-           person("Josh", "London", email = "josh.london@noaa.gov",
+Version: 2.3.0
+Date: 2022-10-05
+Authors@R: c(person("Josh", "London", email = "josh.london@noaa.gov",
                   role = c("aut")),
+                  person("Devin S.", "Johnson", email = "devin.johnson@noaa.gov",
+                  role = c("aut", "cre")),
            person("Kenady", "Wilson", email = "kenady@wildlifecomputers.com",
                   role = c("ctb")) )
 Depends:
-    R (>= 2.10)
+    R (>= 3.4.0)
 Imports: 
     mvtnorm,
     Rcpp (>= 0.11.1),
     methods,
-    shiny,
     dplyr,
-    raster,
-    gdistance,
-    rmapshaper,
-    sp,
     sf,
+    sp,
+    tibble,
     magrittr,
     lubridate,
-    tibble,
-    purrr
+    purrr, 
+    rlang
 LinkingTo: 
     Rcpp,
     RcppArmadillo
-Suggests:
-    ggplot2,
-    rgdal,
-    argosfilter,
-    tidyr,
-    xts,
-    broom,
-    doParallel
 Description: Fit continuous-time correlated random walk models with time indexed
     covariates to animal telemetry data. The model is fit using the Kalman-filter on
     a state space version of the continuous-time stochastic movement process.
 License: CC0
+Encoding: UTF-8
 LazyLoad: yes
 ByteCompile: TRUE
 NeedsCompilation: yes
-RoxygenNote: 6.0.1
+RoxygenNote: 7.2.1
+LazyData: true

@@ -52,7 +52,19 @@ in \code{\link{crwMLE}}.
 
 \itemize{
 \item("predTime"){
-\code{predTime} can be either passed as a separate vector of POSIXct or numeric values for all prediction times expected in the returned object. Note, previous versions of \code{crwPredict} would return both times specified via \code{predTime} as well as each original observed time. This is no longer the default (see \item{return.type}). If the original data were provided as a POSIXct type, then \code{crwPredict} can derive a sequence of regularly spaced prediction times from the original data. This is specified by providing a character string that corresponds to the \code{by} argument of the \code{seq.POSIXt} function (e.g. '1 hour', '30 mins'). \code{crwPredict} will round the first observed time up to the nearest unit (e.g. '1 hour' will round up to the nearest hour, '30 mins' will round up to the nearest minute) and start the sequence from there. The last observation time is truncated down to the nearest unit to specify the end time.
+\code{predTime} can be either passed as a separate vector of POSIXct or 
+numeric values for all prediction times expected in the returned object. 
+Note, previous versions of \code{crwPredict} would return both times 
+specified via \code{predTime} as well as each original observed time. This is
+ no longer the default (see \item{return.type}). If the original data were 
+ provided as a POSIXct type, then \code{crwPredict} can derive a sequence of 
+ regularly spaced prediction times from the original data. This is specified 
+ by providing a character string that corresponds to the \code{by} argument 
+ of the \code{seq.POSIXt} function (e.g. '1 hour', '30 mins'). 
+ \code{crwPredict} will round the first observed time up to the nearest unit 
+ (e.g. '1 hour' will round up to the nearest hour, '30 mins' will round up to 
+ the nearest minute) and start the sequence from there. The last observation 
+ time is truncated down to the nearest unit to specify the end time.
 }
 }
 }
