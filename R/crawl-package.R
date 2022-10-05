@@ -169,7 +169,7 @@ NULL
           "https://dsjohnson.github.io/crawl_examples/\n",
           "\n",
           "WARNING!!! v. 2.3.0 will be the last version of {crawl} hosted on CRAN.\n",
-          "Go to https://dsjohnson.r-universe.dev/ui#package:crawl for any future bug fixes."
+          "Go to 'https://dsjohnson.r-universe.dev/ui#package:crawl' for any future bug fixes."
           )
   )
 }
@@ -181,7 +181,7 @@ NULL
 #   return(invisible())
 # }
 
-#' @title fix_path function id depriciated. 
+#' @title fix_path function id depreciated. 
 #' @param ... Any arguments are ignored.
 #' @export
 fix_path <- function(...){
