@@ -6,11 +6,11 @@
 \alias{crawl}
 \title{Fit Continuous-Time Correlated Random Walk Models to Animal Movement Data}
 \description{
-The Correlated RAndom Walk Library (I know it is not an R library,
+The [C]orrelated [RA]ndom [W]alk [L]ibrary (I know it is not an R library,
 but, "crawp" did not sound as good) of R functions was designed for fitting
 continuous-time correlated random walk (CTCRW) models with time indexed
 covariates. The model is fit using the Kalman-Filter on a state space
-version of the continuous-time staochistic movement process.
+version of the continuous-time stochastic movement process.
 
 \tabular{ll}{ 
 Package: \tab crawl\cr 

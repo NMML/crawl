@@ -2,7 +2,7 @@
 % Please edit documentation in R/crawl-package.R
 \name{fix_path}
 \alias{fix_path}
-\title{fix_path function id depriciated.}
+\title{fix_path function id depreciated.}
 \usage{
 fix_path(...)
 }
@@ -10,5 +10,5 @@ fix_path(...)
 \item{...}{Any arguments are ignored.}
 }
 \description{
-fix_path function id depriciated.
+fix_path function id depreciated.
 }

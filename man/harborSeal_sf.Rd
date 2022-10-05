@@ -35,4 +35,5 @@ Continuous-time random walk model for animal telemetry data. Ecology
 \author{
 Josh M. London
 }
-\keyword{datasets}
+\keyword{data}
+\keyword{sets}
