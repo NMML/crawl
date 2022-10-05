@@ -25,13 +25,13 @@ Coerce crawl objects (crwIS and crwPredict) to tibbles
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{crwIS}: coerce crwIS object to tibble
+\item \code{crw_as_tibble(crwIS)}: coerce crwIS object to tibble
 
-\item \code{crwPredict}: coerce crwPredict object to tibble
+\item \code{crw_as_tibble(crwPredict)}: coerce crwPredict object to tibble
 
-\item \code{tbl}: 
+\item \code{crw_as_tibble(tbl)}: 
+
 }}
-
 \author{
 Josh M. London
 }

@@ -37,13 +37,13 @@ used and a tibble of multiple \code{"sf_LINESTRING"} objects will be returned
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{crwIS}: coerce crwIS object to sf (POINT or 
+\item \code{crw_as_sf(crwIS)}: coerce crwIS object to sf (POINT or 
 LINESTRING geometry)
 
-\item \code{crwPredict}: coerce crwPredict object to sf (POINT or 
+\item \code{crw_as_sf(crwPredict)}: coerce crwPredict object to sf (POINT or 
 LINESTRING geometry)
 
-\item \code{list}: coerce list of crwIS objects to sf (LINESTRING or 
+\item \code{crw_as_sf(list)}: coerce list of crwIS objects to sf (LINESTRING or 
 MULTILINESTRING geometry)
-}}
 
+}}
