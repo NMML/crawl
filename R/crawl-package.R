@@ -166,7 +166,11 @@ NULL
   packageStartupMessage(
     paste(paste(package, version, paste("(",date, ")", sep=""), "\n"), 
           "Demos and documentation can be found at our new GitHub repository:\n",
-          "https://dsjohnson.github.io/crawl_examples/")
+          "https://dsjohnson.github.io/crawl_examples/\n",
+          "\n",
+          "WARNING!!! v. 2.3.0 will be the last version of {crawl} hosted on CRAN.\n",
+          "Go to https://dsjohnson.r-universe.dev/ui#package:crawl for any future bug fixes."
+          )
   )
 }
 
