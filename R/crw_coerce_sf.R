@@ -3,7 +3,7 @@
 #' Provides reliable conversion of \code{"crwIS"} and \code{"crwPredict"} objects
 #' into simple features objects supported in the \code{"sf"} package. Both 
 #' \code{"sf"} objects with "POINT" geometry and \code{"sfc_LINESTRING"} objects
-#' are created. Coersion of \code{"crwPredict"} objects to \code{"sfc_LINESTRING"}
+#' are created. Coercion of \code{"crwPredict"} objects to \code{"sfc_LINESTRING"}
 #' has an option \code{"group"} argument when the \code{"crwPredict"} object
 #' includes predictions from multiple deployments. The grouping column will be 
 #' used and a tibble of multiple \code{"sf_LINESTRING"} objects will be returned
@@ -11,7 +11,7 @@
 #' @param data an object of class \code{"crwIS"} or \code{"crwPredict"}
 #' @param ftype character of either "POINT" or "LINESTRING" specifying the feature type
 #' @param locType character vector of location points to include ("p","o")
-#' @param group (optional) character specifying the column to group by for mulitple LINESTRING features
+#' @param group (optional) character specifying the column to group by for multiple LINESTRING features
 #' @param ... Additional arguments that are ignored
 #' @export
 

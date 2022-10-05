@@ -1,6 +1,6 @@
 #'Display the order of parameters along with fixed values and starting values
 #'
-#'This function takes the model spesification arguments to the \code{\link{crwMLE}} function and displays a table
+#'This function takes the model specification arguments to the \code{\link{crwMLE}} function and displays a table
 #'with the parameter names in the order that \code{crwMLE} will use during model fitting. This is useful for specifying 
 #'values for the \code{fixPar} or \code{theta} (starting values for free parameters) arguments. 
 #'
@@ -12,7 +12,7 @@
 #'portion of the model.
 #'@param drift logical indicating whether or not to include a random
 #'drift component.
-#'@param data data.frame object containg telemetry and covariate data. A
+#'@param data data.frame object containing telemetry and covariate data. A
 #'\code{SpatialPointsDataFrame} object from the package 'sp' will also be accepted.
 #'@param Time.name character indicating name of the location time column
 #'@param theta starting values for parameter optimization.

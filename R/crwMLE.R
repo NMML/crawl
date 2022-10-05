@@ -26,7 +26,7 @@ crwMLE <- function(data, ...) {
 
 #' @rdname crwMLE
 #' @method crwMLE default
-#' @param data a dataset of location observations as a data.frame, tibble,
+#' @param data a data set of location observations as a data.frame, tibble,
 #' SpatialPointsDataFrame ('sp' package), or a data.frame of class 'sf' that
 #' contains a geometry column of type \code{sfc_POINT}
 #' @param mov.model formula object specifying the time indexed covariates for
@@ -72,7 +72,7 @@ crwMLE <- function(data, ...) {
 #' \item{par}{Parameter maximum likelihood estimates (including fixed parameters)}
 #' \item{estPar}{MLE without fixed parameters}
 #' \item{se}{Standard error of MLE}
-#' \item{ci}{95\% confidance intervals for parameters}
+#' \item{ci}{95\% confidence intervals for parameters}
 #' \item{Cmat}{Parameter covariance matrix}
 #' \item{loglik}{Maximized log-likelihood value}
 #' \item{aic}{Model AIC value}
@@ -132,17 +132,17 @@ crwMLE <- function(data, ...) {
 #' activity covariate must be between 0 and 1 inclusive, with 0 representing complete stop
 #' of the animal (no true movement, however, location error can still occur) and 1 
 #' represent unhindered movement. The coordinate location should have \code{NA} where no
-#' location is recorded, but there is a change in the movment covariates.
+#' location is recorded, but there is a change in the movement covariates.
 #' 
 #' \item The CTCRW models can be difficult to provide good initial values for
 #' optimization. If \code{initialSANN} is specified then simulated annealing is
-#' used first to obtain starting values for the specified optimaization method.
+#' used first to obtain starting values for the specified optimization method.
 #' If simulated annealing is used first, then the returned \code{init} list of
 #' the crwFit object will be a list with the results of the simulated annealing
 #' optimization.
 #' 
 #' \item The \code{attempts} argument instructs \code{crwMLE} to attempt a fit
-#' multiple times. Each time, the fit is inspected for convergance, whether
+#' multiple times. Each time, the fit is inspected for convergence, whether
 #' the covariance matrix could be calculated, negative values in the diag 
 #' of the covariance matrix, or NA values in the standard errors. If, after
 #' n attempts, the fit is still not valid a \code{simpleError} object is
