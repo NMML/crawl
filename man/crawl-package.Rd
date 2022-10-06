@@ -16,7 +16,7 @@ version of the continuous-time stochastic movement process.
 Package: \tab crawl\cr 
 Type: \tab Package\cr 
 Version: \tab 2.3.0\cr 
-Date: \tab October 5, 2022\cr 
+Date: \tab October 6, 2022\cr 
 License: \tab CC0 \cr 
 LazyLoad: \tab yes\cr 
 }
