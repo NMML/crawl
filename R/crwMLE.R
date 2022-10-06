@@ -199,7 +199,7 @@ crwMLE.default <- function(
     p4 <- proj
   }
   
-  if(p4$IsGeographic) {
+  if(!is.null(p4) && p4$IsGeographic) {
     stop(
       "Provided projection is geographic (e.g. longlat). Coordinates must be in
       a non-geographic, projected coordinate reference system."
