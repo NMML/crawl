@@ -9,3 +9,4 @@
 ^README-.*\.png$
 [.]so$
 [.]o$
+^CRAN-SUBMISSION$
