@@ -10,6 +10,19 @@ stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecy
 
 ## Correlated RAndom Walk Library of R functions
 
+``` r
+library(lattice)
+counts <- c(18,17,15,20,10,20,25,13,12)
+outcome <- gl(3,1,9)
+treatment <- gl(3,3)
+bwplot <- bwplot(counts ~ outcome | treatment, xlab=NULL, ylab=NULL, cex=.5,
+                 scales=list(cex=.5), par.strip.text=list(cex=.5))
+sticker(bwplot, package="hexSticker", p_size=20, s_x=1.05, s_y=.8, s_width=2, s_height=1.5,
+        h_fill="#f9690e", h_color="#f39c12", filename="inst/figures/lattice.png")
+```
+
+<img src="hex_sticker/crawl.png" height="300"/>
+
 The \[C\]orrelated \[RA\]ndom \[W\]alk \[L\]ibrary of R functions was
 designed for fitting continuous-time correlated random walk (CTCRW)
 models with time indexed covariates. The model is fit using the
