@@ -11,7 +11,7 @@ stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecy
 ## Correlated RAndom Walk Library of R functions
 
 <p float="left">
-<img src="hex_sticker/crawl.png" height="200"/>
+<img src="hex_sticker/crawl.png" height="200"/>    
 <img src="hex_sticker/noaa.png" height="200"/>
 </p>
 
