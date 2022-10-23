@@ -17,7 +17,7 @@
 argosDiag2Cov = function(Major, Minor, Orientation){
   a=Major
   b=Minor
-  if(any(b<=.Machine$double.eps)) stop("There are very small (or 0) values for the minor ellipse lengths! These may need to be removed.")
+  if(any(b<=.Machine$double.eps,na.rm=TRUE)) stop("There are very small (or 0) values for the minor ellipse lengths! These may need to be removed.")
   theta=Orientation
   if(any(theta < 0 | theta > 180, na.rm = TRUE)) stop("Argos diagnostic data orientation outside of [0,180]!")
   if(any(a < 0, na.rm = TRUE)) stop("Argos diagnostic data major axis < 0!")
