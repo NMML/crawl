@@ -36,5 +36,5 @@ Encoding: UTF-8
 LazyLoad: yes
 ByteCompile: TRUE
 NeedsCompilation: yes
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 LazyData: true
