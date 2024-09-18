@@ -35,6 +35,14 @@ Johnson, D., J. London, M. -A. Lea, and J. Durban (2008)
 Continuous-time correlated random walk model for animal telemetry data.
 Ecology 89(5) 1208-1215.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/NMML/crawl}
+  \item Report bugs at \url{https://github.com/NMML/crawl/issues}
+}
+
+}
 \author{
 Josh London and Devin S. Johnson 
 

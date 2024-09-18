@@ -29,9 +29,9 @@ The original code base and concepts for `{crawl}` were developed almost
 statistics, R, bio-logging, and many other fields. In some cases, we’ve
 done a fairly good job keeping pace; in other cases, we’ve fallen
 behind. We feel it is time for a new approach and will, from now on, be
-focusing our development efforts on `{crawl2}`. We will continue to
-maintain `{crawl}`, improve the documentation, and ensure compatibility
-with dependent packages.
+focusing our development efforts on other packages and methods. We will
+continue to maintain `{crawl}`, improve the documentation, and ensure
+compatibility with dependent packages.
 
 ## Installation
 
