@@ -10,6 +10,11 @@ stable](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecy
 
 ## Correlated RAndom Walk Library of R functions
 
+<p float="left">
+<img src="hex_sticker/crawl.png" height="200"/>    
+<img src="hex_sticker/noaa.png" height="200"/>
+</p>
+
 The \[C\]orrelated \[RA\]ndom \[W\]alk \[L\]ibrary of R functions was
 designed for fitting continuous-time correlated random walk (CTCRW)
 models with time indexed covariates. The model is fit using the
