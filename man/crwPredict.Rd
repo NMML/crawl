@@ -49,14 +49,11 @@ detection.
 The requirements for \code{data} are the same as those for fitting the model
 in \code{\link{crwMLE}}.
 
-
-\itemize{
-\item("predTime"){
 \code{predTime} can be either passed as a separate vector of POSIXct or 
 numeric values for all prediction times expected in the returned object. 
 Note, previous versions of \code{crwPredict} would return both times 
 specified via \code{predTime} as well as each original observed time. This is
- no longer the default (see \item{return.type}). If the original data were 
+ no longer the default (see \code{return.type}). If the original data were 
  provided as a POSIXct type, then \code{crwPredict} can derive a sequence of 
  regularly spaced prediction times from the original data. This is specified 
  by providing a character string that corresponds to the \code{by} argument 
@@ -65,8 +62,6 @@ specified via \code{predTime} as well as each original observed time. This is
  (e.g. '1 hour' will round up to the nearest hour, '30 mins' will round up to 
  the nearest minute) and start the sequence from there. The last observation 
  time is truncated down to the nearest unit to specify the end time.
-}
-}
 }
 \references{
 de Jong, P. and Penzer, J. (1998) Diagnosing shocks in time

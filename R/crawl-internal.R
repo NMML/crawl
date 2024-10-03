@@ -82,3 +82,17 @@ sfc_as_cols <- function(x, geometry, names = c("x","y")) {
   ret <- setNames(ret,names)
   dplyr::bind_cols(x,ret)
 }
+
+# conf_elps <- function(x, y, V, prob=0.95){
+#   require(sf, quietly = TRUE)
+#   v <- eigen(V)$vectors
+#   lambda <- eigen(V)$values
+#   t <- seq(0,2*pi, length=50)
+#   m <- qchisq(prob,2)
+#   x_l <- x + sqrt(m*lambda[1])*v[1,1]*cos(t) + sqrt(m*lambda[2])*v[1,2]*sin(t)
+#   y_l <- y + sqrt(m*lambda[1])*v[2,1]*cos(t) + sqrt(m*lambda[2])*v[2,2]*sin(t)
+#   ell <- cbind(x=x_l, y=y_l)
+#   ell <- st_linestring(ell) |> st_cast("POLYGON") 
+#   return(st_sfc(list(ell)))
+# }
+

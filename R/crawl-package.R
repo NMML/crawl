@@ -10,7 +10,7 @@
 #' Package: \tab crawl\cr 
 #' Type: \tab Package\cr 
 #' Version: \tab 2.3.1\cr 
-#' Date: \tab October 2, 2024\cr 
+#' Date: \tab October 3, 2024\cr 
 #' License: \tab CC0 \cr 
 #' LazyLoad: \tab yes\cr 
 #' }
@@ -25,7 +25,6 @@
 #'  
 #' @name crawl-package
 #' @aliases crawl-package crawl
-#' @docType package
 #' @author Josh London and Devin S. Johnson 
 #' 
 #' Maintainer: Devin S. Johnson <devin.johnson@@noaa.gov>
@@ -40,8 +39,8 @@
 #'             na.pass optim pchisq pexp pnorm qnorm 
 #'             rchisq runif sd setNames median rnorm
 #' @useDynLib crawl, .registration = TRUE
+"_PACKAGE"
 
-NULL
 
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
