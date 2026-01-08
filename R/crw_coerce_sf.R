@@ -120,7 +120,7 @@ crw_as_sf.list <- function(data,ftype,
   if (ftype == "MULTILINESTRING") {
     make_mls <- function(ll) {
       do.call(rbind,ll) %>% 
-        dplyr::group_by(id) %>% 
+        dplyr::group_by(.data$id) %>% 
         dplyr::summarise(do_union = FALSE)
     }
     sf_list <- data %>% purrr::map(make_mls)

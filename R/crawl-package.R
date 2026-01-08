@@ -167,8 +167,8 @@ NULL
           "Demos and documentation can be found at our new GitHub repository:\n",
           "https://dsjohnson.github.io/crawl_examples/\n",
           "\n",
-          "WARNING!!! v. 2.3.0 will be the last version of {crawl} hosted on CRAN.\n",
-          "see 'https://github.com/NMML/crawl' for any future bug fixes."
+          "WARNING!!! v. 2.3.x will be the last version of {crawl} hosted on CRAN.\n",
+          "see 'https://github.com/NMML/crawl' for any future update beyond bug fixes."
           )
   )
 }
