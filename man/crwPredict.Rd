@@ -17,7 +17,7 @@ crwPredict(object.crwFit, predTime = NULL, return.type = "minimal", ...)
 \item{...}{Additional arguments for testing new features}
 }
 \value{
-There are three possible return types specified with \code{return.type}:
+There are three possible return types specified with `return.type`:
 
 \item{minimal}{a data.frame with a minimal set of columns: 
 \code{date_time,mu.x,mu.y,se.mu.x,se.mu.y}}
@@ -28,8 +28,8 @@ and speed estimates}
 
 \item{list}{List with the following elements:}
 
-\item{originalData}{A data.frame with \code{data} merged with
-\code{predTime}.}
+\item{originalData}{A data.frame with `data` merged with
+`predTime`.}
 
 \item{alpha.hat}{Predicted state}
 

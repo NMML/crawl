@@ -1,11 +1,9 @@
 citHeader("To cite crawl in publications:")
 
-citEntry(entry = "article",
+bibentry(
+  bibtype      = "article",
   title        = "Continuous-time correlated random walk model for animal telemetry data",
-  author       = personList(as.person("Devin S. Johnson"),
-                   as.person("Josh M. London"),
-                   as.person("Mary-Anne Lea"),
-                   as.person("John W. Durban")),
+  author       = "D.S. Johnson and J.M. London and M.-A. Lea and J.W. Durban",
   journal      = "Ecology",
   year         = "2008",
   volume       = "89",
@@ -17,18 +15,3 @@ citEntry(entry = "article",
   "Continuous-time correlated random walk model for animal telemetry data.",
   "Ecology, 89: 1208-1215.")
 )
-
-citEntry(entry = "misc",
-  title        = "crawl: an R package for fitting continuous-time correlated 
-                  random walk models to animal movement data",
-  author       = personList(as.person("Devin S. Johnson"),
-                  as.person("Josh M. London")),
-  year         = "2018",
-  doi          = "10.5281/zenodo.596464",
-  url          = "https://doi.org/10.5281/zenodo.596464",
-  textVersion  =
-  paste("Devin S. Johnson and Josh M. London (2018).",
-  "crawl: an R package for fitting continuous-time correlated 
-                  random walk models to animal movement data.",
-  "Zenodo. https://doi.org/10.5281/zenodo.596464")
-  )
